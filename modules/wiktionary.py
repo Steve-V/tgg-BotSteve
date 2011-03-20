@@ -87,8 +87,8 @@ def w(phenny, input):
    if len(result) > 300: 
       result = result[:295] + '[...]'
    phenny.say(result)
-w.commands = ['w']
-w.example = '.w bailiwick'
+w.commands = ['define']
+w.example = '.define bailiwick'
 
 if __name__ == '__main__': 
    print __doc__.strip()

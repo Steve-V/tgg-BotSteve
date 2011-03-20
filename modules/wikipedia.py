@@ -158,7 +158,7 @@ def wik(phenny, input):
       phenny.say(result)
    else: phenny.say('Can\'t find anything in Wikipedia for "%s".' % origterm)
 
-wik.commands = ['wik']
+wik.commands = ['wik', 'wiki', 'w']
 wik.priority = 'high'
 
 if __name__ == '__main__': 

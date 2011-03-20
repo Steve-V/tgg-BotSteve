@@ -56,7 +56,7 @@ def me(phenny, input):
    if input.admin: 
       msg = '\x01ACTION %s\x01' % input.group(3)
       phenny.msg(input.group(2), msg)
-me.rule = (['me'], r'(#?\S+) (.*)')
+me.rule = (['me', 'ME', 'Me', 'mE'], r'(#?\S+) (.*)')
 me.priority = 'low'
 
 if __name__ == '__main__': 
