@@ -142,7 +142,7 @@ def wikipedia(term, last=False):
 def wik(phenny, input): 
    origterm = input.groups()[1]
    if not origterm: 
-      return phenny.say('Perhaps you meant ".wik Zen"?')
+      return phenny.say('http://en.wikipedia.org/wiki/Nothing')
    origterm = origterm.encode('utf-8')
 
    term = urllib.unquote(origterm)
