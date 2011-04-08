@@ -64,6 +64,23 @@ g.commands = ['g']
 g.priority = 'high'
 g.example = '.g swhack'
 
+def tvtropes(phenny, input):
+  """Queries TVTropes for the specified input."""
+  query = input.group(2)
+  if not query: 
+    return phenny.reply('Sorry, you need to enter a trope')
+  query2 = '+'.join([query,'site:tvtropes.org'])
+  uri = result(query2)
+  if uri: 
+    phenny.reply(uri)
+    if not hasattr(phenny.bot, 'last_seen_uri'):
+      phenny.bot.last_seen_uri = {}
+    phenny.bot.last_seen_uri[input.sender] = uri
+  else: phenny.reply("No results found for '%s'." % query)
+tvtropes.commands = ['trope']
+tvtropes.priority = 'high'
+tvtropes.example = '.trope CrowningMomentOfAwesome'
+
 def gc(phenny, input): 
    """Returns the number of Google results for the specified input."""
    query = input.group(2)
