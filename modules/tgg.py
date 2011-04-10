@@ -46,6 +46,11 @@ liveStream.commands = ['stream']
 liveStream.example = ['Not yet implemented']
 liveStream.priority = 'low'
 
+def logFile(phenny, input):
+  phenny.say("Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today")
+logFile.commands = ['history','log']
+logFile.example = ['View the history with:  .history']
+logFile.priority = 'low'
 
 def join_greeter(phenny, input):
   if (input.nick == "BatSteve"):
