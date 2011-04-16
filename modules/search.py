@@ -70,7 +70,7 @@ tvtropes.commands = ['trope']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
-def jewtubeSearch(phenny, input):
+def youtubeSearch(phenny, input):
   """Queries youtube for the specified input."""
   query = input.group(2)
   if not query: 
@@ -83,9 +83,9 @@ def jewtubeSearch(phenny, input):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
   else: phenny.reply("No results found for '%s'." % query)
-jewtubeSearch.commands = ['.jt']
-jewtubeSearch.priority = 'high'
-jewtubeSearch.example = '.jt Leeroy Jenkins'
+youtubeSearch.commands = ['.yt']
+youtubeSearch.priority = 'high'
+youtubeSearch.example = '.jt Leeroy Jenkins'
 
 def gc(phenny, input): 
    """Returns the number of Google results for the specified input."""
