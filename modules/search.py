@@ -49,7 +49,7 @@ def g(phenny, input):
          phenny.bot.last_seen_uri = {}
       phenny.bot.last_seen_uri[input.sender] = uri
    else: phenny.reply("No results found for '%s'." % query)
-g.commands = ['g']
+g.commands = ['g','google']
 g.priority = 'high'
 g.example = '.g swhack'
 
@@ -66,7 +66,7 @@ def tvtropes(phenny, input):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
   else: phenny.reply("No results found for '%s'." % query)
-tvtropes.commands = ['trope']
+tvtropes.commands = ['trope','tvtropes']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
@@ -83,9 +83,9 @@ def youtubeSearch(phenny, input):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
   else: phenny.reply("No results found for '%s'." % query)
-youtubeSearch.commands = ['yt']
+youtubeSearch.commands = ['yt','youtube']
 youtubeSearch.priority = 'high'
-youtubeSearch.example = '.jt Leeroy Jenkins'
+youtubeSearch.example = '.youtube Leeroy Jenkins'
 
 def gc(phenny, input): 
    """Returns the number of Google results for the specified input."""
