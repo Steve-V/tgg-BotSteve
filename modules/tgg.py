@@ -60,6 +60,14 @@ logFile.commands = ['history','log']
 logFile.example = ['View the history with:  .history']
 logFile.priority = 'low'
 
+def rollD20(phenny, input):
+  import random
+  diceResult = random.choice( range(1,21) )
+  phenny.say( str(diceResult) )
+rollD20.commands = ['d20']
+rollD20.example = ['.d20']
+rollD20.priority = 'low'
+
 def join_greeter(phenny, input):
   if (input.nick == "BatSteve"):
     phenny.say("Welcome back, boss")

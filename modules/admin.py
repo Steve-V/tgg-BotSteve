@@ -21,11 +21,13 @@ join.priority = 'low'
 join.example = '.join #example or .join #example key'
 
 def part(phenny, input): 
-   """Part the specified channel. This is an admin-only command."""
-   # Can only be done in privmsg by an admin
-   if input.sender.startswith('#'): return
-   if input.admin: 
-      phenny.write(['PART'], input.group(2))
+  """Part the specified channel. This is an admin-only command."""
+  # Can only be done in privmsg by an admin
+  if input.sender.startswith('#'): return
+  if input.admin:
+    phenny.write(['PART'], input.group(2))
+  else:
+      phenny.say("Nope!")
 part.commands = ['part']
 part.priority = 'low'
 part.example = '.part #example'
