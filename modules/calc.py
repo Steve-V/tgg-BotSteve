@@ -98,13 +98,19 @@ def py(phenny, input):
    else: phenny.reply('Sorry, no result.')
 py.commands = ['py']
 
-def wa(phenny, input): 
-   query = input.group(2).encode('utf-8')
-   uri = 'http://tumbolia.appspot.com/wa/'
-   answer = web.get(uri + web.urllib.quote(query))
-   if answer: 
+def wa(phenny, input):
+  query = input.group(2)
+  if not query:
+    return phenny.reply("Missing search term")
+  query = query.encode('utf-8')
+  uri = 'http://tumbolia.appspot.com/wa/'
+  answer = web.get(uri + web.urllib.quote(query))
+  if answer: 
+    if 'precioussss' in answer:
+      phenny.say("Couldn't pull result from Wolfram Alpha")
+    else:
       phenny.say(answer)
-   else: phenny.reply('Sorry, no result.')
+  else: phenny.reply('Sorry, no result.')
 wa.commands = ['wa']
 
 if __name__ == '__main__': 
