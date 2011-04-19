@@ -8,6 +8,10 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
+''' Keep sqlite local to this module for now '''
+
+import sqlite3
+
 
 def fortune(phenny, input): 
   import subprocess
@@ -69,30 +73,29 @@ rollD20.example = ['.d20']
 rollD20.priority = 'low'
 
 def join_greeter(phenny, input):
-  if (input.nick == "BatSteve"):
-    phenny.say("Welcome back, boss")
-  if (input.nick == "Bat-Mobile"):
-		phenny.say("Welcome back, boss")
-  if (input.nick == "CptBoden"):
-    phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "CaptainBoden"):
-		phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "Cpt_Boden"):
-    phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "Captain_"):
-    phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "Captain__"):
-    phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "Captain"):
-    phenny.say("***Attention on deck!  Captain on the bridge!***")
-  if (input.nick == "lis"):
-    phenny.say("Hi Lis!  Nice to see you in IRC again!")
-  if (input.nick == "TMB"):
-    phenny.say("Good to see you again, Mr. Kidwell!")
-  if (input.nick == "masterofmonks"):
-    phenny.say("Hey monks - spatula!  Ha!  Beat you to it!")
-  if (input.nick == "Seroster"):
-    phenny.say("Oh balls, it's him again...")
+  """
+  Greetings depend on new sqlite database.  Schema is simple:
+
+  CREATE TABLE greetings (id INTEGER PRIMARY KEY, nickname, greeting);
+
+  By default, the datebase lives in the bot's root directory tgg-BotSteve/tgg.db
+
+  Will eventually add auto-create and add code
+  """
+
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+
+  nick = input.nick
+  db_query = "SELECT * FROM greetings WHERE nickname = '%s';" % nick
+  db_curr.execute(db_query)
+  db_result = db_curr.fetchone()
+
+  if (db_result):
+    greet = db_result[2]
+    phenny.say(greet)
+
+  db_conn.close()
   
 join_greeter.event = 'JOIN'
 join_greeter.rule = r'(.*)'
