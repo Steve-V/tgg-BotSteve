@@ -86,9 +86,10 @@ def join_greeter(phenny, input):
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
 
-  nick = input.nick
-  db_query = "SELECT * FROM greetings WHERE nickname = '%s';" % nick
-  db_curr.execute(db_query)
+  nick = str(input.nick)
+  t = (nick,)
+  #db_query = "SELECT * FROM greetings WHERE nickname = '%s';" % nick
+  db_curr.execute( "SELECT * FROM greetings WHERE nickname = ?;" , t )
   db_result = db_curr.fetchone()
 
   if (db_result):
