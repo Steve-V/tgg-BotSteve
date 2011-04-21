@@ -1,0 +1,15 @@
+SQLite version 3.6.22
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+[?1034hsqlite> .dup[K[K[K[K.dump
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE greetings (id INTEGER PRIMARY KEY AUTOINCREMENT, nickname, greeting);
+INSERT INTO "greetings" VALUES(1,'BatSteve','Welcome back, boss.');
+INSERT INTO "greetings" VALUES(2,'CaptainBoden','****Attention on deck!  Captain on the bridge!****');
+INSERT INTO "greetings" VALUES(3,'2014154','In AD 2101 war was beginning');
+INSERT INTO "greetings" VALUES(4,'x2014154','In AD 2101 war was beginning');
+DELETE FROM sqlite_sequence;
+INSERT INTO "sqlite_sequence" VALUES('greetings',4);
+COMMIT;
+sqlite> 
