@@ -16,7 +16,7 @@ def doc(phenny, input):
       phenny.reply(phenny.doc[name][0])
       if phenny.doc[name][1]: 
          phenny.say('e.g. ' + phenny.doc[name][1])
-doc.rule = ('$nick', '(?i)(?:help|doc) +([A-Za-z]+)(?:\?+)?$')
+doc.rule = ('(?i)$nick', '(?i)(?:help|doc) +([A-Za-z]+)(?:\?+)?$')
 doc.example = '$nickname: doc tell?'
 doc.priority = 'low'
 
@@ -37,7 +37,7 @@ def help(phenny, input):
       'general details. My owner is %s.'
    ) % phenny.config.owner
    phenny.reply(response)
-help.rule = ('$nick', r'(?i)help(?:[?!]+)?$')
+help.rule = ('(?i)$nick', r'(?i)help(?:[?!]+)?$')
 help.priority = 'low'
 
 def stats(phenny, input): 

@@ -96,11 +96,11 @@ def f_remind(phenny, input):
 
       phenny.reply(response)
    elif teller.lower() == tellee: 
-      phenny.say('You can %s yourself that.' % verb)
+      phenny.say('You can %s yourself that.' % verb.lower() )
    else: phenny.say("Hey, I'm not as stupid as themotkid you know!")
 
    dumpReminders(phenny.tell_filename, phenny.reminders) # @@ tell
-f_remind.rule = ('$nick', ['tell', 'ask', 'Tell'], r'(\S+) (.*)')
+f_remind.rule = ( r'(?i)$nick', ['tell','ask'], r'(\S+) (.*)' )
 
 def getReminders(phenny, channel, key, tellee): 
    lines = []

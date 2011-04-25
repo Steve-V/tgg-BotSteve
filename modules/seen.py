@@ -15,9 +15,9 @@ def f_seen(self, origin, match, args):
   """.seen <nick> - Reports when <nick> was last seen."""
   if origin.sender == '#talis': return
   nick = match.group(2).lower()
-  if nick == "kyle":
+  if nick.lower() == "kyle":
     return self.msg(origin.sender, "He's about this tall?  Seen Kyle?")
-  if nick == "botsteve":
+  if nick.lower() == "botsteve":
     return self.msg(origin.sender, "I'm right here, actually.")
   if not hasattr(self, 'seen'): 
       return self.msg(origin.sender, '?')

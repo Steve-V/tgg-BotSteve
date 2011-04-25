@@ -56,7 +56,7 @@ def tr(phenny, context):
       phenny.reply(msg)
    else: phenny.reply('Language guessing failed, so try suggesting one!')
 
-tr.rule = ('$nick', ur'(?:([a-z]{2}) +)?(?:([a-z]{2}) +)?["“](.+?)["”]\? *$')
+tr.rule = ('(?i)$nick', ur'(?:([a-z]{2}) +)?(?:([a-z]{2}) +)?["“](.+?)["”]\? *$')
 tr.example = '$nickname: "mon chien"? or $nickname: fr "mon chien"?'
 tr.priority = 'low'
 

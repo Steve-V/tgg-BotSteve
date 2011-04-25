@@ -45,7 +45,7 @@ def f_reload(phenny, input):
 
    phenny.reply('%r (version: %s)' % (module, modified))
 f_reload.name = 'reload'
-f_reload.rule = ('$nick', ['reload'], r'(\S+)?')
+f_reload.rule = ('(?i)$nick', ['reload'], r'(\S+)?')
 f_reload.priority = 'low'
 f_reload.thread = False
 
