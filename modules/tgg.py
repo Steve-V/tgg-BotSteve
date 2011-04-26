@@ -15,25 +15,16 @@ import sqlite3
 
 def fortune(phenny, input): 
   import subprocess
-  
   subp = subprocess.Popen( ['fortune', '-s', 'computers'] , stdout=subprocess.PIPE)
-  
   stdo = subp.communicate()[0]
-  
   phenny.say( stdo )
-
-
 fortune.commands = ['quote', 'fortune']
 fortune.example = ".quote"
 fortune.priority = 'low'
 
-
-
-
 def minecraft(phenny, input):
   #phenny.say( "The minecraft server is currently down." )
   phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** The server may or may not be down right now.  Try it and let us know." )
-
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
 minecraft.priority = 'low'
@@ -101,6 +92,15 @@ def join_greeter(phenny, input):
 join_greeter.event = 'JOIN'
 join_greeter.rule = r'(.*)'
 join_greeter.priority = 'low'
+
+def steveFunction1(phenny,input):
+  import random
+  rand = random.random()
+  if rand > 0.5: response = "Oh yeah!"
+  else: response = "Aw naw!"
+  return phenny.say(response)
+steveFunction1.commands = ['steveFunction1']
+steveFunction1.priority = 'low'
 
 
 if __name__ == '__main__': 
