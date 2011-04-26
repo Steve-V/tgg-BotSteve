@@ -9,6 +9,7 @@ http://inamidst.com/phenny/
 
 import time
 from tools import deprecated
+from decimal import *
 
 @deprecated
 def f_seen(self, origin, match, args): 
@@ -22,10 +23,17 @@ def f_seen(self, origin, match, args):
   if not hasattr(self, 'seen'): 
       return self.msg(origin.sender, '?')
   if self.seen.has_key(nick): 
-      channel, t = self.seen[nick]
-      t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(t))
+      channel, storedTime = self.seen[nick]
+      t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
+      currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
+      rawTimeDifference_hours = (time.time() - storedTime) / 3600
+      formattedTimeDiff = Decimal(str(rawTimeDifference_hours)).quantize(Decimal('1.00'))
+      
+      #requires python 2.7
+      #timeDifference_hr = timeDifference_sec.total_seconds() / 3600
+      
 
-      msg = "I last saw %s at %s on %s" % (nick, t, channel)
+      msg = "I last saw %s %s hours ago at %s on %s." % (nick, formattedTimeDiff, t, channel)
       self.msg(origin.sender, str(origin.nick) + ': ' + msg)
   else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
