@@ -39,7 +39,7 @@ def liveStream(phenny, input):
   phenny.say("The Geek Group Live Web Stream can be found at: http://www.ustream.tv/channel/the-geek-group-behind-the-scenes-live-feed ")
 liveStream.commands = ['stream']
 liveStream.example = ['Not yet implemented']
-liveStream.priority = 'low'
+liveStream.priority = 'medium'
 
 def coinFlip(phenny, input):
   import random
@@ -47,13 +47,13 @@ def coinFlip(phenny, input):
   phenny.say(coinResult)
 coinFlip.commands = ['coin']
 coinFlip.example = ['.coin']
-coinFlip.priority = 'low'
+coinFlip.priority = 'medium'
 
 def logFile(phenny, input):
   phenny.say("Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today")
 logFile.commands = ['history','log']
 logFile.example = ['View the history with:  .history']
-logFile.priority = 'low'
+logFile.priority = 'medium'
 
 def rollD20(phenny, input):
   import random
@@ -61,7 +61,13 @@ def rollD20(phenny, input):
   phenny.say( str(diceResult) )
 rollD20.commands = ['d20']
 rollD20.example = ['.d20']
-rollD20.priority = 'low'
+rollD20.priority = 'medium'
+
+def radar(phenny, input):
+  return phenny.say ("http://radar.weather.gov/radar.php?rid=GRR&product=NCR&overlay=11101111&loop=yes")
+radar.commands = ['radar']
+radar.example = ['.radar']
+radar.priority = 'medium'
 
 def join_greeter(phenny, input):
   """
