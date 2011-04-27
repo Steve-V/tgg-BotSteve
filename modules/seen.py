@@ -33,7 +33,7 @@ def f_seen(self, origin, match, args):
       #timeDifference_hr = timeDifference_sec.total_seconds() / 3600
       
 
-      msg = "I last saw %s %s hours ago at %s on %s." % (nick, formattedTimeDiff, t, channel)
+      msg = "I last saw %s %s hours ago at %s on %s.  Current time: %s" % (nick, formattedTimeDiff, t, channel, currentTime)
       self.msg(origin.sender, str(origin.nick) + ': ' + msg)
   else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
