@@ -9,54 +9,58 @@ http://inamidst.com/phenny/
 
 import os, re, time, threading
 
-def filename(self): 
-   name = self.nick + '-' + self.config.host + '.reminders.db'
-   return os.path.join(os.path.expanduser('~/.phenny'), name)
+def filename(self):
+  '''Return path of database file'''
+  name = self.nick + '-' + self.config.host + '.reminders.db'
+  return os.path.join(os.path.expanduser('~/.phenny'), name)
 
-def load_database(name): 
-   data = {}
-   if os.path.isfile(name): 
-      f = open(name, 'rb')
-      for line in f: 
-         unixtime, channel, nick, message = line.split('\t')
-         message = message.rstrip('\n')
-         t = int(unixtime)
-         reminder = (channel, nick, message)
-         try: data[t].append(reminder)
-         except KeyError: data[t] = [reminder]
-      f.close()
-   return data
+def load_database(name):
+  '''Load database from database file into working memory'''
+  data = {}
+  if os.path.isfile(name): 
+    f = open(name, 'rb')
+    for line in f: 
+      unixtime, channel, nick, message = line.split('\t')
+      message = message.rstrip('\n')
+      t = int(unixtime)
+      reminder = (channel, nick, message)
+      try: data[t].append(reminder)
+      except KeyError: data[t] = [reminder]
+    f.close()
+  return data
 
-def dump_database(name, data): 
-   f = open(name, 'wb')
-   for unixtime, reminders in data.iteritems(): 
-      for channel, nick, message in reminders: 
-         f.write('%s\t%s\t%s\t%s\n' % (unixtime, channel, nick, message))
-   f.close()
+def dump_database(name, data):
+  '''Save database from working memory to the hard drive'''
+  f = open(name, 'wb')
+  for unixtime, reminders in data.iteritems(): 
+    for channel, nick, message in reminders: 
+      f.write('%s\t%s\t%s\t%s\n' % (unixtime, channel, nick, message))
+  f.close()
 
 def setup(phenny): 
-   phenny.rfn = filename(phenny)
-   phenny.rdb = load_database(phenny.rfn)
+  phenny.rfn = filename(phenny)
+  phenny.rdb = load_database(phenny.rfn)
 
-   def monitor(phenny): 
-      time.sleep(5)
-      while True: 
-         now = int(time.time())
-         unixtimes = [int(key) for key in phenny.rdb]
-         oldtimes = [t for t in unixtimes if t <= now]
-         if oldtimes: 
-            for oldtime in oldtimes: 
-               for (channel, nick, message) in phenny.rdb[oldtime]: 
-                  if message: 
-                     phenny.msg(channel, nick + ': ' + message)
-                  else: phenny.msg(channel, nick + '!')
-               del phenny.rdb[oldtime]
-            dump_database(phenny.rfn, phenny.rdb)
-         time.sleep(2.5)
+  def monitor(phenny): 
+    time.sleep(5)
+    while True: 
+      now = int(time.time())
+      unixtimes = [int(key) for key in phenny.rdb]
+      oldtimes = [t for t in unixtimes if t <= now]
+      if oldtimes: 
+        for oldtime in oldtimes: 
+          for (channel, nick, message) in phenny.rdb[oldtime]: 
+            if message: 
+              phenny.msg(channel, nick + ': ' + message)
+            else: phenny.msg(channel, nick + '!')
+          del phenny.rdb[oldtime]
+        dump_database(phenny.rfn, phenny.rdb)
+      time.sleep(2.5)
 
-   targs = (phenny,)
-   t = threading.Thread(target=monitor, args=targs)
-   t.start()
+  targs = (phenny,)
+  t = threading.Thread(target=monitor, args=targs)
+  t.start()
+
 
 scaling = {
    'years': 365.25 * 24 * 3600, 
