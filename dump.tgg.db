@@ -1,15 +1,19 @@
-SQLite version 3.6.22
-Enter ".help" for instructions
-Enter SQL statements terminated with a ";"
-[?1034hsqlite> .dup[K[K[K[K.dump
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE greetings (id INTEGER PRIMARY KEY AUTOINCREMENT, nickname, greeting);
 INSERT INTO "greetings" VALUES(1,'BatSteve','Welcome back, boss.');
 INSERT INTO "greetings" VALUES(2,'CaptainBoden','****Attention on deck!  Captain on the bridge!****');
-INSERT INTO "greetings" VALUES(3,'2014154','In AD 2101 war was beginning');
-INSERT INTO "greetings" VALUES(4,'x2014154','In AD 2101 war was beginning');
+INSERT INTO "greetings" VALUES(5,'mman454','You mess with the Bull, you get the horns!');
+INSERT INTO "greetings" VALUES(6,'masterofmonks','Spatula.');
+INSERT INTO "greetings" VALUES(7,'TMB','Welcome back, Mr. Kidwell');
+CREATE TABLE insults (id INTEGER PRIMARY KEY AUTOINCREMENT, insult, clean);
+INSERT INTO "insults" VALUES(1,'If you keep that up, I''ll rip your arm off and beat you with the wet end.','TRUE');
+INSERT INTO "insults" VALUES(2,'I''d hit you, but I don''t want to get stupid on my hands.','TRUE');
+INSERT INTO "insults" VALUES(3,'How many different kinds of stupid are you trying to be?','TRUE');
+INSERT INTO "insults" VALUES(4,'After talking to you, I now understand why animals eat their young.','TRUE');
+INSERT INTO "insults" VALUES(5,'Don''t feel bad, I think your poor self-image is *completely* justified.','TRUE');
+INSERT INTO "insults" VALUES(6,'I would have been your father, but the other guy had exact change.','TRUE');
 DELETE FROM sqlite_sequence;
-INSERT INTO "sqlite_sequence" VALUES('greetings',4);
+INSERT INTO "sqlite_sequence" VALUES('greetings',7);
+INSERT INTO "sqlite_sequence" VALUES('insults',6);
 COMMIT;
-sqlite> 
