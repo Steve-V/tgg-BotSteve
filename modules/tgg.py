@@ -73,7 +73,7 @@ def join_greeter(phenny, input):
   """
   Greetings depend on new sqlite database.  Schema is simple:
 
-  CREATE TABLE greetings (id INTEGER PRIMARY KEY, nickname, greeting);
+  CREATE TABLE greetings (id INTEGER PRIMARY KEY, nickname, greeting, chance);
 
   By default, the datebase lives in the bot's root directory tgg-BotSteve/tgg.db
 
@@ -91,7 +91,15 @@ def join_greeter(phenny, input):
 
   if (db_result):
     greet = db_result[2]
-    phenny.say(greet)
+    chance = db_result[3]
+    
+    #chance is an integer from 1 to 100, from the database
+    #if an integer chosen at random is below that, send the greet
+    #if the random integer is lower than the person's chance value, greet
+    import random
+    if random.randint(1,100) <= int(chance):
+      phenny.say(greet)
+    
 
   db_conn.close()
   
