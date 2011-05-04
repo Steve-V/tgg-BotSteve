@@ -63,6 +63,14 @@ rollD20.commands = ['d20']
 rollD20.example = ['.d20']
 rollD20.priority = 'medium'
 
+def rollD6(phenny, input):
+  import random
+  diceResult = random.choice( range(1,7) )
+  phenny.say( str(diceResult) )
+rollD6.commands = ['dice','d6']
+rollD6.example = ['.dice']
+rollD6.priority = 'medium'
+
 def radar(phenny, input):
   return phenny.say ("http://radar.weather.gov/radar.php?rid=GRR&product=NCR&overlay=11101111&loop=yes")
 radar.commands = ['radar']
