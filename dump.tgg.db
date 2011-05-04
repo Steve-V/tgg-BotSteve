@@ -6,6 +6,7 @@ INSERT INTO "greetings" VALUES(2,'CaptainBoden','****Attention on deck!  Captain
 INSERT INTO "greetings" VALUES(5,'mman454','You mess with the Bull, you get the horns!','33');
 INSERT INTO "greetings" VALUES(6,'masterofmonks','Spatula.','50');
 INSERT INTO "greetings" VALUES(7,'TMB','Welcome back, Mr. Kidwell','100');
+INSERT INTO "greetings" VALUES(8,'Seroster','Oh balls, it''s him again.','100');
 CREATE TABLE insults (id INTEGER PRIMARY KEY AUTOINCREMENT, insult, clean);
 INSERT INTO "insults" VALUES(1,'If you keep that up, I''ll rip your arm off and beat you with the wet end.','TRUE');
 INSERT INTO "insults" VALUES(2,'I''d hit you, but I don''t want to get stupid on my hands.','TRUE');
@@ -14,6 +15,6 @@ INSERT INTO "insults" VALUES(4,'After talking to you, I now understand why anima
 INSERT INTO "insults" VALUES(5,'Don''t feel bad, I think your poor self-image is *completely* justified.','TRUE');
 INSERT INTO "insults" VALUES(6,'I would have been your father, but the other guy had exact change.','TRUE');
 DELETE FROM sqlite_sequence;
-INSERT INTO "sqlite_sequence" VALUES('greetings',7);
+INSERT INTO "sqlite_sequence" VALUES('greetings',8);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
 COMMIT;

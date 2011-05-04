@@ -20,7 +20,7 @@ def setup(phenny):
     #set up the channel that messages will be transmitted to
     #FIXME
     #this should be read from a config file
-    whichChannel = '#tgg-bots'
+    whichChannel = '#thegeekgroup'
     #pull original feed
     oldFeed = feedparser.parse("http://thegeekgroup.org/bb/?xfeed=all&feedkey=60635da5-d00a-4f9e-a007-a9102251b1c1")
     import time
@@ -47,7 +47,7 @@ def setup(phenny):
           titlesChanged.append(title)
       
       #build the output string
-      outputString = 'There have been '
+      outputString = 'In the last hour, there have been '
       outputString += str( len(titlesChanged) )
       outputString += " new posts on the Geek Group forums.  New posts made by: "
       for eachPost in titlesChanged:
@@ -66,7 +66,7 @@ def setup(phenny):
       
       #phenny.msg(whichChannel, "sleeping...")
       import time
-      time.sleep(250)
+      time.sleep(3600)
   
   targs = (phenny,)
   t = threading.Thread(target=monitor, args=targs)
