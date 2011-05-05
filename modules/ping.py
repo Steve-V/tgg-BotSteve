@@ -26,5 +26,12 @@ thanks.rule = r'(?i)(thx|thanks|thank you|ty|thanks,|thank you,) (?i)$nickname\b
 thanks.priority = 'high'
 thanks.thread = False
 
+def amiright(phenny, input):
+  reply = random.choice( ("Yep!", "You're right", "Definitely", "Absolutely", "Nope", "No way", "Not a chance", "I don't think so", "Maybe", "Ask again later!") )
+  phenny.say(reply)
+amiright.rule = r'(?i)(right|correct|is that right|am i right) (?i)$nickname\b'
+amiright.priority = 'high'
+amiright.thread = False
+
 if __name__ == '__main__': 
    print __doc__.strip()
