@@ -86,7 +86,7 @@ def setup(phenny):
       
       for title,url in youtubeTitlesCurrent:
         if url not in youtubeURLsOld:
-          youtubeTitlesChanged.append(title, url)
+          youtubeTitlesChanged.append( [title, url] )
       
       #rebuild the output string
       if youtubeTitlesChanged:
