@@ -11,7 +11,7 @@ http://inamidst.com/phenny/
 ''' Keep sqlite local to this module for now '''
 
 import sqlite3
-
+import random
 
 def fortune(phenny, input): 
   import subprocess
@@ -114,6 +114,22 @@ def join_greeter(phenny, input):
 join_greeter.event = 'JOIN'
 join_greeter.rule = r'(.*)'
 join_greeter.priority = 'low'
+
+def insult_user(phenny, input):
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  nick = str(input.nick)
+  t = (nick,)
+  
+  db_curr.execute( "SELECT * FROM insults;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    insult = random.choice(db_result)[1]
+    phenny.say("Hey, " + str(nick) + ", " + str(insult) )
+insult_user.commands = ['insult']
+insult_user.priority = 'medium'
 
 def steveFunction1(phenny,input):
   import random
