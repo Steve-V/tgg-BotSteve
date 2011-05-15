@@ -10,18 +10,37 @@ http://inamidst.com/phenny/
 import time
 from tools import deprecated
 from decimal import *
+import os
+
+def setup(self): 
+   fn = self.nick + '-' + self.config.host + '.seen.db'
+   self.seen_filename = os.path.join(os.path.expanduser('~/.phenny'), fn)
+   if not os.path.exists(self.seen_filename): 
+      try: f = open(self.seen_filename, 'w')
+      except OSError: pass
+      else: 
+         f.write('')
+         f.close()
+   #unpickle module here
+
 
 @deprecated
 def f_seen(self, origin, match, args): 
   """.seen <nick> - Reports when <nick> was last seen."""
   if origin.sender == '#talis': return
   nick = match.group(2).lower()
+  
+  #misc easter eggs
   if nick.lower() == "kyle":
     return self.msg(origin.sender, "He's about this tall?  Seen Kyle?")
   if nick.lower() == "botsteve":
     return self.msg(origin.sender, "I'm right here, actually.")
+  
+  #error check
   if not hasattr(self, 'seen'): 
       return self.msg(origin.sender, '?')
+  
+  
   if self.seen.has_key(nick): 
       channel, storedTime = self.seen[nick]
       t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
@@ -35,6 +54,8 @@ def f_seen(self, origin, match, args):
 
       msg = "I last saw %s %s hours ago at %s on %s.  Current time: %s" % (nick, formattedTimeDiff, t, channel, currentTime)
       self.msg(origin.sender, str(origin.nick) + ': ' + msg)
+  
+  #no record of user
   else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
 
