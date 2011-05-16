@@ -126,7 +126,7 @@ def insult_user(phenny, input):
   
   if (db_result):
     insult = random.choice(db_result)
-    phenny.say("Hey, " + nick + ", " + insult)
+    phenny.say("Hey, " + str(nick) + ", " + str(insult) )
 insult_user.commands = ['insult']
 insult_user.priority = 'medium'
 
