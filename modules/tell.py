@@ -68,6 +68,10 @@ def f_remind(phenny, input):
 
    tellee_original = tellee.rstrip('.,:;')
    tellee = tellee_original.lower()
+   
+   if tellee == phenny.nick.lower():
+     phenny.say("Sorry, I'm supposed to ignore any voices I hear in my head.")
+     return
 
    if not os.path.exists(phenny.tell_filename): 
       return
