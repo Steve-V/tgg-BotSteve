@@ -61,6 +61,7 @@ def f_seen(self, origin, match, args):
   #no record of user
   else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
+f_seen.thread = False
 
 @deprecated
 def f_note(self, origin, match, args): 
