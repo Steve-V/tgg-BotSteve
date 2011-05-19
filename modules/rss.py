@@ -94,14 +94,14 @@ def setup(phenny):
         outputString += str( len(youtubeTitlesChanged) )
         outputString += " new YouTube videos posted by The Geek Group.  New videos: "
         #print the header
-        phenny.msg(testChannel, outputString)
+        phenny.msg(mainChannel, outputString)
         
         #print the videos
         for eachTitle, eachURL in youtubeTitlesChanged:
           outputString = eachTitle
           outputString += " "
           outputString += eachURL
-          phenny.msg(testChannel, outputString)
+          phenny.msg(mainChannel, outputString)
         
         #update to the new feed
         oldYoutubeFeed = currentYoutubeFeed
