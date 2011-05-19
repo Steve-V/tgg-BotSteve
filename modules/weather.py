@@ -14,22 +14,24 @@ from tools import deprecated
 r_from = re.compile(r'(?i)([+-]\d+):00 from')
 
 def location(name): 
-   name = urllib.quote(name.encode('utf-8'))
-   uri = 'http://ws.geonames.org/searchJSON?q=%s&maxRows=1' % name
-   for i in xrange(10): 
-      u = urllib.urlopen(uri)
-      if u is not None: break
-   bytes = u.read()
-   u.close()
+  name = urllib.quote(name.encode('utf-8'))
+  uri = 'http://ws.geonames.org/searchJSON?q=%s&maxRows=1' % name
+  for i in xrange(10): 
+    u = urllib.urlopen(uri)
+    if u is not None: break
+  bytes = u.read()
+  u.close()
 
-   results = web.json(bytes)
-   try: name = results['geonames'][0]['name']
-   except IndexError: 
-      return '?', '?', '0', '0'
-   countryName = results['geonames'][0]['countryName']
-   lat = results['geonames'][0]['lat']
-   lng = results['geonames'][0]['lng']
-   return name, countryName, lat, lng
+  results = web.json(bytes)
+  try: name = results['geonames'][0]['name']
+  except IndexError: 
+    return '?', 'IndexError', '0', '0'
+  except KeyError:
+    return '?', 'KeyError','0','0'
+  countryName = results['geonames'][0]['countryName']
+  lat = results['geonames'][0]['lat']
+  lng = results['geonames'][0]['lng']
+  return name, countryName, lat, lng
 
 class GrumbleError(object): 
    pass
@@ -52,21 +54,26 @@ def local(icao, hour, minute):
    return str(hour) + ':' + str(minute) + 'Z'
 
 def code(phenny, search): 
-   from icao import data
-   
-   if search.upper() in [loc[0] for loc in data]:
-      return search.upper()
-   else:
-      name, country, latitude, longitude = location(search)
-      if name == '?': return False
-      sumOfSquares = (99999999999999999999999999999, 'ICAO')
-      for icao_code, lat, lon in data: 
-         latDiff = abs(latitude - lat)
-         lonDiff = abs(longitude - lon)
-         diff = (latDiff * latDiff) + (lonDiff * lonDiff)
-         if diff < sumOfSquares[0]: 
-            sumOfSquares = (diff, icao_code)
-      return sumOfSquares[1]
+  from icao import data
+  
+  if search.upper() in [loc[0] for loc in data]:
+    return search.upper()
+  else:
+    name, country, latitude, longitude = location(search)
+    if name == '?':
+      if country == 'IndexError':
+        return False
+      else:
+        return 'NetError'
+    
+    sumOfSquares = (99999999999999999999999999999, 'ICAO')
+    for icao_code, lat, lon in data: 
+      latDiff = abs(latitude - lat)
+      lonDiff = abs(longitude - lon)
+      diff = (latDiff * latDiff) + (lonDiff * lonDiff)
+      if diff < sumOfSquares[0]:
+        sumOfSquares = (diff, icao_code)
+    return sumOfSquares[1]
 
 @deprecated
 def f_weather(self, origin, match, args): 
@@ -82,6 +89,9 @@ def f_weather(self, origin, match, args):
 
    if not icao_code: 
       self.msg(origin.sender, 'No ICAO code found, sorry')
+      return
+   if icao_code == 'NetError':
+      self.msg(origin.sender, 'Network error while retrieving weather. Wait 30 seconds and try again.')
       return
 
    uri = 'http://weather.noaa.gov/pub/data/observations/metar/stations/%s.TXT'
