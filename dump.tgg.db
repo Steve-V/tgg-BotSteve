@@ -45,7 +45,6 @@ INSERT INTO "cookie_flavors" VALUES(25,'white chocolate mocha');
 INSERT INTO "cookie_flavors" VALUES(26,'dark chocolate cranberry');
 INSERT INTO "cookie_flavors" VALUES(27,'white chocolate cranberry');
 INSERT INTO "cookie_flavors" VALUES(28,'mocha cappuccino');
-INSERT INTO "cookie_flavors" VALUES(29,'bizcochito');
 INSERT INTO "cookie_flavors" VALUES(30,'black-and-white');
 INSERT INTO "cookie_flavors" VALUES(32,'christmas');
 INSERT INTO "cookie_flavors" VALUES(35,'kleicha');
