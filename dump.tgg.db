@@ -49,8 +49,25 @@ INSERT INTO "cookie_flavors" VALUES(30,'black-and-white');
 INSERT INTO "cookie_flavors" VALUES(32,'christmas');
 INSERT INTO "cookie_flavors" VALUES(35,'kleicha');
 INSERT INTO "cookie_flavors" VALUES(36,'Moravian spice');
+CREATE TABLE "skittles_colors" (
+    "ID" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "color" TEXT
+);
+INSERT INTO "skittles_colors" VALUES(1,'red');
+INSERT INTO "skittles_colors" VALUES(2,'blue');
+INSERT INTO "skittles_colors" VALUES(3,'green');
+INSERT INTO "skittles_colors" VALUES(4,'orange');
+INSERT INTO "skittles_colors" VALUES(5,'purple');
+INSERT INTO "skittles_colors" VALUES(6,'cherry');
+INSERT INTO "skittles_colors" VALUES(7,'blueberry');
+INSERT INTO "skittles_colors" VALUES(8,'blackberry');
+INSERT INTO "skittles_colors" VALUES(9,'grape');
+INSERT INTO "skittles_colors" VALUES(10,'lime green');
+INSERT INTO "skittles_colors" VALUES(11,'watermelon');
+INSERT INTO "skittles_colors" VALUES(12,'sour apple');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('greetings',10);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
 INSERT INTO "sqlite_sequence" VALUES('cookie_flavors',36);
+INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);
 COMMIT;

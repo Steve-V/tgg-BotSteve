@@ -162,6 +162,32 @@ def give_cookie(phenny, input):
 give_cookie.commands = ['cookie']
 give_cookie.priority = 'medium'
 
+def give_skittles(phenny, input):
+  #if it's the bot getting the cookie, or if the user is cookieing themselves
+  #code here
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return( phenny.say("For me?  Thank you!  Rainbows taste delicious!") )
+    else:
+      recepient = input.group(2)
+  else:
+    recepient = str(input.nick)
+  #otherwise give specified user a cookie
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
+  db_curr.execute( "SELECT * FROM skittles_colors;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+    
+    phenny.say("Here you go, %s, I got you some %s skittles!" % (recepient, str(flavor) ) )
+give_skittles.commands = ['skittles']
+give_skittles.priority = 'medium'
+
 def steveFunction1(phenny,input):
   import random
   rand = random.random()
