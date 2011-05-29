@@ -23,14 +23,20 @@ def setup(phenny):
     mainChannel = '#thegeekgroup'
     testChannel = '#tgg-bots'
     youtubeUserName = 'physicsduck'
+    tggUserName = 'thegeekgroup'
     
     #pull original forum feed
     oldFeed = feedparser.parse("http://thegeekgroup.org/bb/?xfeed=all&feedkey=60635da5-d00a-4f9e-a007-a9102251b1c1")
     
-    #pull original youtube feed
+    #pull physicsduck original youtube feed
     youtubeServe = gdata.youtube.service.YouTubeService()
     youtubeUri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads' % youtubeUserName
     oldYoutubeFeed = youtubeServe.GetYouTubeVideoFeed(youtubeUri)
+    
+    #pull thegeekgroup original youtube feed
+    youtubeTggServe = gdata.youtube.service.YouTubeService()
+    youtubeTggUri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads' % tggUserName
+    oldTggYoutubeFeed = youtubeServe.GetYouTubeVideoFeed(youtubeTggUri)
     
     import time
     time.sleep(20)
@@ -38,7 +44,7 @@ def setup(phenny):
     while True: 
       
       #pull forum feed again
-      phenny.msg(testChannel, "Pulling new video feeds")
+      #phenny.msg(testChannel, "Pulling new video feeds")
       currentFeed = ''
       currentFeed = feedparser.parse("http://thegeekgroup.org/bb/?xfeed=all&feedkey=60635da5-d00a-4f9e-a007-a9102251b1c1")
       
@@ -71,7 +77,7 @@ def setup(phenny):
       
       #=======================
       
-      #pull youtube feed again
+      #pull physicsduck feed again
       currentYoutubeFeed = youtubeServe.GetYouTubeVideoFeed(youtubeUri)
       
       #compare forum feeds
@@ -92,7 +98,7 @@ def setup(phenny):
       if youtubeTitlesChanged:
         outputString = 'In the last hour, there have been '
         outputString += str( len(youtubeTitlesChanged) )
-        outputString += " new YouTube videos posted by The Geek Group.  New videos: "
+        outputString += " new YouTube videos posted by PhysicsDuck.  New videos: "
         #print the header
         phenny.msg(mainChannel, outputString)
         
@@ -108,7 +114,50 @@ def setup(phenny):
       
       #debugging
       else:
-        phenny.msg(testChannel, "No new feeds")
+        pass
+        #phenny.msg(testChannel, "No new feeds")
+      
+      #=======================
+      
+      #pull thegeekgroup feed again
+      currentYoutubeTggFeed = youtubeTggServe.GetYouTubeVideoFeed(youtubeTggUri)
+      
+      #compare forum feeds
+      youtubeTggURLsOld = []
+      youtubeTggTitlesCurrent = []
+      youtubeTggTitlesChanged = []
+      
+      for items in oldTggYoutubeFeed.entry:
+        youtubeTggURLsOld.append( str( items.GetSwfUrl() ).split("?")[0] )
+      for items in currentYoutubeTggFeed.entry:
+        youtubeTggTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0] ) )
+      
+      for title,url in youtubeTggTitlesCurrent:
+        if url not in youtubeTggURLsOld:
+          youtubeTggTitlesChanged.append( [title, url] )
+      
+      #rebuild the output string
+      if youtubeTggTitlesChanged:
+        outputString = 'In the last hour, there have been '
+        outputString += str( len(youtubeTggTitlesChanged) )
+        outputString += " new YouTube videos posted by TheGeekGroup.  New videos: "
+        #print the header
+        phenny.msg(mainChannel, outputString)
+        
+        #print the videos
+        for eachTitle, eachURL in youtubeTggTitlesChanged:
+          outputString = eachTitle
+          outputString += " "
+          outputString += eachURL
+          phenny.msg(mainChannel, outputString)
+        
+        #update to the new feed
+        oldTggYoutubeFeed = currentYoutubeTggFeed
+      
+      #debugging
+      else:
+        pass
+        #phenny.msg(testChannel, "No new feeds")
       
       #phenny.msg(testChannel, "sleeping...")
       import time
