@@ -108,13 +108,14 @@ f_remind.rule = ( r'(?i)$nick', ['tell','ask'], r'(\S+) (.*)' )
 
 def getReminders(phenny, channel, key, tellee): 
    lines = []
-   template = "%s: At %s, %s asked me to %s you %s"
+   lines.append("%s: I have the following messages for you:" % tellee)
+   template = "At %s, %s asked me to %s %s %s"
    today = time.strftime('%d %b', time.gmtime())
 
    for (teller, verb, datetime, msg) in phenny.reminders[key]: 
       if datetime.startswith(today): 
          datetime = datetime[len(today)+1:]
-      lines.append(template % (tellee, datetime, teller, verb, msg))
+      lines.append(template % (datetime, teller, verb, tellee, msg))
 
    try: del phenny.reminders[key]
    except KeyError: phenny.msg(channel, 'Er...')
