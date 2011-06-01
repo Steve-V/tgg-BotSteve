@@ -184,7 +184,8 @@ TZ2 = {
 
 TZ3 = {
    'AEST': 10, 
-   'AEDT': 11
+   'AEDT': 11,
+   'TGG': -4
 }
 
 # TimeZones.update(TZ2) # do these have to be negated?

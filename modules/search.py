@@ -70,6 +70,23 @@ tvtropes.commands = ['trope','tvtropes']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
+def urbanDictionary(phenny, input):
+  """Queries UD for the specified input."""
+  query = input.group(2)
+  if not query: 
+    return phenny.reply('Sorry, you need to enter a search term')
+  query2 = '+'.join([query,'site:urbandictionary.com'])
+  uri = result(query2)
+  if uri: 
+    phenny.reply(uri)
+    if not hasattr(phenny.bot, 'last_seen_uri'):
+      phenny.bot.last_seen_uri = {}
+    phenny.bot.last_seen_uri[input.sender] = uri
+  else: phenny.reply("No results found for '%s'." % query)
+urbanDictionary.commands = ['ud','urbandictionary','urban']
+urbanDictionary.priority = 'high'
+urbanDictionary.example = '.urban fomo'
+
 def youtubeSearch(phenny, input):
   """Queries youtube for the specified input."""
   query = input.group(2)

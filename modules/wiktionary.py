@@ -89,7 +89,7 @@ def w(phenny, input):
    if len(result) > 300: 
       result = result[:295] + '[...]'
    phenny.say(result)
-w.commands = ['define']
+w.commands = ['define','wiktionary']
 w.example = '.define bailiwick'
 
 if __name__ == '__main__': 

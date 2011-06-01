@@ -125,7 +125,8 @@ def insult_user(phenny, input):
   db_result = db_curr.fetchall()
   
   if (db_result):
-    insult = random.choice(db_result)
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    insult = random.choice(db_result)[1]
     phenny.say("Hey, " + str(nick) + ", " + str(insult) )
 insult_user.commands = ['insult']
 insult_user.priority = 'medium'

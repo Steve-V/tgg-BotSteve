@@ -20,7 +20,7 @@ def setup(phenny):
     #set up the channel that messages will be transmitted to
     #FIXME
     #this should be read from a config file
-    mainChannel = '#tgg-bots'
+    mainChannel = '#thegeekgroup'
     testChannel = '#tgg-bots'
     youtubeUserName = 'physicsduck'
     
