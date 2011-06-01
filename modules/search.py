@@ -100,7 +100,7 @@ def youtubeSearch(phenny, input):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
   else: phenny.reply("No results found for '%s'." % query)
-youtubeSearch.commands = ['yt','youtube']
+youtubeSearch.commands = ['yt','youtube','y']
 youtubeSearch.priority = 'high'
 youtubeSearch.example = '.youtube Leeroy Jenkins'
 

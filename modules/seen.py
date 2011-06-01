@@ -22,14 +22,21 @@ def setup(self):
     else: 
       f.write('')
       f.close()
-  self.seen = pickle.load( open(self.seen_filename) )
+  try:
+    self.seen = pickle.load( open(self.seen_filename) )
+  except EOFError:
+    pass
 
 @deprecated
 def f_seen(self, origin, match, args): 
   """.seen <nick> - Reports when <nick> was last seen."""
   
-  #pickle datastore to file
-  pickle.dump(self.seen, open(self.seen_filename,'wb') )
+  #pickle datastore to file, as long as self.seen exists
+  #will only throw exception if a .seen is the first thing the bot sees on startup
+  try:
+    pickle.dump(self.seen, open(self.seen_filename,'wb') )
+  except AttributeError:
+    pass
   
   if origin.sender == '#talis': return
   nick = match.group(2).lower()
@@ -61,6 +68,7 @@ def f_seen(self, origin, match, args):
   #no record of user
   else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
+f_seen.thread = False
 
 @deprecated
 def f_note(self, origin, match, args): 
