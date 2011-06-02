@@ -189,11 +189,10 @@ give_skittles.commands = ['skittles']
 give_skittles.priority = 'medium'
 
 def steveFunction1(phenny,input):
-  import random
-  rand = random.random()
-  if rand > 0.5: response = "Oh yeah!"
-  else: response = "Aw naw!"
-  return phenny.say(response)
+  if input.group(3):
+    return phenny.say(input.group(3))
+  else:
+    return phenny.say("no input")
 steveFunction1.commands = ['steveFunction1']
 steveFunction1.priority = 'low'
 
