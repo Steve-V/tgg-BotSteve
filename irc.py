@@ -143,8 +143,8 @@ class Bot(asynchat.async_chat):
       # Loop detection
       messages = [m[1] for m in self.stack[-8:]]
       if messages.count(text) >= 5: 
-         text = '...'
-         if messages.count('...') >= 3: 
+         text = 'Error!  Too many requests!'
+         if messages.count('Error!  Too many requests!') >= 3: 
             self.sending.release()
             return
 
