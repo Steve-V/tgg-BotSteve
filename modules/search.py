@@ -70,6 +70,17 @@ tvtropes.commands = ['trope','tvtropes']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
+def wikiGoog(query):
+  """Queries wikipedia via google for the specified input."""
+  if not query: 
+    return None
+  query2 = '+'.join([query,'site:en.wikipedia.org'])
+  uri = result(query2)
+  if uri: 
+    return uri
+  else: return None
+wikiGoog.priority = 'high'
+
 def urbanDictionary(phenny, input):
   """Queries UD for the specified input."""
   query = input.group(2)

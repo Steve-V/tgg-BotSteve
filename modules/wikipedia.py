@@ -127,7 +127,7 @@ def wikipedia(term, last=False):
       sentence = ' '.join(words) + ' [...]'
 
    if (('using the Article Wizard if you wish' in sentence)
-    or ('or add a request for it' in sentence)): 
+    or ('or add a request for it' in sentence) or ('in existing articles' in sentence)):
       if not last: 
          term = search(term)
          return wikipedia(term, last=True)
@@ -156,7 +156,13 @@ def wik(phenny, input):
 
    if result is not None: 
       phenny.say(result)
-   else: phenny.say('Can\'t find anything in Wikipedia for "%s".' % origterm)
+   else:
+      from search import wikiGoog
+      backupSearch = wikiGoog(origterm)
+      if backupSearch:
+         phenny.say('Can\'t find anything in Wikipedia for "%s". Best guess: %s' % origterm, backupSearch)
+      else:
+         phenny.say('Doh! Can\'t find anything in Wikipedia for "%s".' % origterm)
 
 wik.commands = ['wik', 'wiki', 'w']
 wik.priority = 'high'
