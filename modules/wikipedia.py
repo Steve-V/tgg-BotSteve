@@ -157,12 +157,7 @@ def wik(phenny, input):
    if result is not None: 
       phenny.say(result)
    else:
-      from search import wikiGoog
-      backupSearch = wikiGoog(origterm)
-      if backupSearch:
-         phenny.say('Can\'t find anything in Wikipedia for "%s". Best guess: %s' % origterm, backupSearch)
-      else:
-         phenny.say('Doh! Can\'t find anything in Wikipedia for "%s".' % origterm)
+      phenny.say('Can\'t find anything in Wikipedia for "%s".' % origterm)
 
 wik.commands = ['wik', 'wiki', 'w']
 wik.priority = 'high'
