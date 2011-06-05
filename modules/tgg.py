@@ -189,11 +189,11 @@ give_skittles.commands = ['skittles']
 give_skittles.priority = 'medium'
 
 def steveFunction1(phenny,input):
-  if input.group(3):
-    return phenny.say(input.group(3))
-  else:
+  if not input.group(1):
     return phenny.say("no input")
-steveFunction1.commands = ['steveFunction1']
+  else:
+    return phenny.say(input.group(1))
+steveFunction1.commands = ['steveFunction1','steveFunction2']
 steveFunction1.priority = 'low'
 
 
