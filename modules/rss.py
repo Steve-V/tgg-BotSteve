@@ -104,10 +104,10 @@ def setup(phenny):
         
         #print the videos
         for eachTitle, eachURL in youtubeTitlesChanged:
-          eachURL.replace("http://www.youtube.com/v/","http://www.youtube.com/watch?v=")
+          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://www.youtube.com/watch?v=")
           outputString = eachTitle
           outputString += " "
-          outputString += eachURL
+          outputString += formattedURL
           phenny.msg(mainChannel, outputString)
         
         #update to the new feed
@@ -147,10 +147,10 @@ def setup(phenny):
         
         #print the videos
         for eachTitle, eachURL in youtubeTggTitlesChanged:
-          eachURL.replace("http://www.youtube.com/v/","http://www.youtube.com/watch?v=")
+          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://www.youtube.com/watch?v=")
           outputString = eachTitle
           outputString += " "
-          outputString += eachURL
+          outputString += formattedURL
           phenny.msg(mainChannel, outputString)
         
         #update to the new feed
