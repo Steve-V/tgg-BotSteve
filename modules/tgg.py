@@ -71,12 +71,6 @@ rollD6.commands = ['dice','d6']
 rollD6.example = ['.dice']
 rollD6.priority = 'medium'
 
-def radar(phenny, input):
-  return phenny.say ("http://radar.weather.gov/radar.php?rid=GRR&product=NCR&overlay=11101111&loop=yes")
-radar.commands = ['radar']
-radar.example = ['.radar']
-radar.priority = 'medium'
-
 def join_greeter(phenny, input):
   """
   Greetings depend on new sqlite database.  Schema is simple:

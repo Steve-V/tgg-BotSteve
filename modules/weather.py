@@ -75,6 +75,69 @@ def code(phenny, search):
         sumOfSquares = (diff, icao_code)
     return sumOfSquares[1]
 
+def calcDistance(lat1, lon1, lat2, lon2):
+  """
+  Caclulate distance between two lat lons in NM
+  """
+  import math
+  
+  nauticalMilePerLat = 60.00721
+  nauticalMilePerLongitude = 60.10793
+  rad = math.pi / 180.0
+  milesPerNauticalMile = 1.15078
+  
+  yDistance = (lat2 - lat1) * nauticalMilePerLat
+  xDistance = (math.cos(lat1 * rad) + math.cos(lat2 * rad)) * (lon2 - lon1) * (nauticalMilePerLongitude / 2)
+  
+  distance = math.sqrt( yDistance**2 + xDistance**2 )
+
+  return distance
+
+def nexrad(phenny, input):
+  from icao import nexrad
+  
+  radarSite = input.group(2).upper()
+  if radarSite in [loc[0] for loc in nexrad]:
+    #strip leading K
+    if radarSite[0] == "K":
+      returnSite = radarSite[1:]
+    else:
+      returnSite = radarSite
+    phenny.say ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
+    return
+  else:
+    name, country, latitude, longitude = location(radarSite)
+    if name == '?':
+      return phenny.say("No such location, or can't find radar data")
+    
+    sumOfSquares = (99999999999999999999999999999, 'ICAO')
+    dist = 0
+    for icao_code, lat, lon in nexrad: 
+      lat = float(lat)
+      lon = float(lon)
+      latDiff = abs(latitude - lat)
+      lonDiff = abs(longitude - lon)
+      diff = (latDiff * latDiff) + (lonDiff * lonDiff)
+      if diff < sumOfSquares[0]:
+        sumOfSquares = (diff, icao_code)
+        dist = calcDistance(latitude, longitude, lat, lon)
+    radarSite = sumOfSquares[1]
+    #strip leading K
+    if radarSite[0] == "K":
+      returnSite = radarSite[1:]
+    else:
+      returnSite = radarSite
+    
+    #what if the site is overseas?
+    if dist > 125:
+      return phenny.say("No such location, or can't find radar data")
+    
+    phenny.say ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
+    return
+nexrad.commands = ['nexrad','radar']
+nexrad.example = ['.nexrad KGRR']
+nexrad.priority = 'medium'
+
 @deprecated
 def f_weather(self, origin, match, args): 
    """.weather <ICAO> - Show the weather at airport with the code <ICAO>."""
