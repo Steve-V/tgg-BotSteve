@@ -96,6 +96,9 @@ def calcDistance(lat1, lon1, lat2, lon2):
 def nexrad(phenny, input):
   from icao import nexrad
   
+  if not input.group(2):
+    return phenny.reply("http://radar.weather.gov/radar.php?rid=grr&product=NCR&overlay=11101111&loop=yes")
+  
   radarSite = input.group(2).upper()
   if radarSite in [loc[0] for loc in nexrad]:
     #strip leading K
@@ -103,12 +106,12 @@ def nexrad(phenny, input):
       returnSite = radarSite[1:]
     else:
       returnSite = radarSite
-    phenny.say ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
+    phenny.reply ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
     return
   else:
     name, country, latitude, longitude = location(radarSite)
     if name == '?':
-      return phenny.say("No such location, or can't find radar data")
+      return phenny.reply("No such location, or can't find radar data")
     
     sumOfSquares = (99999999999999999999999999999, 'ICAO')
     dist = 0
@@ -130,10 +133,9 @@ def nexrad(phenny, input):
     
     #what if the site is overseas?
     if dist > 125:
-      return phenny.say("No such location, or can't find radar data")
+      return phenny.reply("No such location, or can't find radar data")
     
-    phenny.say ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
-    return
+    return phenny.reply ("http://radar.weather.gov/radar.php?rid=%s&product=NCR&overlay=11101111&loop=yes" % returnSite)
 nexrad.commands = ['nexrad','radar']
 nexrad.example = ['.nexrad KGRR']
 nexrad.priority = 'medium'
