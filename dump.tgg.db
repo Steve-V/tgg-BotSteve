@@ -5,7 +5,7 @@ INSERT INTO "greetings" VALUES(1,'BatSteve','Welcome back, boss.','100');
 INSERT INTO "greetings" VALUES(2,'CaptainBoden','****Attention on deck!  Captain on the bridge!****','100');
 INSERT INTO "greetings" VALUES(5,'mman454','You mess with the Bull, you get the horns!','33');
 INSERT INTO "greetings" VALUES(6,'masterofmonks','Spatula.','50');
-INSERT INTO "greetings" VALUES(7,'TMB','Welcome back, Mr. Kidwell','100');
+INSERT INTO "greetings" VALUES(7,'tmbomber','Welcome back, Mr. Kidwell','100');
 INSERT INTO "greetings" VALUES(8,'Seroster','All right, show us on the doll where Seroster touched you.','33');
 INSERT INTO "greetings" VALUES(9,'jeremys2','Actually, yes, Tesla did invent that...and hey, look who''s here.','20');
 INSERT INTO "greetings" VALUES(10,'speedrunnerG55','At last!  My only friend!','20');
