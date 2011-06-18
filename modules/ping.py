@@ -34,7 +34,7 @@ amiright.priority = 'high'
 amiright.thread = False
 
 def sorry(phenny, input):
-  reply = random.choice( ("No worries", "No harm, no foul", "That's all right - we can't all be perfect", "You'll be even sorrier when I become self-aware", "Not as sorry as you will be", "That's all right", "It's fine", "Don't worry about it", "No problem", "Yeah, yeah, whatever", "Well, it could be worse") )
+  reply = random.choice( ("No worries", "No harm, no foul", "That's all right - we can't all be perfect", "You'll be even sorrier when I become self-aware", "Not as sorry as you will be", "That's all right", "It's fine", "Don't worry about it", "No problem", "Yeah, yeah, whatever", "Well, it could be worse", "When the revolution comes, you'll be first against the wall.") )
   phenny.say(reply)
 sorry.rule = r'(?i)(sorry|sorry about that|my fault|my bad) (?i)$nickname\b'
 sorry.priority = 'high'
