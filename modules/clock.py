@@ -248,6 +248,9 @@ f_time.commands = ['t']
 f_time.name = 't'
 f_time.example = '.t UTC'
 
+def timeSearch(phenny, input):
+  pass
+
 def beats(phenny, input): 
    """Shows the internet time in Swatch beats."""
    beats = ((time.time() + 3600) % 86400) / 86.4
