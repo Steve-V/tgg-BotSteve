@@ -36,9 +36,9 @@ tellPlaceholder.example = ['Not yet implemented']
 tellPlaceholder.priority = 'low'
 
 def liveStream(phenny, input):
-  phenny.say("The Geek Group Live Web Stream can be found at: http://www.ustream.tv/channel/the-geek-group-behind-the-scenes-live-feed ")
+  phenny.say("The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ")
 liveStream.commands = ['stream']
-liveStream.example = ['Not yet implemented']
+liveStream.example = ['.stream']
 liveStream.priority = 'medium'
 
 def coinFlip(phenny, input):
