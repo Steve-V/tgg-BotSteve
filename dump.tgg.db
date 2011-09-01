@@ -65,9 +65,24 @@ INSERT INTO "skittles_colors" VALUES(9,'grape');
 INSERT INTO "skittles_colors" VALUES(10,'lime green');
 INSERT INTO "skittles_colors" VALUES(11,'watermelon');
 INSERT INTO "skittles_colors" VALUES(12,'sour apple');
+CREATE TABLE "sandwhich_type" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "sandwhcih_type" TEXT
+);
+INSERT INTO "sandwhich_type" VALUES(1,'turkey on rye');
+INSERT INTO "sandwhich_type" VALUES(2,'ham and cheese on italian');
+INSERT INTO "sandwhich_type" VALUES(3,'bologna on white');
+INSERT INTO "sandwhich_type" VALUES(4,'phily chesse stake on italian');
+INSERT INTO "sandwhich_type" VALUES(5,'ham, pepperoni, pepper jack cheese on flat bread');
+INSERT INTO "sandwhich_type" VALUES(6,'black forest ham with american cheese on whole wheat');
+INSERT INTO "sandwhich_type" VALUES(7,'bacon, lettuce, tomato on rye');
+INSERT INTO "sandwhich_type" VALUES(8,'grilled chicken on hamburger bun');
+INSERT INTO "sandwhich_type" VALUES(9,'peanut butter and jelly with crust cut off');
+INSERT INTO "sandwhich_type" VALUES(10,'applewood smoked ham,provolone cheese garnished,lettuce,tomato,mayo on italian');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('greetings',11);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
 INSERT INTO "sqlite_sequence" VALUES('cookie_flavors',36);
 INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);
+INSERT INTO "sqlite_sequence" VALUES('sandwhich_type',10);
 COMMIT;
