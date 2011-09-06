@@ -214,29 +214,55 @@ def give_skittles(phenny, input):
 give_skittles.commands = ['skittles']
 give_skittles.priority = 'medium'
 
-def give_sandwich(phenny, input):
-  #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
+
+def give_element(phenny, input):
+  #if it's the bot getting the element, or if the user is elementing themselves
   #code here
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  **gloms down and does not leave a single crumb on the plate.**") )
+      return( phenny.say("Hmmm elements, the one thing i dont understand...") )
     else:
       recepient = input.group(2)
   else:
     recepient = str(input.nick)
+  #otherwise give specified user an element
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
+  db_curr.execute( "SELECT * FROM element_type;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    element = random.choice(db_result)[1]
+    
+    phenny.say("Here you go, %s, I'm giving you 20kg. of pure %s !" % (recepient, str(element) ) )
+give_element.commands = ['element']
+give_element.priority = 'medium'
+
+
+def give_sandwich(phenny, input):
+  #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
+  #code here
+  if input.group(2):
+    if input.group(3).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  **gloms down and does not leave a single crumb on the plate.**"))
+    else:
+      recepient = input.group(2) 
   #otherwise give specified user sandwich
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
   
-  db_curr.execute( "SELECT * FROM sandwich_type;" )
+  db_curr.execute( "SELLECT * FROM sandwich_type;" )
   db_result = db_curr.fetchall()
   
   if (db_result):
     #first choose a db_result at random, then take element 1 of that result (the insult itself)
     flavor = random.choice(db_result)[1]
     
-  phenny.say("here you go, %s, I made you a %s sandwich!" % (recepient, str(flavor) ) )
+  phenny.say("Here you go, %s, I made you a %s sandwich!" % (recepient, str(flavor) ) )
 give_sandwich.commands = ['sandwich']
 give_sandwich.priority = 'medium'
 
