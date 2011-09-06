@@ -36,9 +36,9 @@ tellPlaceholder.example = ['Not yet implemented']
 tellPlaceholder.priority = 'low'
 
 def liveStream(phenny, input):
-  phenny.say("The Geek Group Live Web Stream can be found at: http://www.ustream.tv/channel/the-geek-group-behind-the-scenes-live-feed ")
+  phenny.say("The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ")
 liveStream.commands = ['stream']
-liveStream.example = ['Not yet implemented']
+liveStream.example = ['.stream']
 liveStream.priority = 'medium'
 
 def coinFlip(phenny, input):
@@ -213,6 +213,59 @@ def give_skittles(phenny, input):
     phenny.say("Here you go, %s, I got you some %s skittles!" % (recepient, str(flavor) ) )
 give_skittles.commands = ['skittles']
 give_skittles.priority = 'medium'
+
+
+def give_element(phenny, input):
+  #if it's the bot getting the element, or if the user is elementing themselves
+  #code here
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return( phenny.say("Hmmm elements, the one thing i dont understand...") )
+    else:
+      recepient = input.group(2)
+  else:
+    recepient = str(input.nick)
+  #otherwise give specified user an element
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
+  db_curr.execute( "SELECT * FROM element_type;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+    
+    phenny.say("Here you go, %s, I'm giving you 20kg. of pure %s !" % (recepient, str(element) ) )
+give_element.commands = ['element']
+give_element.priority = 'medium'
+
+
+def give_sandwhich(phenny, input):
+  #if it's the bot getting the sandwhich, or if the user is sandwhiching themselfs
+  #code here
+  if input.group(2):
+    if input.group(3).lower() == phenny.nick.lower():
+	  return(phenny.say("For me?  Thank you!  **gloms down and does not leave a single crumb on the plate.**
+    else:
+	  recepient = input.group(2) 
+	 #otherwise give specified user sandwhich
+	 db_coon = sqlite3.connect("tgg.db")
+	 db_curr = db_conn.cursor()
+	 #nick = str(input.nick)
+	 
+	 db_curr.execute( "SELLECT * FROM sandwhich_type;" )
+	 db_result = db_curr.fetchall()
+	 
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+	   
+	phenny.say("Here you go, %s, I made you a %s sandwhich!" % (recepient, str(flavor) ) )
+give_sandwhich.commands = ['sandwhich']
+give_sandwhich.priority - 'medium'
+
 
 def steveFunction1(phenny,input):
   if not input.group(1):
