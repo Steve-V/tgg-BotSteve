@@ -55,21 +55,33 @@ logFile.commands = ['history','log']
 logFile.example = ['View the history with:  .history']
 logFile.priority = 'medium'
 
-def rollD20(phenny, input):
+def rolldice(phenny, input):
   import random
-  diceResult = random.choice( range(1,21) )
+  
+  #returns a list of random dice
+  #from random import randint
+  #def roll(dice = 1, sides = 6):
+    #try: return [randint(1, sides) for i in range(dice)]
+    #except: return []
+  
+  #check if there is anything after dice
+  if not input.group(2):
+    #then roll a d6 and return
+    diceResult = random.choice( range(1,7) )
+  else:
+    #if there is something else, then...
+    #if there's a space, then we are using "dice 1 20" format
+    if " " in input.group(2):
+      #then split the string by the space
+    #if there's a 'd' then we are using '1d20' format
+    if "d" in input.group(2).lower:
+      #then split the string by the d
+    else:
+      return( phenny.say("Can't translate that! Use '.dice 1d20' or '.dice 1 20' format") )
   phenny.say( str(diceResult) )
-rollD20.commands = ['d20']
-rollD20.example = ['.d20']
-rollD20.priority = 'medium'
-
-def rollD6(phenny, input):
-  import random
-  diceResult = random.choice( range(1,7) )
-  phenny.say( str(diceResult) )
-rollD6.commands = ['dice','d6']
-rollD6.example = ['.dice']
-rollD6.priority = 'medium'
+rolldice.commands = ['dice']
+rolldice.example = ['.dice']
+rolldice.priority = 'medium'
 
 def join_greeter(phenny, input):
   """
