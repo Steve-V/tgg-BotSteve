@@ -15,9 +15,10 @@ import random
 
 def fortune(phenny, input): 
   import subprocess
+  import string
   subp = subprocess.Popen( ['fortune', '-s', 'computers'] , stdout=subprocess.PIPE)
   stdo = subp.communicate()[0]
-  phenny.say( stdo )
+  phenny.say( string.replace(stdo,"\n"," ") )
 fortune.commands = ['quote', 'fortune']
 fortune.example = ".quote"
 fortune.priority = 'low'
