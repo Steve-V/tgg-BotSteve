@@ -42,6 +42,12 @@ liveStream.commands = ['stream']
 liveStream.example = ['.stream']
 liveStream.priority = 'medium'
 
+def BotStevesCode(phenny, input):
+  phenny.say("my code download can be found at https://github.com/Steve-V/tgg-BotSteve ")
+BotStevesCode.commands = ['botsteves_code']
+BotStevesCode.example = ['.botsteves_code']
+BotStevesCode.priority = 'medium'
+
 def coinFlip(phenny, input):
   import random
   coinResult = random.choice(('Heads!', 'Tails!'))
@@ -256,7 +262,7 @@ def give_sandwich(phenny, input):
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
   
-  db_curr.execute( "SELLECT * FROM sandwich_type;" )
+  db_curr.execute( "SELECT * FROM sandwich_type;" )
   db_result = db_curr.fetchall()
   
   if (db_result):
