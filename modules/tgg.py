@@ -253,10 +253,12 @@ def give_sandwich(phenny, input):
   #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
   #code here
   if input.group(2):
-    if input.group(3).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  **gloms down and does not leave a single crumb on the plate.**"))
+    if input.group(2).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  **gloms down the sandwich like pig he is and licks the plate clean.**"))
     else:
       recepient = input.group(2) 
+  else:
+    recepient = str(input.nick)
   #otherwise give specified user sandwich
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
