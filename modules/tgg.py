@@ -225,7 +225,7 @@ def give_element(phenny, input):
       return( phenny.say("Hmmm, elements, the one thing I don't understand...") )
     else:
       #otherwise, we need to figure out who and how much
-      recepient, amount = input.groups()
+      recepient = input.group(2)
   else:
     #if there's nothing after the command, give it to the person who triggered the command
     recepient = str(input.nick)
@@ -241,6 +241,10 @@ def give_element(phenny, input):
   if (db_result):
     #first choose a db_result at random, then take element 1 of that result (the insult itself)
     element = random.choice(db_result)[1]
+    
+    amount_digits = random.choice( range(2,501) )
+    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "handfuls"] )
+    amount = str(amount_digits) + " " + str(amount_units)
     
     phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
 give_element.commands = ['element']
