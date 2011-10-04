@@ -224,30 +224,38 @@ give_skittles.priority = 'medium'
 
 def give_element(phenny, input):
   #if it's the bot getting the element, or if the user is elementing themselves
-  #code here
+  
+  #see if there's something after the command...
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("Hmmm elements, the one thing i dont understand...") )
+      #that is, if the bot should get the element itself
+      return( phenny.say("Hmmm, elements, the one thing I don't understand...") )
     else:
+      #otherwise, we need to figure out who and how much
       recepient = input.group(2)
   else:
+    #if there's nothing after the command, give it to the person who triggered the command
     recepient = str(input.nick)
   #otherwise give specified user an element
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
-  
+   
   db_curr.execute( "SELECT * FROM element_type;" )
   db_result = db_curr.fetchall()
-  
+
+   
   if (db_result):
     #first choose a db_result at random, then take element 1 of that result (the insult itself)
     element = random.choice(db_result)[1]
     
-    phenny.say("Here you go, %s, I'm giving you 20kg. of pure %s !" % (recepient, str(element) ) )
+    amount_digits = random.choice( range(2,501) )
+    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "handfuls"] )
+    amount = str(amount_digits) + " " + str(amount_units)
+    
+    phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
 give_element.commands = ['element']
 give_element.priority = 'medium'
-
 
 def give_sandwich(phenny, input):
   #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
