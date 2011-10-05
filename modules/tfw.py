@@ -12,10 +12,10 @@ def tfw(phenny, input, fahrenheit=False, celsius=False):
 	""".tfw <city/zip> - Show the fucking weather at the specified location."""
 
 	zipcode = input.group(2)
-	if not zipcode:
+	if not zipcode or zipcode == 'tgg':
 		# default to Grand Rapids, Michigan
 		zipcode = "49504"
-
+    
 	if fahrenheit:
 		celsius_param = ""
 	else:

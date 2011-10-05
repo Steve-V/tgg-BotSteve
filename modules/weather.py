@@ -149,7 +149,10 @@ def f_weather(self, origin, match, args):
    icao_code = match.group(2)
    if not icao_code: 
       return self.msg(origin.sender, 'Try .weather London, for example?')
-
+   
+   #adapt to tgg
+   if icao_code == 'tgg': icao_code = 'kgrr'
+   
    icao_code = code(self, icao_code)
 
    if not icao_code: 
