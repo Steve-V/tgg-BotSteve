@@ -250,7 +250,7 @@ def give_element(phenny, input):
     element = random.choice(db_result)[1]
     
     amount_digits = random.choice( range(2,501) )
-    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "handfuls"] )
+    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "gaylords", "handfuls"] )
     amount = str(amount_digits) + " " + str(amount_units)
     
     phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
