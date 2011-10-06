@@ -283,6 +283,31 @@ def give_sandwich(phenny, input):
 give_sandwich.commands = ['sandwich']
 give_sandwich.priority = 'medium'
 
+def give_shake(phenny, input):
+  #if it's the bot getting the shake, or if the user is shakeing themselfs
+  #code here
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  ** Slurp Slurp Slurp.** That was refreshing"))
+    else:
+      recepient = input.group(2) 
+  else:
+    recepient = str(input.nick)
+  #otherwise give specified user shake
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
+  db_curr.execute( "SELECT * FROM shake_flavor;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+    
+  phenny.say("Here you go, %s, I made you a %s shake!" % (recepient, str(flavor) ) )
+give_shake.commands = ['shake']
+give_shake.priority = 'medium'
 
 def steveFunction1(phenny,input):
   if not input.group(1):

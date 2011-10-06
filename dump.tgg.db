@@ -1,7 +1,7 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE greetings (id INTEGER PRIMARY KEY AUTOINCREMENT, nickname, greeting, chance);
-INSERT INTO "greetings" VALUES(1,'BatSteve','Welcome back, boss.','100');
+INSERT INTO "greetings" VALUES(1,'BatSteve','Welcome back, boss.','10');
 INSERT INTO "greetings" VALUES(2,'CaptainBoden','****Attention on deck!  Captain on the bridge!****','100');
 INSERT INTO "greetings" VALUES(5,'mman454','You mess with the Bull, you get the horns!','10');
 INSERT INTO "greetings" VALUES(6,'masterofmonks','Spatula.','50');
@@ -9,6 +9,8 @@ INSERT INTO "greetings" VALUES(7,'tmbomber','Welcome back, Mr. Kidwell','100');
 INSERT INTO "greetings" VALUES(8,'Seroster','All right, show us on the doll where Seroster touched you.','10');
 INSERT INTO "greetings" VALUES(10,'speedrunnerG55','At last!  My only friend!','10');
 INSERT INTO "greetings" VALUES(11,'ponko','Ponko is credit to team!','10');
+INSERT INTO "greetings" VALUES(12,'lwq1996','**whispers** Quick, hide!  Before he sees us!','10');
+INSERT INTO "greetings" VALUES(13,'wannabe1987','Cookies, Sandwiches, Skittles, Oh my!','10');
 CREATE TABLE insults (id INTEGER PRIMARY KEY AUTOINCREMENT, insult, clean);
 INSERT INTO "insults" VALUES(1,'if you keep that up, I''ll rip your arm off and beat you with the wet end.','TRUE');
 INSERT INTO "insults" VALUES(2,'i''d hit you, but I don''t want to get stupid on my hands.','TRUE');
@@ -49,6 +51,7 @@ INSERT INTO "cookie_flavors" VALUES(30,'black-and-white');
 INSERT INTO "cookie_flavors" VALUES(32,'christmas');
 INSERT INTO "cookie_flavors" VALUES(35,'kleicha');
 INSERT INTO "cookie_flavors" VALUES(36,'Moravian spice');
+INSERT INTO "cookie_flavors" VALUES(37,'bacon');
 CREATE TABLE "skittles_colors" (
     "ID" INTEGER PRIMARY KEY AUTOINCREMENT,
     "color" TEXT
@@ -79,6 +82,38 @@ INSERT INTO "sandwich_type" VALUES(7,'bacon, lettuce, tomato on rye');
 INSERT INTO "sandwich_type" VALUES(8,'grilled chicken on hamburger bun');
 INSERT INTO "sandwich_type" VALUES(9,'peanut butter and jelly with crust cut off');
 INSERT INTO "sandwich_type" VALUES(10,'applewood smoked ham,provolone cheese garnished,lettuce,tomato,mayo on italian');
+CREATE TABLE "shake_flavor" (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT, 
+      "shake_flavor" TEXT
+);
+INSERT INTO "shake_flavor" VALUES(1,'strawberry');
+INSERT INTO "shake_flavor" VALUES(2,'chocolate');
+INSERT INTO "shake_flavor" VALUES(3,'vanilla');
+INSERT INTO "shake_flavor" VALUES(4,'chocolate mocha latte');
+INSERT INTO "shake_flavor" VALUES(5,'peanut butter swirl');
+INSERT INTO "shake_flavor" VALUES(6,'banana');
+INSERT INTO "shake_flavor" VALUES(7,'double chocolate fudge');
+INSERT INTO "shake_flavor" VALUES(8,'caramel apple');
+INSERT INTO "shake_flavor" VALUES(9,'blackberry');
+INSERT INTO "shake_flavor" VALUES(10,'coffee bean');
+INSERT INTO "shake_flavor" VALUES(11,'reeses cup');
+INSERT INTO "shake_flavor" VALUES(12,'heath Toffee');
+INSERT INTO "shake_flavor" VALUES(13,'cappuccino');
+INSERT INTO "shake_flavor" VALUES(14,'blueberry');
+INSERT INTO "shake_flavor" VALUES(15,'brownie');
+INSERT INTO "shake_flavor" VALUES(16,'strawberry cheesecake');
+INSERT INTO "shake_flavor" VALUES(17,'fresh watermelon');
+INSERT INTO "shake_flavor" VALUES(18,'fresh egg nog');
+INSERT INTO "shake_flavor" VALUES(19,'chocolate malt');
+INSERT INTO "shake_flavor" VALUES(20,'pineapple');
+INSERT INTO "shake_flavor" VALUES(21,'peach');
+INSERT INTO "shake_flavor" VALUES(22,'M&M');
+INSERT INTO "shake_flavor" VALUES(23,'chocolate chip mint');
+INSERT INTO "shake_flavor" VALUES(24,'oreo');
+INSERT INTO "shake_flavor" VALUES(25,'snickers');
+INSERT INTO "shake_flavor" VALUES(26,'red cherry');
+INSERT INTO "shake_flavor" VALUES(27,'walnut');
+INSERT INTO "shake_flavor" VALUES(28,'cookies and creme');
 CREATE TABLE "element_type" (
       "id" INTEGER PRIMARY KEY AUTOINCREMENT, 
       "element_type" TEXT
@@ -207,6 +242,5 @@ INSERT INTO "sqlite_sequence" VALUES('cookie_flavors',36);
 INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);
 INSERT INTO "sqlite_sequence" VALUES('sandwich_type',10);
 INSERT INTO "sqlite_sequence" VALUES('element_type',117);
-
-
+INSERT INTO "sqlite_sequence" VALUES('shake_flavor',28);
 COMMIT;
