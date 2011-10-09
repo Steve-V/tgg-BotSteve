@@ -80,9 +80,9 @@ rollD6.priority = 'medium'
 
 def bugReport(phenny, input):
   phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
-  bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
-  bugReport.example = ['.tggbug']
-  bugReport.priority = 'medium'
+bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
+bugReport.example = ['.tggbug']
+bugReport.priority = 'medium'
 
 def join_greeter(phenny, input):
   """
