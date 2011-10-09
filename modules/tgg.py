@@ -78,6 +78,12 @@ rollD6.commands = ['dice','d6']
 rollD6.example = ['.dice']
 rollD6.priority = 'medium'
 
+def bugReport(phenny, input):
+  phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
+  bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
+  bugReport.example = ['.tggbug']
+  bugReport.priority = 'medium'
+
 def join_greeter(phenny, input):
   """
   Greetings depend on new sqlite database.  Schema is simple:
