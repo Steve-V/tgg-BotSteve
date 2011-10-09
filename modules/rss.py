@@ -77,6 +77,9 @@ def setup(phenny):
       
       #=======================
       
+      #set up the output string as blank
+      outputString = ""
+      
       #pull physicsduck feed again
       currentYoutubeFeed = youtubeServe.GetYouTubeVideoFeed(youtubeUri)
       
@@ -96,9 +99,9 @@ def setup(phenny):
       
       #rebuild the output string
       if youtubeTitlesChanged:
-        outputString = 'In the last hour, there have been '
+        outputString += 'In the last hour, there have been '
         outputString += str( len(youtubeTitlesChanged) )
-        outputString += " new YouTube videos posted by PhysicsDuck.  New videos: "
+        outputString += " new YouTube videos posted by PhysicsDuck.  New videos:   "
         #print the header
         phenny.msg(mainChannel, outputString)
         
@@ -108,7 +111,9 @@ def setup(phenny):
           outputString = eachTitle
           outputString += " "
           outputString += formattedURL
-          phenny.msg(mainChannel, outputString)
+          
+          #don't display the string - preserved for historical purposes
+          #phenny.msg(mainChannel, outputString)
         
         #update to the new feed
         oldYoutubeFeed = currentYoutubeFeed
@@ -139,7 +144,10 @@ def setup(phenny):
       
       #rebuild the output string
       if youtubeTggTitlesChanged:
-        outputString = 'In the last hour, there have been '
+        #if there's something already in the output string from above
+        if outputString:
+          outputString += " ||| "
+        outputString += 'In the last hour, there have been '
         outputString += str( len(youtubeTggTitlesChanged) )
         outputString += " new YouTube videos posted by TheGeekGroup.  New videos: "
         #print the header
@@ -151,10 +159,16 @@ def setup(phenny):
           outputString = eachTitle
           outputString += " "
           outputString += formattedURL
-          phenny.msg(mainChannel, outputString)
+          
+          #don't display the string - preserved for historical purposes
+          #phenny.msg(mainChannel, outputString)
         
         #update to the new feed
         oldTggYoutubeFeed = currentYoutubeTggFeed
+        
+        #display the string, if there's anything to display
+        if outputString:
+          phenny.msg(mainChannel, outputString)
       
       #debugging
       else:
