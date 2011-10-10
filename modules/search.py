@@ -70,6 +70,24 @@ tvtropes.commands = ['trope','tvtropes']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
+def jargon(phenny, input):
+  """Queries catb for the specified input."""
+  query = input.group(2)
+  if not query: 
+    return phenny.reply('Sorry, you need to enter something to define')
+  query2 = '+'.join([query,'site:catb.org'])
+  uri = result(query2)
+  if uri: 
+    phenny.reply(uri)
+    if not hasattr(phenny.bot, 'last_seen_uri'):
+      phenny.bot.last_seen_uri = {}
+    phenny.bot.last_seen_uri[input.sender] = uri
+  else: phenny.reply("No results found for '%s'." % query)
+jargon.commands = ['jargon','catb']
+jargon.priority = 'high'
+jargon.example = '.jargon Story of Mel'
+
+
 def wikiGoog(query):
   """Queries wikipedia via google for the specified input."""
   if not query: 
