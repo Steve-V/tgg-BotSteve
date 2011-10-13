@@ -107,7 +107,7 @@ def setup(phenny):
         
         #print the videos
         for eachTitle, eachURL in youtubeTitlesChanged:
-          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://www.youtu.be/")
+          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
           outputString += eachTitle
           outputString += " "
           outputString += formattedURL
@@ -155,7 +155,7 @@ def setup(phenny):
         
         #print the videos
         for eachTitle, eachURL in youtubeTggTitlesChanged:
-          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://www.youtu.be/")
+          formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
           outputString += eachTitle
           outputString += " "
           outputString += formattedURL
