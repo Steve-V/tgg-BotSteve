@@ -139,7 +139,7 @@ class Bot(asynchat.async_chat):
             wait = 0.8 + penalty
             if elapsed < wait: 
                time.sleep(wait - elapsed)
-
+      
       # Loop detection
       messages = [m[1] for m in self.stack[-8:]]
       if messages.count(text) >= 5: 
@@ -147,9 +147,21 @@ class Bot(asynchat.async_chat):
          if messages.count('Error!  Too many requests!') >= 3: 
             self.sending.release()
             return
+      
+      # Botspam detection
+      # If there's at least three items on the stack and:
+      #   - they're all within 5 seconds (debugging with 15) of each other
+      #   - the current message is addressed to the same place as where the spam is going on
+      #then: spam is probably occurring
+      if len(self.stack) > 3:
+        timeForThreeMessages = time.time() - self.stack[-3][0]
+        if timeForThreeMessages < 15:
+          self.__write(('PRIVMSG', recipient), 'Error, you idiot! By the way, recip[0] = %s' % str(recipient[0]) )
+          self.sending.release()
+          return
 
       self.__write(('PRIVMSG', recipient), text)
-      self.stack.append((time.time(), text))
+      self.stack.append((time.time(), text, recipient))
       self.stack = self.stack[-10:]
 
       self.sending.release()
