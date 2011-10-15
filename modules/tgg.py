@@ -316,13 +316,16 @@ give_shake.commands = ['shake']
 give_shake.priority = 'medium'
 
 def steveFunction1(phenny,input):
-  if not input.group(1):
-    return phenny.say("no input")
-  else:
-    return phenny.say(input.group(1))
-steveFunction1.commands = ['steveFunction1','steveFunction2']
+  who = input.sender
+  phenny.say("executing 2")
+  phenny.write(['PRIVMSG', 'ChanServ'], 'OP %s %s' % (input.sender, phenny.nick))
+steveFunction1.commands = ['steveFunction1']
 steveFunction1.priority = 'low'
 
+#def steveFunction2(phenny,input):
+  #return phenny.say("function 2")
+#steveFunction2.commands = ['steveFunction1']
+#steveFunction2.priority = 'low'
 
 if __name__ == '__main__': 
    print __doc__.strip()

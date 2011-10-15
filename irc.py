@@ -153,12 +153,12 @@ class Bot(asynchat.async_chat):
       #   - they're all within 5 seconds (debugging with 15) of each other
       #   - the current message is addressed to the same place as where the spam is going on
       #then: spam is probably occurring
-      if len(self.stack) > 3:
-        timeForThreeMessages = time.time() - self.stack[-3][0]
-        if timeForThreeMessages < 15:
-          self.__write(('PRIVMSG', recipient), 'Error, you idiot! By the way, recip[0] = %s' % str(recipient[0]) )
-          self.sending.release()
-          return
+      #if len(self.stack) > 3:
+        #timeForThreeMessages = time.time() - self.stack[-3][0]
+        #if timeForThreeMessages < 6:
+          #self.__write(('PRIVMSG', recipient), 'More than 3 messages in last 6 seconds!' )
+          #self.sending.release()
+          #return
 
       self.__write(('PRIVMSG', recipient), text)
       self.stack.append((time.time(), text, recipient))
