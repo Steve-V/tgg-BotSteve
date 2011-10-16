@@ -64,7 +64,7 @@ def setup(phenny):
       #build the output string
       outputString = 'In the last hour, there have been '
       outputString += str( len(titlesChanged) )
-      outputString += " new posts on the Geek Group forums.  New posts made by: "
+      outputString += " new posts on the Geek Group forums ( http://goo.gl/t0vze ).  New posts made by: "
       for eachPost in titlesChanged:
         outputString += eachPost
         if eachPost != titlesChanged[-1]:
