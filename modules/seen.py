@@ -39,7 +39,11 @@ def f_seen(self, origin, match, args):
     pass
   
   if origin.sender == '#talis': return
-  nick = match.group(2).lower()
+  try:
+    nick = match.group(2).lower()
+  except AttributeError:
+    self.msg(origin.sender, "No user provided!")
+    return 
   
   #misc easter eggs
   if nick.lower() == "kyle":
