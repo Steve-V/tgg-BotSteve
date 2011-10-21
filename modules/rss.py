@@ -44,7 +44,7 @@ def setup(phenny):
     while True: 
       
       #pull forum feed again
-      phenny.msg(testChannel, "Pulling new video feeds")
+      #phenny.msg(testChannel, "Pulling new video feeds")
       currentFeed = ''
       currentFeed = feedparser.parse("http://thegeekgroup.org/bb/?xfeed=all&feedkey=60635da5-d00a-4f9e-a007-a9102251b1c1")
       
@@ -121,7 +121,7 @@ def setup(phenny):
       #debugging
       else:
         pass
-        phenny.msg(testChannel, "No new feeds from PhysicsDuck")
+        #phenny.msg(testChannel, "No new feeds from PhysicsDuck")
       
       #=======================
       
@@ -169,13 +169,13 @@ def setup(phenny):
       #debugging
       else:
         pass
-        phenny.msg(testChannel, "No new feeds from TheGeekGroup")
+       # phenny.msg(testChannel, "No new feeds from TheGeekGroup")
       
       #display the string, if there's anything to display
       if outputString:
         phenny.msg(mainChannel, outputString)
       
-      phenny.msg(testChannel, "sleeping...")
+      #phenny.msg(testChannel, "sleeping...")
       import time
       time.sleep(3600)
   
