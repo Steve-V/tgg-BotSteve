@@ -12,11 +12,11 @@ from tools import deprecated
 from decimal import *
 import os
 
-storage = None
+storage = {} # Default value
+# storage is a persistant value, automagically loaded and saved by the bot.
 
-def setup(self): 
-    if self.storage is None:
-        self.storage = {}
+#def setup(self): 
+#    pass
 
 @deprecated
 def f_seen(self, origin, match, args): 

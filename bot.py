@@ -69,14 +69,10 @@ class Phenny(irc.Bot):
             try:
                 #STORAGE: Initialize the module store
                 if hasattr(module, 'storage'):
-                    module.storage = None
                     #Load the save file, if it exists
                     fn = modulestore(module.__name__)
-                    try:
+                    if os.path.exists(fn):
                         module.storage = pickle.load(open(fn, 'rb'))
-                    except:
-                        #TODO: Report exception
-                        pass
                 if hasattr(module, 'setup'): 
                    self.module.setup(self)
             except:
