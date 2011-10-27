@@ -23,31 +23,6 @@ fortune.commands = ['quote', 'fortune']
 fortune.example = ".quote"
 fortune.priority = 'low'
 
-def minecraft(phenny, input):
-  #phenny.say( "The minecraft server is currently down." )
-  phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** The server may or may not be down right now.  Try it and let us know." )
-minecraft.commands = ['minecraft']
-minecraft.example = ".minecraft"
-minecraft.priority = 'low'
-
-def tellPlaceholder(phenny, input):
-  phenny.say("Sorry, .tell is not yet implemented.  Use BotSteve: tell ")
-tellPlaceholder.commands = ['tell']
-tellPlaceholder.example = ['Not yet implemented']
-tellPlaceholder.priority = 'low'
-
-def liveStream(phenny, input):
-  phenny.say("The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ")
-liveStream.commands = ['stream']
-liveStream.example = ['.stream']
-liveStream.priority = 'medium'
-
-def BotStevesCode(phenny, input):
-  phenny.say("my code download can be found at https://github.com/Steve-V/tgg-BotSteve ")
-BotStevesCode.commands = ['botsteves_code']
-BotStevesCode.example = ['.botsteves_code']
-BotStevesCode.priority = 'medium'
-
 def coinFlip(phenny, input):
   import random
   coinResult = random.choice(('Heads!', 'Tails!'))
@@ -55,12 +30,6 @@ def coinFlip(phenny, input):
 coinFlip.commands = ['coin']
 coinFlip.example = ['.coin']
 coinFlip.priority = 'medium'
-
-def logFile(phenny, input):
-  phenny.say("Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today")
-logFile.commands = ['history','log']
-logFile.example = ['View the history with:  .history']
-logFile.priority = 'medium'
 
 def rollD20(phenny, input):
   import random
@@ -78,12 +47,6 @@ rollD6.commands = ['dice','d6']
 rollD6.example = ['.dice']
 rollD6.priority = 'medium'
 
-def bugReport(phenny, input):
-  phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
-bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
-bugReport.example = ['.tggbug']
-bugReport.priority = 'medium'
-
 def join_greeter(phenny, input):
   """
   Greetings depend on new sqlite database.  Schema is simple:
@@ -93,6 +56,7 @@ def join_greeter(phenny, input):
   By default, the datebase lives in the bot's root directory tgg-BotSteve/tgg.db
 
   Will eventually add auto-create and add code
+  #no we probably won't
   """
 
   db_conn = sqlite3.connect("tgg.db")
@@ -122,56 +86,40 @@ join_greeter.event = 'JOIN'
 join_greeter.rule = r'(.*)'
 join_greeter.priority = 'low'
 
-def insult_user(phenny, input):
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  nick = str(input.nick)
-  t = (nick,)
+#def give_cookie(phenny, input):
+  ##if it's the bot getting the cookie, or if the user is cookieing themselves
+  ##code here
+  #if input.group(2):
+    #if input.group(2).lower() == phenny.nick.lower():
+      #return( phenny.say("For me?  Thank you!  *om nom nom*") )
+    #else:
+      #recepient = input.group(2)
+  #else:
+    #recepient = str(input.nick)
+  ##otherwise give specified user a cookie
+  #db_conn = sqlite3.connect("tgg.db")
+  #db_curr = db_conn.cursor()
+  ##nick = str(input.nick)
   
-  db_curr.execute( "SELECT * FROM insults;" )
-  db_result = db_curr.fetchall()
+  #db_curr.execute( "SELECT * FROM cookie_flavors;" )
+  #db_result = db_curr.fetchall()
   
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    insult = random.choice(db_result)[1]
-    phenny.say("Hey, " + str(nick) + ", " + str(insult) )
-insult_user.commands = ['insult']
-insult_user.priority = 'medium'
-
-def give_cookie(phenny, input):
-  #if it's the bot getting the cookie, or if the user is cookieing themselves
-  #code here
-  if input.group(2):
-    if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("For me?  Thank you!  *om nom nom*") )
-    else:
-      recepient = input.group(2)
-  else:
-    recepient = str(input.nick)
-  #otherwise give specified user a cookie
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  #nick = str(input.nick)
-  
-  db_curr.execute( "SELECT * FROM cookie_flavors;" )
-  db_result = db_curr.fetchall()
-  
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    flavor = random.choice(db_result)[1]
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #flavor = random.choice(db_result)[1]
     
-    if str(flavor)[0].lower() in ['a','e','i','o','u']:
-      seperator = 'an'
-    else:
-      seperator = 'a'
+    #if str(flavor)[0].lower() in ['a','e','i','o','u']:
+      #seperator = 'an'
+    #else:
+      #seperator = 'a'
     
-    phenny.say("Here you go, %s, I baked you %s %s cookie!" % (recepient, seperator, str(flavor) ) )
-give_cookie.commands = ['cookie']
-give_cookie.priority = 'medium'
+    #phenny.say("Here you go, %s, I baked you %s %s cookie!" % (recepient, seperator, str(flavor) ) )
+#give_cookie.commands = ['cookie']
+#give_cookie.priority = 'medium'
 
 def give_food(phenny, input):
-  #if it's the bot getting the cookie, or if the user is cookieing themselves
-  #code here
+  #if it's the bot getting the object, or if the user is objectifying themselves or someone else
+  
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
       return( phenny.say("For me?  Thank you!  *om nom nom*") )
@@ -201,119 +149,119 @@ give_food.commands = ['nom']
 give_food.priority = 'medium'
 
 
-def give_skittles(phenny, input):
-  #if it's the bot getting the cookie, or if the user is cookieing themselves
-  #code here
-  if input.group(2):
-    if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("For me?  Thank you!  Rainbows taste delicious!") )
-    else:
-      recepient = input.group(2)
-  else:
-    recepient = str(input.nick)
-  #otherwise give specified user a cookie
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  #nick = str(input.nick)
+#def give_skittles(phenny, input):
+  ##if it's the bot getting the cookie, or if the user is cookieing themselves
+  ##code here
+  #if input.group(2):
+    #if input.group(2).lower() == phenny.nick.lower():
+      #return( phenny.say("For me?  Thank you!  Rainbows taste delicious!") )
+    #else:
+      #recepient = input.group(2)
+  #else:
+    #recepient = str(input.nick)
+  ##otherwise give specified user a cookie
+  #db_conn = sqlite3.connect("tgg.db")
+  #db_curr = db_conn.cursor()
+  ##nick = str(input.nick)
   
-  db_curr.execute( "SELECT * FROM skittles_colors;" )
-  db_result = db_curr.fetchall()
+  #db_curr.execute( "SELECT * FROM skittles_colors;" )
+  #db_result = db_curr.fetchall()
   
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    flavor = random.choice(db_result)[1]
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #flavor = random.choice(db_result)[1]
     
-    phenny.say("Here you go, %s, I got you some %s skittles!" % (recepient, str(flavor) ) )
-give_skittles.commands = ['skittles']
-give_skittles.priority = 'medium'
+    #phenny.say("Here you go, %s, I got you some %s skittles!" % (recepient, str(flavor) ) )
+#give_skittles.commands = ['skittles']
+#give_skittles.priority = 'medium'
 
 
-def give_element(phenny, input):
-  #if it's the bot getting the element, or if the user is elementing themselves
+#def give_element(phenny, input):
+  ##if it's the bot getting the element, or if the user is elementing themselves
   
-  #see if there's something after the command...
-  if input.group(2):
-    if input.group(2).lower() == phenny.nick.lower():
-      #that is, if the bot should get the element itself
-      return( phenny.say("Hmmm, elements, the one thing I don't understand...") )
-    else:
-      #otherwise, we need to figure out who and how much
-      recepient = input.group(2)
-  else:
-    #if there's nothing after the command, give it to the person who triggered the command
-    recepient = str(input.nick)
-  #otherwise give specified user an element
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  #nick = str(input.nick)
+  ##see if there's something after the command...
+  #if input.group(2):
+    #if input.group(2).lower() == phenny.nick.lower():
+      ##that is, if the bot should get the element itself
+      #return( phenny.say("Hmmm, elements, the one thing I don't understand...") )
+    #else:
+      ##otherwise, we need to figure out who and how much
+      #recepient = input.group(2)
+  #else:
+    ##if there's nothing after the command, give it to the person who triggered the command
+    #recepient = str(input.nick)
+  ##otherwise give specified user an element
+  #db_conn = sqlite3.connect("tgg.db")
+  #db_curr = db_conn.cursor()
+  ##nick = str(input.nick)
    
-  db_curr.execute( "SELECT * FROM element_type;" )
-  db_result = db_curr.fetchall()
+  #db_curr.execute( "SELECT * FROM element_type;" )
+  #db_result = db_curr.fetchall()
 
    
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    element = random.choice(db_result)[1]
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #element = random.choice(db_result)[1]
     
-    amount_digits = random.choice( range(2,501) )
-    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "gaylords", "handfuls"] )
-    amount = str(amount_digits) + " " + str(amount_units)
+    #amount_digits = random.choice( range(2,501) )
+    #amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "gaylords", "handfuls"] )
+    #amount = str(amount_digits) + " " + str(amount_units)
     
-    phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
-give_element.commands = ['element']
-give_element.priority = 'medium'
+    #phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
+#give_element.commands = ['element']
+#give_element.priority = 'medium'
 
-def give_sandwich(phenny, input):
-  #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
-  #code here
-  if input.group(2):
-    if input.group(2).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  **gloms down the sandwich like pig he is and licks the plate clean.**"))
-    else:
-      recepient = input.group(2) 
-  else:
-    recepient = str(input.nick)
-  #otherwise give specified user sandwich
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  #nick = str(input.nick)
+#def give_sandwich(phenny, input):
+  ##if it's the bot getting the sandwich, or if the user is sandwiching themselfs
+  ##code here
+  #if input.group(2):
+    #if input.group(2).lower() == phenny.nick.lower():
+      #return(phenny.say("For me?  Thank you!  **gloms down the sandwich like pig he is and licks the plate clean.**"))
+    #else:
+      #recepient = input.group(2) 
+  #else:
+    #recepient = str(input.nick)
+  ##otherwise give specified user sandwich
+  #db_conn = sqlite3.connect("tgg.db")
+  #db_curr = db_conn.cursor()
+  ##nick = str(input.nick)
   
-  db_curr.execute( "SELECT * FROM sandwich_type;" )
-  db_result = db_curr.fetchall()
+  #db_curr.execute( "SELECT * FROM sandwich_type;" )
+  #db_result = db_curr.fetchall()
   
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    flavor = random.choice(db_result)[1]
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #flavor = random.choice(db_result)[1]
     
-  phenny.say("Here you go, %s, I made you a %s sandwich!" % (recepient, str(flavor) ) )
-give_sandwich.commands = ['sandwich']
-give_sandwich.priority = 'medium'
+  #phenny.say("Here you go, %s, I made you a %s sandwich!" % (recepient, str(flavor) ) )
+#give_sandwich.commands = ['sandwich']
+#give_sandwich.priority = 'medium'
 
-def give_shake(phenny, input):
-  #if it's the bot getting the shake, or if the user is shakeing themselfs
-  #code here
-  if input.group(2):
-    if input.group(2).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  ** Slurp Slurp Slurp.** That was refreshing"))
-    else:
-      recepient = input.group(2) 
-  else:
-    recepient = str(input.nick)
-  #otherwise give specified user shake
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-  #nick = str(input.nick)
+#def give_shake(phenny, input):
+  ##if it's the bot getting the shake, or if the user is shakeing themselfs
+  ##code here
+  #if input.group(2):
+    #if input.group(2).lower() == phenny.nick.lower():
+      #return(phenny.say("For me?  Thank you!  ** Slurp Slurp Slurp.** That was refreshing"))
+    #else:
+      #recepient = input.group(2) 
+  #else:
+    #recepient = str(input.nick)
+  ##otherwise give specified user shake
+  #db_conn = sqlite3.connect("tgg.db")
+  #db_curr = db_conn.cursor()
+  ##nick = str(input.nick)
   
-  db_curr.execute( "SELECT * FROM shake_flavor;" )
-  db_result = db_curr.fetchall()
+  #db_curr.execute( "SELECT * FROM shake_flavor;" )
+  #db_result = db_curr.fetchall()
   
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    flavor = random.choice(db_result)[1]
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #flavor = random.choice(db_result)[1]
     
-  phenny.say("Here you go, %s, I made you a %s shake!" % (recepient, str(flavor) ) )
-give_shake.commands = ['shake']
-give_shake.priority = 'medium'
+  #phenny.say("Here you go, %s, I made you a %s shake!" % (recepient, str(flavor) ) )
+#give_shake.commands = ['shake']
+#give_shake.priority = 'medium'
 
 def steveFunction1(phenny,input):
   if not input.group(1):
