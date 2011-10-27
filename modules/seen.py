@@ -13,30 +13,15 @@ from decimal import *
 import os
 import pickle
 
+storage = None
+
 def setup(self): 
-  fn = self.nick + '-' + self.config.host + '.seen.db'
-  self.seen_filename = os.path.join(os.path.expanduser('~/.phenny'), fn)
-  if not os.path.exists(self.seen_filename):
-    try: f = open(self.seen_filename, 'w')
-    except OSError: pass
-    else: 
-      f.write('')
-      f.close()
-  try:
-    self.seen = pickle.load( open(self.seen_filename) )
-  except EOFError:
-    pass
+    if self.storage is None:
+        self.storage = {}
 
 @deprecated
 def f_seen(self, origin, match, args): 
   """.seen <nick> - Reports when <nick> was last seen."""
-  
-  #pickle datastore to file, as long as self.seen exists
-  #will only throw exception if a .seen is the first thing the bot sees on startup
-  try:
-    pickle.dump(self.seen, open(self.seen_filename,'wb') )
-  except AttributeError:
-    pass
   
   if origin.sender == '#talis': return
   try:
@@ -51,12 +36,8 @@ def f_seen(self, origin, match, args):
   if nick.lower() == "botsteve":
     return self.msg(origin.sender, "I'm right here, actually.")
   
-  #error check
-  if not hasattr(self, 'seen'): 
-      return self.msg(origin.sender, 'Database Error!')
-  
-  if self.seen.has_key(nick): 
-      channel, storedTime = self.seen[nick]
+  if self.storage.has_key(nick): 
+      channel, storedTime = self.storage[nick]
       t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
       currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
       rawTimeDifference_hours = (time.time() - storedTime) / 3600
@@ -77,11 +58,9 @@ f_seen.thread = False
 @deprecated
 def f_note(self, origin, match, args): 
    def note(self, origin, match, args): 
-      if not hasattr(self.bot, 'seen'): 
-         self.bot.seen = {}
       if origin.sender.startswith('#'): 
          # if origin.sender == '#inamidst': return
-         self.seen[origin.nick.lower()] = (origin.sender, time.time())
+         self.storage[origin.nick.lower()] = (origin.sender, time.time())
 
       # if not hasattr(self, 'chanspeak'): 
       #    self.chanspeak = {}
