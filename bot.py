@@ -7,7 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, os, re, threading, imp
+import sys, os, re, threading, imp, pickle
 import irc
 
 home = os.getcwd()
@@ -80,10 +80,10 @@ class Phenny(irc.Bot):
                 raise
             else:
                 self.register(vars(module))
-                self.modules.append(name)
+                self.modules.append(module)
 
       if self.modules: 
-         print >> sys.stderr, 'Registered modules:', ', '.join(self.modules)
+         print >> sys.stderr, 'Registered modules:', ', '.join(m.__name__ for m in self.modules)
       else: print >> sys.stderr, "Warning: Couldn't find any modules"
 
       self.bind_commands()
@@ -91,10 +91,7 @@ class Phenny(irc.Bot):
    def save_storage(self):
         print >> sys.stderr, "Saving storage..."
         #STORAGE: Save the store here
-        print >> sys.stderr, hasattr(self, 'modules')
-        print >> sys.stderr, self.modules
         for module in self.modules:
-            print "Checking", module
             if hasattr(module, 'storage'):
                 #Save the data
                 fn = modulestore(module.__name__)
