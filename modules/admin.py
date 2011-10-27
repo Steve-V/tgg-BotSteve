@@ -50,24 +50,9 @@ def quit(phenny, input):
   if input.sender.startswith('#'): return
   if input.owner: 
     phenny.write(['QUIT'])
-    __import__('os')._exit(0)
+    __import__('os').exit(0)
 quit.commands = ['quit']
 quit.priority = 'low'
-
-def safeQuit(phenny, input):
-  #back up the seen database, then quit
-  import os
-  import pickle
-  if phenny.seen:
-    fn = phenny.nick + '-' + phenny.config.host + '.seen.db'
-    seen_filename = os.path.join(os.path.expanduser('~/.phenny'), fn)
-    try:
-      pickle.dump(phenny.seen, open(seen_filename,'wb') )
-    except AttributeError:
-      pass
-  quit(phenny, input)
-safeQuit.commands = ['safequit']
-safeQuit.priority = 'low'
 
 def msg(phenny, input): 
   # Can only be done in privmsg by an admin
