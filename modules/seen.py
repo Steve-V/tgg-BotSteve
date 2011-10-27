@@ -11,7 +11,6 @@ import time
 from tools import deprecated
 from decimal import *
 import os
-import pickle
 
 storage = None
 
