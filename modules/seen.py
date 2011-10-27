@@ -21,6 +21,7 @@ storage = {} # Default value
 @deprecated
 def f_seen(self, origin, match, args): 
   """.seen <nick> - Reports when <nick> was last seen."""
+  global storage
   
   if origin.sender == '#talis': return
   try:
@@ -35,8 +36,8 @@ def f_seen(self, origin, match, args):
   if nick.lower() == "botsteve":
     return self.msg(origin.sender, "I'm right here, actually.")
   
-  if self.storage.has_key(nick): 
-      channel, storedTime = self.storage[nick]
+  if storage.has_key(nick): 
+      channel, storedTime = storage[nick]
       t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
       currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
       rawTimeDifference_hours = (time.time() - storedTime) / 3600
@@ -57,9 +58,10 @@ f_seen.thread = False
 @deprecated
 def f_note(self, origin, match, args): 
    def note(self, origin, match, args): 
+      global storage
       if origin.sender.startswith('#'): 
          # if origin.sender == '#inamidst': return
-         self.storage[origin.nick.lower()] = (origin.sender, time.time())
+         storage[origin.nick.lower()] = (origin.sender, time.time())
 
       # if not hasattr(self, 'chanspeak'): 
       #    self.chanspeak = {}
