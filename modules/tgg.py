@@ -120,18 +120,25 @@ join_greeter.priority = 'low'
 def give_food(phenny, input):
   #if it's the bot getting the object, or if the user is objectifying themselves or someone else
   
+  # Is the bot itself the recepient?
+  feedTheBot = False
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("For me?  Thank you!  *om nom nom*") )
+      feedTheBot = True
     else:
       recepient = input.group(2)
   else:
     recepient = str(input.nick)
-  #otherwise give specified user a cookie
+  
+  # Open up the database
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
-  #nick = str(input.nick)
   
+  # Get the entry relating to what we want to do
+  t = (input.group(1),)
+  db_curr.execute( "SELECT * FROM food_lookup WHERE command=?;", t)
+  
+  #stopped here!
   db_curr.execute( "SELECT * FROM cookie_flavors;" )
   db_result = db_curr.fetchall()
   
