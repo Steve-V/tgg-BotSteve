@@ -41,9 +41,6 @@ def f_remind(phenny, input):
      phenny.say("Sorry, I'm supposed to ignore any voices I hear in my head.")
      return
 
-   if not os.path.exists(phenny.tell_filename): 
-      return
-
    if len(tellee) > 20: 
       return phenny.reply('That nickname is too long.')
 
@@ -93,9 +90,6 @@ def message(phenny, input):
 
    tellee = input.nick
    channel = input.sender
-
-   if not os.path.exists(phenny.tell_filename): 
-      return
 
    reminders = []
    remkeys = list(reversed(sorted(storage.keys())))

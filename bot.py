@@ -62,7 +62,7 @@ class Phenny(irc.Bot):
       for filename in filenames: 
          name = os.path.splitext(os.path.basename(filename))[0]
          if name in excluded_modules: continue
-         try: self.module = imp.load_source(name, filename) #XXX: This is an obsolete function
+         try: module = imp.load_source(name, filename) #XXX: This is an obsolete function
          except Exception, e: 
             print >> sys.stderr, "Error loading %s: %s (in bot.py)" % (name, e)
          else:
@@ -74,21 +74,22 @@ class Phenny(irc.Bot):
                     if os.path.exists(fn):
                         module.storage = pickle.load(open(fn, 'rb'))
                 if hasattr(module, 'setup'): 
-                   self.module.setup(self)
+                   module.setup(self)
             except:
                 #TODO: Report exception
-                pass
+                raise
             else:
                 self.register(vars(module))
                 self.modules.append(name)
 
       if self.modules: 
-         print >> sys.stderr, 'Registered modules:', ', '.join(modules)
+         print >> sys.stderr, 'Registered modules:', ', '.join(self.modules)
       else: print >> sys.stderr, "Warning: Couldn't find any modules"
 
       self.bind_commands()
 
    def __del__(self):
+        print >> sys.stderr, "Saving storage..."
         #STORAGE: Save the store here
         for module in self.modules:
             if hasattr(module, 'storage'):
