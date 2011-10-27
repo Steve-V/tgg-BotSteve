@@ -1,0 +1,8 @@
+To dump data from tgg.db into the dumpfile, use:
+
+echo '.dump' | sqlite3 tgg.db > dump.tgg.db
+
+To reconstruct the db from the dumpfile, use:
+
+cat dump.tgg.db | sqlite3 tgg.db
+
