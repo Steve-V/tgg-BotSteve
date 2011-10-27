@@ -21,6 +21,16 @@ import re, time, sched
 auth_list = []
 admins = []
 
+def save(phenny, input): 
+  """Part the specified channel. This is an admin-only command."""
+  # Can only be done in privmsg by an admin
+  if input.sender.startswith('#'): return
+  if input.admin:
+    phenny.save_storage()
+save.commands = ['save']
+save.priority = 'low'
+save.example = '.save'
+
 def join(phenny, input): 
   """Join the specified channel. This is an admin-only command."""
   # Can only be done in privmsg by an admin

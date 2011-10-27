@@ -87,15 +87,24 @@ class Phenny(irc.Bot):
       else: print >> sys.stderr, "Warning: Couldn't find any modules"
 
       self.bind_commands()
-
-   def __del__(self):
+   
+   def save_storage(self):
         print >> sys.stderr, "Saving storage..."
         #STORAGE: Save the store here
+        print >> sys.stderr, hasattr(self, 'modules')
+        print >> sys.stderr, self.modules
         for module in self.modules:
+            print "Checking", module
             if hasattr(module, 'storage'):
                 #Save the data
                 fn = modulestore(module.__name__)
-                pickle.dump(self.seen, open(fn, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                print >> sys.stderr, "Saving %s to %s..." % (module.__name__, fn)
+                pickle.dump(module.storage, open(fn, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+   
+   def handle_close(self):
+        self.save_storage()
+        #super(Phenny, self).handle_close()
+        irc.Bot.handle_close(self) #OLDSTYLE: I hate oldstyle classes
    
    def register(self, variables): 
       # This is used by reload.py, hence it being methodised
@@ -107,7 +116,7 @@ class Phenny(irc.Bot):
       self.commands = {'high': {}, 'medium': {}, 'low': {}}
       
       def bind(self, priority, regexp, func): 
-         print priority, regexp.pattern.encode('utf-8'), func
+#         print priority, regexp.pattern.encode('utf-8'), func
          # register documentation
          if not hasattr(func, 'name'): 
             func.name = func.__name__
