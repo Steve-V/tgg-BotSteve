@@ -235,6 +235,22 @@ INSERT INTO "element_type" VALUES(114,'Ununpentium');
 INSERT INTO "element_type" VALUES(115,'Ununhexium');
 INSERT INTO "element_type" VALUES(116,'Ununseptium');
 INSERT INTO "element_type" VALUES(117,'Ununoctnium');
+CREATE TABLE "barks" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "command" TEXT,
+    "response" TEXT
+);
+INSERT INTO "barks" VALUES(1,'minecraft','The ''official'' TGG minecraft server address is: gamerxreviews.net **** The server may or may not be down right now.  Try it and let us know.');
+INSERT INTO "barks" VALUES(2,'tell','Sorry, .tell is not yet implemented.  Use BotSteve: tell');
+INSERT INTO "barks" VALUES(3,'stream','The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ');
+INSERT INTO "barks" VALUES(4,'code','My source code can be found at https://github.com/Steve-V/tgg-BotSteve ');
+INSERT INTO "barks" VALUES(5,'git','My source code can be found at https://github.com/Steve-V/tgg-BotSteve ');
+INSERT INTO "barks" VALUES(6,'log','Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today');
+INSERT INTO "barks" VALUES(7,'history','Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today');
+INSERT INTO "barks" VALUES(8,'bug','To report website bugs, email:  helpdesk at thegeekgroup dot org');
+INSERT INTO "barks" VALUES(9,'tggbug','To report website bugs, email:  helpdesk at thegeekgroup dot org');
+INSERT INTO "barks" VALUES(10,'errorreport','To report website bugs, email:  helpdesk at thegeekgroup dot org');
+INSERT INTO "barks" VALUES(11,'error','To report website bugs, email:  helpdesk at thegeekgroup dot org');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('greetings',11);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
@@ -243,4 +259,5 @@ INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);
 INSERT INTO "sqlite_sequence" VALUES('sandwich_type',10);
 INSERT INTO "sqlite_sequence" VALUES('element_type',117);
 INSERT INTO "sqlite_sequence" VALUES('shake_flavor',28);
+INSERT INTO "sqlite_sequence" VALUES('barks',11);
 COMMIT;
