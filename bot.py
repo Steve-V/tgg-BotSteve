@@ -20,6 +20,13 @@ def decode(bytes):
          text = bytes.decode('cp1252')
    return text
 
+def modulestore(mname):
+    """modulestore(string) -> string
+    Given a name, returns the full path of the pickle file for that module's 
+    store.
+    """
+    return os.path.join(os.path.expanduser('~/.phenny'), mname+'.store')
+
 class Phenny(irc.Bot): 
    def __init__(self, config): 
       args = (config.nick, config.name, config.channels, config.password)
@@ -50,26 +57,49 @@ class Phenny(irc.Bot):
                   if n.endswith('.py') and not n.startswith('_'): 
                      filenames.append(os.path.join(fn, n))
 
-      modules = []
+      self.modules = []
       excluded_modules = getattr(self.config, 'exclude', [])
       for filename in filenames: 
-         name = os.path.basename(filename)[:-3]
+         name = os.path.splitext(os.path.basename(filename))[0]
          if name in excluded_modules: continue
-         try: module = imp.load_source(name, filename)
+         try: self.module = imp.load_source(name, filename) #XXX: This is an obsolete function
          except Exception, e: 
             print >> sys.stderr, "Error loading %s: %s (in bot.py)" % (name, e)
-         else: 
-            if hasattr(module, 'setup'): 
-               module.setup(self)
-            self.register(vars(module))
-            modules.append(name)
+         else:
+            try:
+                #STORAGE: Initialize the module store
+                if hasattr(module, 'storage'):
+                    module.storage = None
+                    #Load the save file, if it exists
+                    fn = modulestore(module.__name__)
+                    try:
+                        module.storage = pickle.load(open(fn, 'rb'))
+                    except:
+                        #TODO: Report exception
+                        pass
+                if hasattr(module, 'setup'): 
+                   self.module.setup(self)
+            except:
+                #TODO: Report exception
+                pass
+            else:
+                self.register(vars(module))
+                self.modules.append(name)
 
-      if modules: 
+      if self.modules: 
          print >> sys.stderr, 'Registered modules:', ', '.join(modules)
       else: print >> sys.stderr, "Warning: Couldn't find any modules"
 
       self.bind_commands()
 
+   def __del__(self):
+        #STORAGE: Save the store here
+        for module in self.modules:
+            if hasattr(module, 'storage'):
+                #Save the data
+                fn = modulestore(module.__name__)
+                pickle.dump(self.seen, open(fn, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+   
    def register(self, variables): 
       # This is used by reload.py, hence it being methodised
       for name, obj in variables.iteritems(): 
