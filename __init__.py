@@ -35,28 +35,10 @@ def run_phenny(config):
    def connect(config): 
       p = bot.Phenny(config)
       p.run(config.host, config.port)
-
-   try: Watcher()
-   except Exception, e: 
-      print >> sys.stderr, 'Warning:', e, '(in __init__.py)'
-
-   while True: 
-      try: connect(config)
-      except KeyboardInterrupt: 
-         sys.exit()
-
-      if not isinstance(delay, int): 
-         break
-
-      warning = 'Warning: Disconnected. Reconnecting in %s seconds...' % delay
-      print >> sys.stderr, warning
-      time.sleep(delay)
+   connect(config)
 
 def run(config): 
-   t = threading.Thread(target=run_phenny, args=(config,))
-   if hasattr(t, 'run'): 
-      t.run()
-   else: t.start()
+    run_phenny(config)
 
 if __name__ == '__main__': 
    print __doc__

@@ -50,7 +50,7 @@ def quit(phenny, input):
   if input.sender.startswith('#'): return
   if input.owner: 
     phenny.write(['QUIT'])
-    __import__('os').exit(0)
+    __import__('sys').exit(0)
 quit.commands = ['quit']
 quit.priority = 'low'
 
