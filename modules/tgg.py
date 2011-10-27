@@ -138,21 +138,25 @@ def give_food(phenny, input):
   t = (input.group(1),)
   db_curr.execute( "SELECT * FROM food_lookup WHERE command=?;", t)
   
-  #stopped here!
-  db_curr.execute( "SELECT * FROM cookie_flavors;" )
-  db_result = db_curr.fetchall()
+  for c in db_curr:
+    print c
   
-  if (db_result):
-    #first choose a db_result at random, then take element 1 of that result (the insult itself)
-    flavor = random.choice(db_result)[1]
+  #relevant_db, outputString, rewardString, seperatorNeeded, amountNeeded = db_curr[whatever]
+  
+  #db_curr.execute( "SELECT * FROM cookie_flavors;" )
+  #db_result = db_curr.fetchall()
+  
+  #if (db_result):
+    ##first choose a db_result at random, then take element 1 of that result (the insult itself)
+    #flavor = random.choice(db_result)[1]
     
-    if str(flavor)[0].lower() in ['a','e','i','o','u']:
-      seperator = 'an'
-    else:
-      seperator = 'a'
+    #if str(flavor)[0].lower() in ['a','e','i','o','u']:
+      #seperator = 'an'
+    #else:
+      #seperator = 'a'
     
-    phenny.say("Here you go, %s, I baked you %s %s cookie!" % (recepient, seperator, str(flavor) ) )
-give_food.commands = ['nom']
+    #phenny.say("Here you go, %s, I baked you %s %s cookie!" % (recepient, seperator, str(flavor) ) )
+give_food.commands = ['element']
 give_food.priority = 'medium'
 
 
