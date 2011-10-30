@@ -11,7 +11,7 @@ http://inamidst.com/phenny/
 ''' Keep sqlite local to this module for now '''
 
 import sqlite3
-import random
+import random, socket
 
 def fortune(phenny, input): 
   import subprocess
@@ -24,11 +24,17 @@ fortune.example = ".quote"
 fortune.priority = 'low'
 
 def minecraft(phenny, input):
-  #phenny.say( "The minecraft server is currently down." )
-  phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** The server may or may not be down right now.  Try it and let us know." )
+    s = socket.socket()
+    try:
+        s.connect(('gamerxreviews.net', 25565))
+    except:
+        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** THE SERVER IS DOWN ****" )
+    else:
+        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net (online)" )
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
 minecraft.priority = 'low'
+minecraft.thread = True
 
 def tellPlaceholder(phenny, input):
   phenny.say("Sorry, .tell is not yet implemented.  Use BotSteve: tell ")
