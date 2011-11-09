@@ -9,6 +9,7 @@ http://inamidst.com/phenny/
 
 import sys, os, re, threading, imp, pickle, time
 import irc
+from storebackends.picklestore import DataStore
 
 home = os.getcwd()
 
@@ -19,13 +20,6 @@ def decode(bytes):
       except UnicodeDecodeError: 
          text = bytes.decode('cp1252')
    return text
-
-def modulestore(mname):
-    """modulestore(string) -> string
-    Given a name, returns the full path of the pickle file for that module's 
-    store.
-    """
-    return os.path.join(os.path.expanduser('~/.phenny'), mname+'.store')
 
 class PhennyWrapper(object): 
     def __init__(self, phenny, origin, text, match): 
@@ -112,10 +106,7 @@ class Phenny(irc.Bot):
             try:
                 #STORAGE: Initialize the module store
                 if hasattr(module, 'storage'):
-                    #Load the save file, if it exists
-                    fn = modulestore(module.__name__)
-                    if os.path.exists(fn):
-                        module.storage = pickle.load(open(fn, 'rb'))
+                	module.storage = DataStore(self, module, module.storage)
                 if hasattr(module, 'setup'): 
                    module.setup(self)
             except:
@@ -135,11 +126,9 @@ class Phenny(irc.Bot):
         print >> sys.stderr, "Saving storage..."
         #STORAGE: Save the store here
         for module in self.modules:
-            if hasattr(module, 'storage'):
+            if hasattr(module, 'storage') and hasattr(module.storage, '__flush__'):
                 #Save the data
-                fn = modulestore(module.__name__)
-                print >> sys.stderr, "Saving %s to %s..." % (module.__name__, fn)
-                pickle.dump(module.storage, open(fn, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                module.storage.__flush__()
    
    def handle_close(self):
         self.save_storage()
