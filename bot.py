@@ -39,11 +39,10 @@ class Phenny(irc.Bot):
    
    def howstale(self, channel):
         """p.howstale(str) -> number
-        Returns how long it's been (in seconds) since the channel as been 
-        active. If there is no data, MAXINT is returned.
+        Returns how long it's been (in seconds) since the channel has been active. If there is no data, None is returned.
         """
         if channel not in self.activity:
-            return sys.MAXINT
+            return None
         else:
             t, o = self.activity[channel]
             return time.time() - t
