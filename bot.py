@@ -36,10 +36,9 @@ class PhennyWrapper(object):
         self.sender = origin.sender or text
     
     def reply(self, msg):
-        self.bot.msg(self.sender, origin.nick + ': ' + msg)
+        self.bot.msg(self.sender, self.origin.nick + ': ' + msg)
     
     def say(self, msg):
-        sender = origin.sender or text
         self.bot.msg(self.sender, msg)
     
     def __getattr__(self, attr): 
@@ -58,7 +57,7 @@ class CommandInput(unicode):
         self.args = args
         self.admin = origin.nick in bot.config.admins
         self.owner = origin.nick == bot.config.owner
-        return s
+        return self
 
 class Phenny(irc.Bot): 
    def __init__(self, config): 
