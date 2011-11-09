@@ -12,6 +12,17 @@ from htmlentitydefs import name2codepoint
 import web
 from tools import deprecated
 
+# Pulled from supybot.utils.web
+octet = r'(?:2(?:[0-4]\d|5[0-5])|1\d\d|\d{1,2})'
+ipAddr = r'%s(?:\.%s){3}' % (octet, octet)
+# Base domain regex off RFC 1034 and 1738
+label = r'[0-9a-z][-0-9a-z]*[0-9a-z]?'
+domain = r'%s(?:\.%s)*\.[a-z][-0-9a-z]*[a-z]?' % (label, label)
+urlRe = re.compile(r'(\w+://(?:%s|%s)(?::\d+)?(?:/[^\])>\s]*)?)'
+                   % (domain, ipAddr), re.I)
+httpUrlRe = re.compile(r'(https?://(?:%s|%s)(?::\d+)?(?:/[^\])>\s]*)?)'
+                       % (domain, ipAddr), re.I)
+
 def head(phenny, input): 
    """Provide HTTP HEAD information."""
    uri = input.group(2)
@@ -68,16 +79,15 @@ head.example = '.head http://www.w3.org/'
 r_title = re.compile(r'(?ims)<title[^>]*>(.*?)</title\s*>')
 r_entity = re.compile(r'&[A-Za-z0-9#]+;')
 
-@deprecated
-def f_title(self, origin, match, args): 
+def f_title(phenny, input): 
    """.title <URI> - Return the title of URI."""
-   uri = match.group(2)
+   uri = input.match.group(2)
    uri = (uri or '').encode('utf-8')
 
-   if not uri and hasattr(self, 'last_seen_uri'): 
-      uri = self.last_seen_uri.get(origin.sender)
+   if not uri and hasattr(phenny, 'last_seen_uri'): 
+      uri = phenny.last_seen_uri.get(origin.sender)
    if not uri: 
-      return self.msg(origin.sender, 'I need a URI to give the title of...')
+      return phenny.reply('I need a URI to give the title of...')
 
    if not ':' in uri: 
       uri = 'http://' + uri
@@ -107,15 +117,15 @@ def f_title(self, origin, match, args):
 
          redirects += 1
          if redirects >= 25: 
-            self.msg(origin.sender, origin.nick + ": Too many redirects")
+            phenny.reply("Too many redirects")
             return
 
       try: mtype = info['content-type']
       except: 
          err = ": Couldn't get the Content-Type, sorry"
-         return self.msg(origin.sender, origin.nick + err)
+         return self.reply(err)
       if not (('/html' in mtype) or ('/xhtml' in mtype)): 
-         self.msg(origin.sender, origin.nick + ": Document isn't HTML")
+         phenny.reply("Document isn't HTML")
          return
 
       u = urllib2.urlopen(req)
@@ -123,7 +133,7 @@ def f_title(self, origin, match, args):
       u.close()
 
    except IOError: 
-      self.msg(origin.sender, "Can't connect to %s" % uri)
+      phenny.reply("Can't connect to %s" % uri)
       return
 
    m = r_title.search(bytes)
@@ -161,8 +171,8 @@ def f_title(self, origin, match, args):
 
       title = title.replace('\n', '')
       title = title.replace('\r', '')
-      self.msg(origin.sender, origin.nick + ': ' + title)
-   else: self.msg(origin.sender, origin.nick + ': No title found')
+      phenny.reply(title)
+   else: self.reply('No title found')
 f_title.commands = ['title']
 
 def noteuri(phenny, input): 
