@@ -7,7 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, os, re, threading, imp, pickle
+import sys, os, re, threading, imp, pickle, time
 import irc
 
 home = os.getcwd()
@@ -34,8 +34,20 @@ class Phenny(irc.Bot):
       self.config = config
       self.doc = {}
       self.stats = {}
+      self.activity = {}
       self.setup()
-
+   
+   def howstale(self, channel):
+        """p.howstale(str) -> number
+        Returns how long it's been (in seconds) since the channel as been 
+        active. If there is no data, MAXINT is returned.
+        """
+        if channel not in self.activity:
+            return sys.MAXINT
+        else:
+            t, o = self.activity[channel]
+            return time.time() - t
+   
    def setup(self): 
       self.variables = {}
 
@@ -227,11 +239,15 @@ class Phenny(irc.Bot):
             if limits and (func.__module__ not in limits): 
                return True
       return False
-
+   
    def dispatch(self, origin, args): 
       bytes, event, args = args[0], args[1], args[2:]
       text = decode(bytes)
-
+      
+      # File away activity
+      if event in ('PRIVMSG', 'NOTICE'):
+         self.activity[args[0]] = (time.time(), origin)
+      
       for priority in ('high', 'medium', 'low'): 
          items = self.commands[priority].items()
          for regexp, funcs in items: 

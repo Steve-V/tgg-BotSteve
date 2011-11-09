@@ -23,6 +23,9 @@ class Origin(object):
 
       mappings = {bot.nick: self.nick, None: None}
       self.sender = mappings.get(target, target)
+   
+   def __repr__(self):
+        return "<irc.Origin nick=%(nick)r user=%(user)r host=%(host)r sender=%(sender)r>" % vars(self)
 
 class Bot(asynchat.async_chat): 
    def __init__(self, nick, name, channels, password=None): 
