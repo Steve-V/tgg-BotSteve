@@ -151,7 +151,7 @@ def setup(phenny):
         outputString += str( len(youtubeTggTitlesChanged) )
         outputString += " new YouTube videos posted by TheGeekGroup.  New videos: "
         #print the header
-        phenny.msg(mainChannel, outputString)
+        #phenny.msg(mainChannel, outputString)
         
         #print the videos
         for eachTitle, eachURL in youtubeTggTitlesChanged:
