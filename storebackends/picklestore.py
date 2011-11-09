@@ -2,7 +2,9 @@
 Implements a primitive pickle-based datastore. Loads on start, saves on exit.
 """
 import collections
-import os, pickle, sys
+import os
+from pickle import load as pload, dump as pdump, HIGHEST_PROTOCOL
+from sys import stderr
 
 def modulestore(mname):
     """modulestore(string) -> string
@@ -10,7 +12,7 @@ def modulestore(mname):
     store.
     """
     return os.path.join(os.path.expanduser('~/.phenny'), mname+'.store')
-                    
+
 class DataStore(collections.MutableMapping):
 	"""
 	The pickle-based store. Uses an actual dict for the backend.
@@ -20,14 +22,13 @@ class DataStore(collections.MutableMapping):
 		self._mname = module.__name__
 		self._fn = modulestore(self._mname)
 		if os.path.exists(self._fn):
-			self._store = pickle.load(open(self._fn, 'rb'))
+			self._store = pload(open(self._fn, 'rb'))
 		else:
 			self._store = default
 	
 	def __flush__(self):
-		try: print >> sys.stderr, "Saving %s to %s..." % (self._mname, self._fn)
-		except: pass
-		pickle.dump(self._store, open(self._fn, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)	                                
+		print >> stderr, "Saving %s to %s..." % (self._mname, self._fn)
+		pdump(self._store, open(self._fn, 'wb'), protocol=HIGHEST_PROTOCOL)
 	
 	def __del__(self):
 		self.__flush__()
