@@ -245,6 +245,7 @@ class Phenny(irc.Bot):
       
       # File away activity
       if event in ('PRIVMSG', 'NOTICE'):
+         #args[0] is the origin of the message as reported by IRC
          self.activity[args[0]] = (time.time(), origin)
       
       for priority in ('high', 'medium', 'low'): 
