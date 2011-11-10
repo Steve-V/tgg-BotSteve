@@ -12,17 +12,20 @@ from htmlentitydefs import name2codepoint
 import web
 from tools import deprecated
 
+storage = {} # Default value
+
 def head(phenny, input): 
    """Provide HTTP HEAD information."""
+   global storage
    uri = input.group(2)
    uri = (uri or '').encode('utf-8')
    if ' ' in uri: 
       uri, header = uri.rsplit(' ', 1)
    else: uri, header = uri, None
 
-   if not uri and hasattr(phenny, 'last_seen_uri'): 
-      try: uri = phenny.last_seen_uri[input.sender]
-      except KeyError: return phenny.say('?')
+   if not uri: 
+      try: uri = storage[input.sender]
+      except KeyError: return phenny.reply('?')
 
    if not uri.startswith('htt'): 
       uri = 'http://' + uri
@@ -68,108 +71,136 @@ head.example = '.head http://www.w3.org/'
 r_title = re.compile(r'(?ims)<title[^>]*>(.*?)</title\s*>')
 r_entity = re.compile(r'&[A-Za-z0-9#]+;')
 
-@deprecated
-def f_title(self, origin, match, args): 
-   """.title <URI> - Return the title of URI."""
-   uri = match.group(2)
-   uri = (uri or '').encode('utf-8')
-
-   if not uri and hasattr(self, 'last_seen_uri'): 
-      uri = self.last_seen_uri.get(origin.sender)
-   if not uri: 
-      return self.msg(origin.sender, 'I need a URI to give the title of...')
-
-   if not ':' in uri: 
-      uri = 'http://' + uri
-   uri = uri.replace('#!', '?_escaped_fragment_=')
-
-   try: 
-      redirects = 0
-      while True: 
-         headers = {
+def gettitle(uri):
+    print "Getting title: %r" % uri
+    redirects = 0
+    while True: 
+        headers = {
             'Accept': 'text/html', 
             'User-Agent': 'Mozilla/5.0 (Phenny)'
-         }
-         req = urllib2.Request(uri, headers=headers)
-         u = urllib2.urlopen(req)
-         info = u.info()
-         u.close()
-         # info = web.head(uri)
+        }
+        req = urllib2.Request(uri, headers=headers)
+        u = urllib2.urlopen(req)
+        info = u.info()
+        u.close()
+        # info = web.head(uri)
 
-         if not isinstance(info, list): 
+        if not isinstance(info, list): 
             status = '200'
-         else: 
+        else: 
             status = str(info[1])
             info = info[0]
-         if status.startswith('3'): 
+        if status.startswith('3'): 
             uri = urlparse.urljoin(uri, info['Location'])
-         else: break
+        else: break
 
-         redirects += 1
-         if redirects >= 25: 
-            self.msg(origin.sender, origin.nick + ": Too many redirects")
-            return
+        redirects += 1
+        if redirects >= 25: 
+            return Ellipsis
 
-      try: mtype = info['content-type']
-      except: 
-         err = ": Couldn't get the Content-Type, sorry"
-         return self.msg(origin.sender, origin.nick + err)
-      if not (('/html' in mtype) or ('/xhtml' in mtype)): 
-         self.msg(origin.sender, origin.nick + ": Document isn't HTML")
-         return
+    try: mtype = info['content-type']
+    except: 
+        err = "Couldn't get the Content-Type, sorry"
+        return self.reply(err)
+    if not (('/html' in mtype) or ('/xhtml' in mtype)): 
+        phenny.reply("Document isn't HTML")
+        return
 
-      u = urllib2.urlopen(req)
-      bytes = u.read(262144)
-      u.close()
+    u = urllib2.urlopen(req)
+    bytes = u.read(262144) #256K
+    u.close()
 
-   except IOError: 
-      self.msg(origin.sender, "Can't connect to %s" % uri)
-      return
-
-   m = r_title.search(bytes)
-   if m: 
-      title = m.group(1)
-      title = title.strip()
-      title = title.replace('\t', ' ')
-      title = title.replace('\r', ' ')
-      title = title.replace('\n', ' ')
-      while '  ' in title: 
-         title = title.replace('  ', ' ')
-      if len(title) > 200: 
+    m = r_title.search(bytes)
+    if m: 
+        title = m.group(1)
+        title = title.strip()
+        title = title.replace('\t', ' ')
+        title = title.replace('\r', ' ')
+        title = title.replace('\n', ' ')
+        while '  ' in title: 
+            title = title.replace('  ', ' ')
+        if len(title) > 200: 
          title = title[:200] + '[...]'
-      
-      def e(m): 
-         entity = m.group(0)
-         if entity.startswith('&#x'): 
-            cp = int(entity[3:-1], 16)
-            return unichr(cp).encode('utf-8')
-         elif entity.startswith('&#'): 
-            cp = int(entity[2:-1])
-            return unichr(cp).encode('utf-8')
-         else: 
-            char = name2codepoint[entity[1:-1]]
-            return unichr(char).encode('utf-8')
-      title = r_entity.sub(e, title)
 
-      if title: 
-         try: title.decode('utf-8')
-         except: 
-            try: title = title.decode('iso-8859-1').encode('utf-8')
-            except: title = title.decode('cp1252').encode('utf-8')
-         else: pass
-      else: title = '[The title is empty.]'
+        def e(m): 
+            entity = m.group(0)
+            if entity.startswith('&#x'): 
+                cp = int(entity[3:-1], 16)
+                return unichr(cp).encode('utf-8')
+            elif entity.startswith('&#'): 
+                cp = int(entity[2:-1])
+                return unichr(cp).encode('utf-8')
+            else: 
+                char = name2codepoint[entity[1:-1]]
+                return unichr(char).encode('utf-8')
+        title = r_entity.sub(e, title)
 
-      title = title.replace('\n', '')
-      title = title.replace('\r', '')
-      self.msg(origin.sender, origin.nick + ': ' + title)
-   else: self.msg(origin.sender, origin.nick + ': No title found')
+        if title: 
+            try: title.decode('utf-8')
+            except: 
+                try: title = title.decode('iso-8859-1').encode('utf-8')
+                except: title = title.decode('cp1252').encode('utf-8')
+            else: pass
+
+        title = title.replace('\n', '')
+        title = title.replace('\r', '')
+        return title
+    else:
+        return None
+   
+def f_title(phenny, input): 
+    """.title <URI> - Return the title of URI."""
+    global storage
+    uri = input.match.group(2)
+    uri = (uri or u'')
+ 
+    if not uri: 
+        uri = storage.get(input.sender)
+    if not uri: 
+        phenny.reply('I need a URI to give the title of...')
+        return
+
+    if not ':' in uri: 
+        uri = 'http://' + uri
+#    uri = uri.replace('#!', '?_escaped_fragment_=')
+
+    try: 
+        title = gettitle(uri)
+    except IOError: 
+        phenny.reply("Can't connect to %s" % uri)
+    else:
+        if title is None:
+            phenny.reply('No title found')
+        elif title is Ellipsis:
+            phenny.reply("Too many redirects")
+        elif title == '':
+            phenny.reply('[The title is empty.]')
+        else:
+            phenny.reply(title)
 f_title.commands = ['title']
 
+# We do this seperately so that we can add config options later
+def showtitle(phenny, input):
+    uri = input.group(1)
+    if input.startswith('.title'):
+        return
+    try: 
+        title = gettitle(uri)
+    except IOError: 
+        pass
+    else:
+        if title is None: pass
+        elif title is Ellipsis: pass
+        elif title == '': pass
+        else:
+            phenny.say('Title: %s' % title)
+showtitle.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
+showtitle.priority = 'low'
+
 def noteuri(phenny, input): 
-   uri = input.group(1).encode('utf-8')
-   if not hasattr(phenny.bot, 'last_seen_uri'): 
-      phenny.bot.last_seen_uri = {}
-   phenny.bot.last_seen_uri[input.sender] = uri
+   global storage
+   uri = input.group(1)
+   storage[input.sender] = uri
 noteuri.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
 noteuri.priority = 'low'
 
