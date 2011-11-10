@@ -8,7 +8,7 @@ If you are writing a module and would like a managed datastore, just set a `stor
 storage = {}
 ```
 
-The bot will then populate this with the stored objects.
+The bot will then populate this with the stored values.
 
 ### Default Values ###
 If you would like to have default values in your store, simply put them in the `storage` attribute in your module:
@@ -35,6 +35,6 @@ On load and registration, Phenny checks to see if the module has a `storage` att
 
 If Phenny must create a store, it is populated with the value of `storage`.
 
-The object saved to `storage` implements the full dictionary interface; all methods implemented by `dict` will be available on `storage`. However, the performance characteristics may differ, as it may not be stored in a `dict`.
+The object saved to `storage` implements the `MutableMapping` interface, as defined by c`ollections.MutableMapping`.
 
 Methods on `storage` are all syncronous. If IO must happen (eg, to a database server), it will block.

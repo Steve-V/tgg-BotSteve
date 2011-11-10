@@ -9,7 +9,6 @@ http://inamidst.com/phenny/
 
 import sys, os, re, threading, imp, pickle, time
 import irc
-from storebackends.picklestore import DataStore
 
 home = os.getcwd()
 
@@ -61,6 +60,11 @@ class Phenny(irc.Bot):
       self.doc = {}
       self.stats = {}
       self.activity = {}
+      self.DataStore = __import__(
+        'storebackends.'+config.datastore, 
+        fromlist=['DataStore'],
+        ).DataStore
+      # Must be last
       self.setup()
    
    def howstale(self, channel):
@@ -106,7 +110,7 @@ class Phenny(irc.Bot):
             try:
                 #STORAGE: Initialize the module store
                 if hasattr(module, 'storage'):
-                	module.storage = DataStore(self, module, module.storage)
+                	module.storage = self.DataStore(self, module, module.storage)
                 if hasattr(module, 'setup'): 
                    module.setup(self)
             except:
