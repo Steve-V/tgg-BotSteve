@@ -27,6 +27,38 @@ def modulestore(mname):
     """
     return os.path.join(os.path.expanduser('~/.phenny'), mname+'.store')
 
+class PhennyWrapper(object): 
+    def __init__(self, phenny, origin, text, match): 
+        self.bot = phenny
+        self.origin = origin
+        self.text = text
+        self.match = match
+        self.sender = origin.sender or text
+    
+    def reply(self, msg):
+        self.bot.msg(self.sender, self.origin.nick + ': ' + msg)
+    
+    def say(self, msg):
+        self.bot.msg(self.sender, msg)
+    
+    def __getattr__(self, attr): 
+         return getattr(self.bot, attr)
+
+class CommandInput(unicode): 
+    def __new__(cls, bot, text, origin, bytes, match, event, args): 
+        self = unicode.__new__(cls, text)
+        self.sender = origin.sender
+        self.nick = origin.nick
+        self.event = event
+        self.bytes = bytes
+        self.match = match
+        self.group = match.group
+        self.groups = match.groups
+        self.args = args
+        self.admin = origin.nick in bot.config.admins
+        self.owner = origin.nick == bot.config.owner
+        return self
+
 class Phenny(irc.Bot): 
    def __init__(self, config): 
       args = (config.nick, config.name, config.channels, config.password)
@@ -193,38 +225,10 @@ class Phenny(irc.Bot):
                bind(self, func.priority, regexp, func)
 
    def wrapped(self, origin, text, match): 
-      class PhennyWrapper(object): 
-         def __init__(self, phenny): 
-            self.bot = phenny
-
-         def __getattr__(self, attr): 
-            sender = origin.sender or text
-            if attr == 'reply': 
-               return (lambda msg: 
-                  self.bot.msg(sender, origin.nick + ': ' + msg))
-            elif attr == 'say': 
-               return lambda msg: self.bot.msg(sender, msg)
-            return getattr(self.bot, attr)
-
-      return PhennyWrapper(self)
+      return PhennyWrapper(self, origin, text, match)
 
    def input(self, origin, text, bytes, match, event, args): 
-      class CommandInput(unicode): 
-         def __new__(cls, text, origin, bytes, match, event, args): 
-            s = unicode.__new__(cls, text)
-            s.sender = origin.sender
-            s.nick = origin.nick
-            s.event = event
-            s.bytes = bytes
-            s.match = match
-            s.group = match.group
-            s.groups = match.groups
-            s.args = args
-            s.admin = origin.nick in self.config.admins
-            s.owner = origin.nick == self.config.owner
-            return s
-
-      return CommandInput(text, origin, bytes, match, event, args)
+      return CommandInput(self, text, origin, bytes, match, event, args)
 
    def call(self, func, origin, phenny, input): 
       try: func(phenny, input)
