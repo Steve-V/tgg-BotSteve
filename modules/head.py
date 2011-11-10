@@ -103,8 +103,7 @@ def gettitle(uri):
         err = "Couldn't get the Content-Type, sorry"
         return self.reply(err)
     if not (('/html' in mtype) or ('/xhtml' in mtype)): 
-        phenny.reply("Document isn't HTML")
-        return
+        return None
 
     u = urllib2.urlopen(req)
     bytes = u.read(262144) #256K
