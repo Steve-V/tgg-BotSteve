@@ -11,6 +11,7 @@ INSERT INTO "greetings" VALUES(10,'speedrunnerG55','At last!  My only friend!','
 INSERT INTO "greetings" VALUES(11,'ponko','Ponko is credit to team!','10');
 INSERT INTO "greetings" VALUES(12,'lwq1996','**whispers** Quick, hide!  Before he sees us!','5');
 INSERT INTO "greetings" VALUES(13,'wannabe1987','Cookies, Sandwiches, Skittles, Oh my!','10');
+INSERT INTO "greetings" VALUES(14,'Toastdude','TOASTY!','33');
 CREATE TABLE insults (id INTEGER PRIMARY KEY AUTOINCREMENT, insult, clean);
 INSERT INTO "insults" VALUES(1,'if you keep that up, I''ll rip your arm off and beat you with the wet end.','TRUE');
 INSERT INTO "insults" VALUES(2,'i''d hit you, but I don''t want to get stupid on my hands.','TRUE');
@@ -236,7 +237,7 @@ INSERT INTO "element_type" VALUES(115,'Ununhexium');
 INSERT INTO "element_type" VALUES(116,'Ununseptium');
 INSERT INTO "element_type" VALUES(117,'Ununoctnium');
 DELETE FROM sqlite_sequence;
-INSERT INTO "sqlite_sequence" VALUES('greetings',11);
+INSERT INTO "sqlite_sequence" VALUES('greetings',14);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
 INSERT INTO "sqlite_sequence" VALUES('cookie_flavors',36);
 INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);

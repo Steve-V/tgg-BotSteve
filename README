@@ -1,3 +1,7 @@
 This is the GitHub for the TGG BotSteve bot.
 
 This will primarily be used for issue tracking, though source may be posted in the future.
+
+Notes: 
+echo '.dump' | sqlite3 tgg.db | cat > dump.tgg.db
+to dump the database to the file
