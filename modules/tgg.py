@@ -336,6 +336,18 @@ def give_pie(phenny, input):
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
   
+  db_curr.execute( "SELECT * FROM pie_flavor;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+    
+  phenny.say("Here you go, %s, I made you a %s pie!" % (recepient, str(flavor) ) )
+give_pie.commands = ['pie']
+give_pie.priority = 'medium'
+
+
 def steveFunction1(phenny,input):
   if not input.group(1):
     return phenny.say("no input")
