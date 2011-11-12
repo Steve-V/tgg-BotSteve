@@ -347,23 +347,23 @@ def give_cake(phenny, input):
  
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("For me?  Thank you!  *om nom nom*") )
+      return( phenny.say("For me?  Thank you!  *Looks at cake with a crazed look in his eyes*") )
     else:
       recepient = input.group(2)
   else:
     recepient = str(input.nick)
   
- flavors=["almond","almond amaretto cream","apples and cinnamon","banana caramel","bananas foster","beurre noisette","black forest","blackberry sourcream","blueberry muffin","brownie","butterscotch walnut","cardamom and pistachio","carrot","cherry and almond","chocolate","chocolate chip muffin","chocolate espresso","chocolate mint","chocolate orange","chocolate raspberry","curry caramel","dulce de leche","egg nog","ginger and green tea","italian orange and vanilla","lemon","lemon curd and berries","lemon poppyseed","marble","mudslide","orange and ginger","peaches and cream","peanut butter and jelly","peanut butter cup","pear compote and ginger","pear spice","pecan pie","pineapple coconut","pumpkin and cinnamon","pumpkin chocolate chip","red velvet","Rum","smores","strawberry shortcake","tiramisu","white","white chocolate raspberry","yellow","yellow with chocolate buttercream"]
+  flavors = ["almond","almond amaretto cream","apples and cinnamon","banana caramel","bananas foster","beurre noisette","black forest","blackberry sourcream","blueberry muffin","brownie","butterscotch walnut","cardamom and pistachio","carrot","cherry and almond","chocolate","chocolate chip muffin","chocolate espresso","chocolate mint","chocolate orange","chocolate raspberry","curry caramel","dulce de leche","egg nog","ginger and green tea","italian orange and vanilla","lemon","lemon curd and berries","lemon poppyseed","marble","mudslide","orange and ginger","peaches and cream","peanut butter and jelly","peanut butter cup","pear compote and ginger","pear spice","pecan pie","pineapple coconut","pumpkin and cinnamon","pumpkin chocolate chip","red velvet","Rum","smores","strawberry shortcake","tiramisu","white","white chocolate raspberry","yellow","yellow with chocolate buttercream"]
   
   if (flavors):
-    flavor_result = random.choice(flavors)
+    val = random.choice(flavors)
     
-    if str(flavor_result)[0].lower() in ['a','e','i','o','u']:
+    if str(val)[0] in ['a','e','i','o','u']:
       seperator = 'an'
     else:
       seperator = 'a'
     
-    phenny.say("Here you go, %s, I baked you %s %s cake!" % (recepient, seperator, str(flavor_result) ) )
+    phenny.say("Here you go, %s, I baked you %s %s cake!" % (recepient, seperator, str(val) ) )
 give_cake.commands = ['cake']
 give_cake.priority = 'medium'
 
