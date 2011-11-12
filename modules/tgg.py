@@ -365,10 +365,5 @@ def give_cake(phenny, input):
 give_cake.commands = ['cake']
 give_cake.priority = 'medium'
 
-
-
 if __name__ == '__main__': 
    print __doc__.strip()
-
-
-# HI TOASTDUDE
