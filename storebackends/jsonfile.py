@@ -14,7 +14,7 @@ import os, json, urllib
 
 def kenc(key):
     """kenc(string) -> str
-    Perorms any encoding necessary for making a key filesystem safe
+    Performs any encoding necessary for making a key filesystem safe
     """
     return urllib.quote(unicode(key), safe=',:=+').encode('utf-8')
 
@@ -29,7 +29,6 @@ class DataStore(collections.MutableMapping):
     A store based on files of JSON data.
     """
     def __init__(self, phenny, module, default):
-        self._bot = phenny
         self._basename = os.path.join(os.path.expanduser('~/.phenny'), module.__name__)
         
         if not os.path.isdir(self._basename):
@@ -66,4 +65,7 @@ class DataStore(collections.MutableMapping):
         for fn in os.listdir(self._basename):
             key = kdec(fn)
             yield key
+    
+    def __contains__(self, key):
+        return os.path.exists(self._getfile(key))
 

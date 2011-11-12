@@ -44,6 +44,7 @@ class DataStore(collections.MutableMapping):
         pickle.dump(self._store, open(self._fn, 'wb')) #FIXME: Fails on __del__
     
     def __del__(self):
+        # Full of fail. Can we use atexit somehow?
         self.__flush__()
     
     def __getitem__(self, key):
