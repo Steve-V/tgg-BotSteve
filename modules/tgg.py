@@ -11,23 +11,30 @@ http://inamidst.com/phenny/
 ''' Keep sqlite local to this module for now '''
 
 import sqlite3
-import random
+import random, socket
 
 def fortune(phenny, input): 
   import subprocess
+  import string
   subp = subprocess.Popen( ['fortune', '-s', 'computers'] , stdout=subprocess.PIPE)
   stdo = subp.communicate()[0]
-  phenny.say( stdo )
+  phenny.say( string.replace(stdo,"\n"," ") )
 fortune.commands = ['quote', 'fortune']
 fortune.example = ".quote"
 fortune.priority = 'low'
 
 def minecraft(phenny, input):
-  #phenny.say( "The minecraft server is currently down." )
-  phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** The server may or may not be down right now.  Try it and let us know." )
+    s = socket.socket()
+    try:
+        s.connect(('gamerxreviews.net', 25565))
+    except:
+        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** THE SERVER IS DOWN ****" )
+    else:
+        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net (online)" )
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
 minecraft.priority = 'low'
+minecraft.thread = True
 
 def tellPlaceholder(phenny, input):
   phenny.say("Sorry, .tell is not yet implemented.  Use BotSteve: tell ")
@@ -40,6 +47,12 @@ def liveStream(phenny, input):
 liveStream.commands = ['stream']
 liveStream.example = ['.stream']
 liveStream.priority = 'medium'
+
+def BotStevesCode(phenny, input):
+  phenny.say("my code download can be found at https://github.com/Steve-V/tgg-BotSteve ")
+BotStevesCode.commands = ['botsteves_code']
+BotStevesCode.example = ['.botsteves_code']
+BotStevesCode.priority = 'medium'
 
 def coinFlip(phenny, input):
   import random
@@ -70,6 +83,12 @@ def rollD6(phenny, input):
 rollD6.commands = ['dice','d6']
 rollD6.example = ['.dice']
 rollD6.priority = 'medium'
+
+def bugReport(phenny, input):
+  phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
+bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
+bugReport.example = ['.tggbug']
+bugReport.priority = 'medium'
 
 def join_greeter(phenny, input):
   """
@@ -217,45 +236,55 @@ give_skittles.priority = 'medium'
 
 def give_element(phenny, input):
   #if it's the bot getting the element, or if the user is elementing themselves
-  #code here
+  
+  #see if there's something after the command...
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return( phenny.say("Hmmm elements, the one thing i dont understand...") )
+      #that is, if the bot should get the element itself
+      return( phenny.say("Hmmm, elements, the one thing I don't understand...") )
     else:
+      #otherwise, we need to figure out who and how much
       recepient = input.group(2)
   else:
+    #if there's nothing after the command, give it to the person who triggered the command
     recepient = str(input.nick)
   #otherwise give specified user an element
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
-  
+   
   db_curr.execute( "SELECT * FROM element_type;" )
   db_result = db_curr.fetchall()
-  
+
+   
   if (db_result):
     #first choose a db_result at random, then take element 1 of that result (the insult itself)
     element = random.choice(db_result)[1]
     
-    phenny.say("Here you go, %s, I'm giving you 20kg. of pure %s !" % (recepient, str(element) ) )
+    amount_digits = random.choice( range(2,501) )
+    amount_units = random.choice( ["grams","kilograms","milligrams","bags","bushels","metric tons","board feet", "stere", "olympic-size swimming pools", "gigaliters", "fully loaded 747's", "troy ounces", "dime bags", "syringes", "backpacks", "gaylords", "handfuls"] )
+    amount = str(amount_digits) + " " + str(amount_units)
+    
+    phenny.say("Here you go, %s, I'm giving you %s of pure %s !" % (recepient, amount, str(element) ) )
 give_element.commands = ['element']
 give_element.priority = 'medium'
-
 
 def give_sandwich(phenny, input):
   #if it's the bot getting the sandwich, or if the user is sandwiching themselfs
   #code here
   if input.group(2):
-    if input.group(3).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  **gloms down and does not leave a single crumb on the plate.**"))
+    if input.group(2).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  **gloms down the sandwich like pig he is and licks the plate clean.**"))
     else:
       recepient = input.group(2) 
+  else:
+    recepient = str(input.nick)
   #otherwise give specified user sandwich
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
   #nick = str(input.nick)
   
-  db_curr.execute( "SELLECT * FROM sandwich_type;" )
+  db_curr.execute( "SELECT * FROM sandwich_type;" )
   db_result = db_curr.fetchall()
   
   if (db_result):
@@ -266,6 +295,31 @@ def give_sandwich(phenny, input):
 give_sandwich.commands = ['sandwich']
 give_sandwich.priority = 'medium'
 
+def give_shake(phenny, input):
+  #if it's the bot getting the shake, or if the user is shakeing themselfs
+  #code here
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  ** Slurp Slurp Slurp.** That was refreshing"))
+    else:
+      recepient = input.group(2) 
+  else:
+    recepient = str(input.nick)
+  #otherwise give specified user shake
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
+  db_curr.execute( "SELECT * FROM shake_flavor;" )
+  db_result = db_curr.fetchall()
+  
+  if (db_result):
+    #first choose a db_result at random, then take element 1 of that result (the insult itself)
+    flavor = random.choice(db_result)[1]
+    
+  phenny.say("Here you go, %s, I made you a %s shake!" % (recepient, str(flavor) ) )
+give_shake.commands = ['shake']
+give_shake.priority = 'medium'
 
 def steveFunction1(phenny,input):
   if not input.group(1):
@@ -276,9 +330,47 @@ steveFunction1.commands = ['steveFunction1','steveFunction2']
 steveFunction1.priority = 'low'
 
 
+def yuno(phenny, input):
+  yunos = ["*Sharpening pencil, and it keeps breaking as i pull it out...* Pencil: Y U NO SHARPEN RIGHT??????????????","Fox News: Y U NO HAVE NEWS ABOUT FOXES??????????","Internet: Y U NO LET ME STUDY??????????","Asprin: Y U NO WORK????????","Cat: Y U NO SPEEK ENGRISH?????????","I txt u: Y U NO TXT BACK????????????????","Rebecca Black: Y U NO JUST CHOOSE SEAT????????????","College Degree: Y U NO GET ME JOB????????????","Weekend: Y U NO LAST LONGER???????????","Idea: Y U NO COM TO ME??????????????????","Little Kids: Y U NO SPELL RIGHT???????????","Obama: Y U NO USE RADOACTIVE TOILET???????????????","Fat people who don't wear shirts: Y U NO HAVE SHAME??????","Work: Y U NO FINISH YET???????????","It's Friday, Friday: Y U NO HAS EXCITED???????????","Daylight Savings: Y U NO SAVE TIME?????????","Soup: Y U NO STAY IN BOWL???????????????","Printer: Y U NO PRINT?????????????","Facebook Chat: Y U NO GO FAST????????????????","User: Y U NO HAVE LIFE??????????????????"]
+
+
+
+  if (yunos):
+    val = random.choice(yunos)
+    phenny.say(val)
+yuno.commands = ['yuno']
+yuno.priority = 'medium'
+
+
+
+def give_cake(phenny, input):
+ 
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return( phenny.say("For me?  Thank you!  *om nom nom*") )
+    else:
+      recepient = input.group(2)
+  else:
+    recepient = str(input.nick)
+  
+ flavors=["almond","almond amaretto cream","apples and cinnamon","banana caramel","bananas foster","beurre noisette","black forest","blackberry sourcream","blueberry muffin","brownie","butterscotch walnut","cardamom and pistachio","carrot","cherry and almond","chocolate","chocolate chip muffin","chocolate espresso","chocolate mint","chocolate orange","chocolate raspberry","curry caramel","dulce de leche","egg nog","ginger and green tea","italian orange and vanilla","lemon","lemon curd and berries","lemon poppyseed","marble","mudslide","orange and ginger","peaches and cream","peanut butter and jelly","peanut butter cup","pear compote and ginger","pear spice","pecan pie","pineapple coconut","pumpkin and cinnamon","pumpkin chocolate chip","red velvet","Rum","smores","strawberry shortcake","tiramisu","white","white chocolate raspberry","yellow","yellow with chocolate buttercream"]
+  
+  if (flavors):
+    flavor_result = random.choice(flavors)
+    
+    if str(flavor_result)[0].lower() in ['a','e','i','o','u']:
+      seperator = 'an'
+    else:
+      seperator = 'a'
+    
+    phenny.say("Here you go, %s, I baked you %s %s cake!" % (recepient, seperator, str(flavor_result) ) )
+give_cake.commands = ['cake']
+give_cake.priority = 'medium'
+
+
+
 if __name__ == '__main__': 
    print __doc__.strip()
 
 
-
-
+# HI TOASTDUDE
