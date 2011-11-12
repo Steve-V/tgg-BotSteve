@@ -321,6 +321,21 @@ def give_shake(phenny, input):
 give_shake.commands = ['shake']
 give_shake.priority = 'medium'
 
+def give_pie(phenny, input):
+  #if it's the bot getting the pie, or if the user is pieing themselfs
+  #code here
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return(phenny.say("For me?  Thank you!  ** face-to-pie** Excuse me but now i need to go clean my face"))
+    else:
+      recepient = input.group(2) 
+  else:
+    recepient = str(input.nick)
+  #otherwise give specified user pie
+  db_conn = sqlite3.connect("tgg.db")
+  db_curr = db_conn.cursor()
+  #nick = str(input.nick)
+  
 def steveFunction1(phenny,input):
   if not input.group(1):
     return phenny.say("no input")

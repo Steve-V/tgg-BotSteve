@@ -235,6 +235,28 @@ INSERT INTO "element_type" VALUES(114,'Ununpentium');
 INSERT INTO "element_type" VALUES(115,'Ununhexium');
 INSERT INTO "element_type" VALUES(116,'Ununseptium');
 INSERT INTO "element_type" VALUES(117,'Ununoctnium');
+CREATE TABLE "pie_flavor" (
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+	"pie_flavor" TEXT
+);
+INSERT INTO"pie_flavor"VALUES(1,'apple');
+INSERT INTO"pie_flavor"VALUES(2,'blueberry');
+INSERT INTO"pie_flavor"VALUES(3,'blackberry');
+INSERT INTO"pie_flavor"VALUES(3,'peach');
+INSERT INTO"pie_flavor"VALUES(4,'chocolate');
+INSERT INTO"pie_flavor"VALUES(5,'vanilla');
+INSERT INTO"pie_flavor"VALUES(6,'peacan');
+INSERT INTO"pie_flavor"VALUES(7,'cherry');
+INSERT INTO"pie_flavor"VALUES(8,'pumpkin');
+INSERT INTO"pie_flavor"VALUES(9,'strawberry');
+INSERT INTO"pie_flavor"VALUES(10,'rhubarb');
+INSERT INTO"pie_flavor"VALUES(11,'curry chicken');
+INSERT INTO"pie_flavor"VALUES(12,'chicken pot');
+INSERT INTO"pie_flavor"VALUES(13,'turkey pot');
+INSERT INTO"pie_flavor"VALUES(14,coconut');
+INSERT INTO"pie_flavor"VALUES(15,ice cream');
+INSERT INTO"pie_flavor"VALUES(16,peanut butter');
+INSERT INTO"pie_flavor"VALUES(17,bannana nut');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('greetings',11);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
