@@ -330,9 +330,45 @@ steveFunction1.commands = ['steveFunction1','steveFunction2']
 steveFunction1.priority = 'low'
 
 
+def yuno(phenny, input):
+  yunos = ["*Sharpening pencil, and it keeps breaking as i pull it out...* Pencil: Y U NO SHARPEN RIGHT??????????????","Fox News: Y U NO HAVE NEWS ABOUT FOXES??????????","Internet: Y U NO LET ME STUDY??????????","Asprin: Y U NO WORK????????","Cat: Y U NO SPEEK ENGRISH?????????","I txt u: Y U NO TXT BACK????????????????","Rebecca Black: Y U NO JUST CHOOSE SEAT????????????","College Degree: Y U NO GET ME JOB????????????","Weekend: Y U NO LAST LONGER???????????","Idea: Y U NO COM TO ME??????????????????","Little Kids: Y U NO SPELL RIGHT???????????","Obama: Y U NO USE RADOACTIVE TOILET???????????????","Fat people who don't wear shirts: Y U NO HAVE SHAME??????","Work: Y U NO FINISH YET???????????","It's Friday, Friday: Y U NO HAS EXCITED???????????","Daylight Savings: Y U NO SAVE TIME?????????","Soup: Y U NO STAY IN BOWL???????????????","Printer: Y U NO PRINT?????????????","Facebook Chat: Y U NO GO FAST????????????????","User: Y U NO HAVE LIFE??????????????????"]
+
+  if (yunos):
+    val = random.choice(yunos)
+    phenny.say(val)
+yuno.commands = ['yuno']
+yuno.priority = 'medium'
+
+
+
+def give_cake(phenny, input):
+ 
+  if input.group(2):
+    if input.group(2).lower() == phenny.nick.lower():
+      return( phenny.say("For me?  Thank you!  *Looks at cake with a crazed look in his eyes*") )
+    else:
+      recepient = input.group(2)
+  else:
+    recepient = str(input.nick)
+  
+  flavors = ["almond","almond amaretto cream","apples and cinnamon","banana caramel","bananas foster","beurre noisette","black forest","blackberry sourcream","blueberry muffin","brownie","butterscotch walnut","cardamom and pistachio","carrot","cherry and almond","chocolate","chocolate chip muffin","chocolate espresso","chocolate mint","chocolate orange","chocolate raspberry","curry caramel","dulce de leche","egg nog","ginger and green tea","italian orange and vanilla","lemon","lemon curd and berries","lemon poppyseed","marble","mudslide","orange and ginger","peaches and cream","peanut butter and jelly","peanut butter cup","pear compote and ginger","pear spice","pecan pie","pineapple coconut","pumpkin and cinnamon","pumpkin chocolate chip","red velvet","Rum","smores","strawberry shortcake","tiramisu","white","white chocolate raspberry","yellow","yellow with chocolate buttercream"]
+  
+  if (flavors):
+    val = random.choice(flavors)
+    
+    if str(val)[0] in ['a','e','i','o','u']:
+      seperator = 'an'
+    else:
+      seperator = 'a'
+    
+    phenny.say("Here you go, %s, I baked you %s %s cake!" % (recepient, seperator, str(val) ) )
+give_cake.commands = ['cake']
+give_cake.priority = 'medium'
+
+
+
 if __name__ == '__main__': 
    print __doc__.strip()
 
 
-
-
+# HI TOASTDUDE
