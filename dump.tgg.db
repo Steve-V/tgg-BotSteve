@@ -257,6 +257,7 @@ INSERT INTO"pie_flavor"VALUES(14,coconut');
 INSERT INTO"pie_flavor"VALUES(15,ice cream');
 INSERT INTO"pie_flavor"VALUES(16,peanut butter');
 INSERT INTO"pie_flavor"VALUES(17,bannana nut');
+INSERT INTO"pie_flavor"VALUES(18,3.14 math');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('greetings',11);
 INSERT INTO "sqlite_sequence" VALUES('insults',6);
