@@ -1,0 +1,51 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""
+Converts the old Pickle backend to the new JSON backend.
+"""
+import sys, os
+from storebackends.picklestore import DataStore as PickleStore
+from storebackends.jsonfile import DataStore as JsonStore
+from optparse import OptionParser
+parser = OptionParser()
+#parser.add_option("-b", "--base-dir", dest="basedir", default="~/.phenny",
+#                  help="use DIR as the phenny dir", metavar="DIR")
+parser.add_option("-q", "--quiet",
+                  action="store_false", dest="verbose", default=True,
+                  help="don't print status messages to stdout")
+
+class FakeModule(object):
+    __name__ = None
+    def __init__(self, name):
+        self.__name__ = name
+
+status = None
+
+def convertmodule(mname):
+    mod = FakeModule(mname)
+    src = PickleStore(None, mod, {})
+    dst = JsonStore(None, mod, {})
+    for k,v in src.iteritems():
+        dst[k] = v
+
+if __name__ == '__main__':
+    options, args = parser.parse_args()
+    if options.verbose:
+        status = sys.stdout
+    else:
+        status = open('/dev/null', 'w')
+    
+    if args:
+        mods = args
+    else:
+        mods = [ fn[:-len('.store')]
+                 for fn in os.listdir(os.path.expanduser('~/.phenny'))
+                 if fn.endswith('.store')
+                 ]
+    if mods:
+        for mname in mods:
+            print >> status, "Converting %s..." % mname
+            convertmodule(mname)
+    else:
+        print >> sys.stderr, "No modules available."
+

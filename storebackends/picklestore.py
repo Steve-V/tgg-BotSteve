@@ -27,6 +27,7 @@ class DataStore(collections.MutableMapping):
     """
     The pickle-based store. Uses an actual dict for the backend.
     """
+    __slots__ = '_store', '_fn'
     def __init__(self, phenny, module, default):
         self._bot = phenny
         self._mname = module.__name__
@@ -35,6 +36,8 @@ class DataStore(collections.MutableMapping):
             self._store = pickle.load(open(self._fn, 'rb'))
         else:
             self._store = default
+        if self._store is None:
+            self._store = {}
     
     def __flush__(self):
         print >> stderr, "Saving %s to %s..." % (self._mname, self._fn)
@@ -56,6 +59,6 @@ class DataStore(collections.MutableMapping):
         return len(self._store)
     
     def __iter__(self):
-        for k,v in self._store:
+        for k in self._store:
             yield k
     
