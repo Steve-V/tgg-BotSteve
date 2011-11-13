@@ -49,9 +49,9 @@ liveStream.example = ['.stream']
 liveStream.priority = 'medium'
 
 def BotStevesCode(phenny, input):
-  phenny.say("my code download can be found at https://github.com/Steve-V/tgg-BotSteve ")
-BotStevesCode.commands = ['botsteves_code']
-BotStevesCode.example = ['.botsteves_code']
+  phenny.say("you can downloadmy code at https://github.com/Steve-V/tgg-BotSteve ")
+BotStevesCode.commands = ['code']
+BotStevesCode.example = ['.code']
 BotStevesCode.priority = 'medium'
 
 def coinFlip(phenny, input):
