@@ -326,7 +326,7 @@ def give_pie(phenny, input):
   #code here
   if input.group(2):
     if input.group(2).lower() == phenny.nick.lower():
-      return(phenny.say("For me?  Thank you!  ** face-to-pie** Excuse me but now i need to go clean my face"))
+      return(phenny.say("For me?  Thank you!  ** face-to-pie** Excuse me but now i need to go clean my face. But that was some damn good pie :P"))
     else:
       recepient = input.group(2) 
   else:
