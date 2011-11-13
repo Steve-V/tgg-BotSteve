@@ -49,7 +49,7 @@ liveStream.example = ['.stream']
 liveStream.priority = 'medium'
 
 def BotStevesCode(phenny, input):
-  phenny.say("you can downloadmy code at https://github.com/Steve-V/tgg-BotSteve ")
+  phenny.say("You can download my code at https://github.com/Steve-V/tgg-BotSteve ")
 BotStevesCode.commands = ['code']
 BotStevesCode.example = ['.code']
 BotStevesCode.priority = 'medium'
