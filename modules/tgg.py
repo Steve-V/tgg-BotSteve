@@ -54,6 +54,13 @@ BotStevesCode.commands = ['code']
 BotStevesCode.example = ['.code']
 BotStevesCode.priority = 'medium'
 
+def bored(phenny, input):
+  import bored
+  phenny.say( "Maybe you should..." + str(random.choice( bored.boredThings ) ) )
+bored.commands = ['bored']
+bored.example = ['.bored']
+bored.priority = 'medium'
+
 def coinFlip(phenny, input):
   import random
   coinResult = random.choice(('Heads!', 'Tails!'))
