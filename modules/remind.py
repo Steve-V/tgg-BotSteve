@@ -87,7 +87,11 @@ def remind(phenny, input):
     length = float(length)
     factor = scaling.get(scale, 60)
     duration = length * factor
-
+    
+    # Ludicriously out-of-bounds trapping
+    if duration > 9000000000 or duration < 1:
+        return( phenny.reply("That's a bit unlikely, don't you think?") )
+    
     if duration % 1: 
         duration = int(duration) + 1
     else: duration = int(duration)
