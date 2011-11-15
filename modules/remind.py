@@ -111,7 +111,7 @@ def remind(phenny, input):
             phenny.reply('Okay, will remind%s' % w)
         else: phenny.reply('Okay, will remind in %s secs' % duration)
     except ValueError:
-        phenny.reply("That's a bit unlikely, don't you think?")
+        phenny.reply("That's kind of unlikely, don't you think?")
 remind.commands = ['in']
 
 if __name__ == '__main__': 
