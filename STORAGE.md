@@ -33,16 +33,14 @@ Technical Details
 -----------------
 On load and registration, Phenny checks to see if the module has a `storage` attribute. If it does, it loads a datastore for the module and places it in `storage`.
 
-If Phenny must create a store, it is populated with the value of `storage`.
+If Phenny must create a store, it is populated with the value of `storage`. This object will exhibit the following behaviors:
 
-The object saved to `storage` implements the `MutableMapping` interface, as defined by `collections.MutableMapping`.
+* Implements the `MutableMapping` interface, as defined by `collections.MutableMapping`.
+* All methods on are synchronous. If IO must happen (eg, to a database server), it will block.
+* Indirect changes made to returned objects (eg, modifying a returned `dict` and `list`) are not guaranteed. You must set the item again (`storage[key] = value`) to save the data.
 
-Methods on `storage` are all syncronous. If IO must happen (eg, to a database server), it will block.
 
 Ongoing Issues
 --------------
-* Indirect changes: `storage['spam']['eggs'] = 'foo'` will not be saved by the JSON store, but handled just fine by Pickle store
-  * Can't use `weakref` callbacks to save object; object is gone when callback is fired.
-  * Are we going to have to write our own objects to track dirtiness?
 * Using `atexit` could create a race condition if a module uses `storage` in its `atexit` function. If the store is called before the module, any changes the module makes will not be cleaned up.
   * We might have to write an `atexit` wrapper which defines priorities.
