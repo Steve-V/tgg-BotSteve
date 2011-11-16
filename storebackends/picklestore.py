@@ -12,8 +12,7 @@ Implements a primitive pickle-based datastore. Loads on start, saves on exit.
 - Errors take out the whole module
 """
 import collections
-import os, pickle
-#XXX: For some reason, pickle is gone in __del__()
+import os, pickle, atexit
 from sys import stderr
 
 def modulestore(mname):
@@ -22,6 +21,8 @@ def modulestore(mname):
     store.
     """
     return os.path.join(os.path.expanduser('~/.phenny'), mname+'.store')
+
+_stores = []
 
 class DataStore(collections.MutableMapping):
     """
@@ -38,14 +39,14 @@ class DataStore(collections.MutableMapping):
             self._store = default
         if self._store is None:
             self._store = {}
+        
+        # Save ourselves so atexit works
+        global _stores
+        _stores.append(self)
     
-    def __flush__(self):
+    def flush(self):
         print >> stderr, "Saving %s to %s..." % (self._mname, self._fn)
         pickle.dump(self._store, open(self._fn, 'wb')) #FIXME: Fails on __del__
-    
-    def __del__(self):
-        # Full of fail. Can we use atexit somehow?
-        self.__flush__()
     
     def __getitem__(self, key):
         return self._store[key]
@@ -63,3 +64,9 @@ class DataStore(collections.MutableMapping):
         for k in self._store:
             yield k
     
+
+@atexit.register
+def saveall():
+	for store in _stores:
+		store.flush()
+		del store._store # Disable it from future modifications

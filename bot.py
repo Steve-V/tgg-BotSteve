@@ -130,9 +130,9 @@ class Phenny(irc.Bot):
         print >> sys.stderr, "Saving storage..."
         #STORAGE: Save the store here
         for module in self.modules:
-            if hasattr(module, 'storage') and hasattr(module.storage, '__flush__'):
+            if hasattr(module, 'storage') and hasattr(module.storage, 'flush'):
                 #Save the data
-                module.storage.__flush__()
+                module.storage.flush()
    
    def handle_close(self):
         self.save_storage()
