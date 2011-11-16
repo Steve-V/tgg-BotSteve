@@ -35,6 +35,6 @@ On load and registration, Phenny checks to see if the module has a `storage` att
 
 If Phenny must create a store, it is populated with the value of `storage`.
 
-The object saved to `storage` implements the `MutableMapping` interface, as defined by c`ollections.MutableMapping`.
+The object saved to `storage` implements the `MutableMapping` interface, as defined by `collections.MutableMapping`.
 
 Methods on `storage` are all syncronous. If IO must happen (eg, to a database server), it will block.
