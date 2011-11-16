@@ -67,6 +67,6 @@ class DataStore(collections.MutableMapping):
 
 @atexit.register
 def saveall():
-	for store in _stores:
-		store.flush()
-		del store._store # Disable it from future modifications
+    for store in _stores:
+        store.flush()
+        del store._store # Disable it from future modifications
