@@ -16,7 +16,7 @@ def kenc(key):
     """kenc(string) -> str
     Performs any encoding necessary for making a key filesystem safe
     """
-    return urllib.quote(unicode(key), safe=',:=+').encode('utf-8')
+    return urllib.quote(unicode(key), safe=',:=+#').encode('utf-8')
 
 def kdec(fn):
     """kdec(str) -> string
