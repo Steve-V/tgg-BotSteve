@@ -48,7 +48,7 @@ def f_remind(phenny, input):
    if not tellee in (teller.lower(), phenny.nick, 'me'): # @@
       # @@ <deltab> and year, if necessary
       warn = False
-      if not storage.has_key(tellee): 
+      if tellee not in storage: 
          storage[tellee] = [(teller, verb, timenow, msg)]
       else: 
          # if len(storage[tellee]) >= maximum: 

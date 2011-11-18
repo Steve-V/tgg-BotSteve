@@ -36,7 +36,7 @@ def f_seen(self, origin, match, args):
   if nick.lower() == "botsteve":
     return self.msg(origin.sender, "I'm right here, actually.")
   
-  if storage.has_key(nick): 
+  if nick in storage: 
       channel, storedTime = storage[nick]
       t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
       currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
