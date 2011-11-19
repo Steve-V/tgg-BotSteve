@@ -172,10 +172,10 @@ class Phenny(irc.Bot):
         self.commands = {'high': {}, 'medium': {}, 'low': {}}
         
         for name, func in self.variables.iteritems(): 
-            # print name, func
+#            print name, func
             for attr, default in self.COMMAND_DEFAULTS.items():
                 if not hasattr(func, attr): 
-                    func.priority = default
+                    setattr(func, attr, default)
             
             func.event = func.event.upper()
             
@@ -191,7 +191,7 @@ class Phenny(irc.Bot):
                         prefix, pattern = func.rule
                         prefix = self.subnick(prefix)
                         regexp = re.compile(prefix + pattern)
-                        bind(self, func.priority, regexp, func)
+                        self.bind_func(func.priority, regexp, func)
                     
                     # 2) e.g. (['p', 'q'], '(.*)')
                     elif len(func.rule) == 2 and isinstance(func.rule[0], list): 
