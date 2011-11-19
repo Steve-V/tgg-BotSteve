@@ -97,6 +97,7 @@ def nexrad(phenny, input):
   from icao import nexrad
   
   if not input.group(2):
+    #NICKTRACKER: Default in user settings.
     return phenny.reply("http://radar.weather.gov/radar.php?rid=grr&product=NCR&overlay=11101111&loop=yes")
   
   radarSite = input.group(2).upper()

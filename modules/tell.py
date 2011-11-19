@@ -25,6 +25,8 @@ lispchannels = frozenset([ '#lisp', '#scheme', '#opendarwin', '#macdev',
 
 storage = {}
 
+#NICKTRACKER: Store to the canonical, so that they get told from other nicks
+
 def f_remind(phenny, input): 
    teller = input.nick
 

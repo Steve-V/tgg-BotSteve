@@ -18,6 +18,8 @@ storage = {} # Default value
 #def setup(self): 
 #    pass
 
+#NICKTRACKER: If passed a known registered user, check agaisnt all names they've used and print the most recent ones.
+
 @deprecated
 def f_seen(self, origin, match, args): 
   """.seen <nick> - Reports when <nick> was last seen."""

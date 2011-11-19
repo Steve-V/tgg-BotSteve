@@ -15,7 +15,9 @@ def tfw(phenny, input, fahrenheit=False, celsius=False):
 	if not zipcode or zipcode == 'tgg':
 		# default to Grand Rapids, Michigan
 		zipcode = "49504"
+		#NICKTRACKER: Save a default
     
+    #NICKTRACKER: Save this in user settings.
 	if fahrenheit:
 		celsius_param = ""
 	else:
