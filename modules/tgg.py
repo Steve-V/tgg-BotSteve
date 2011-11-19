@@ -97,44 +97,6 @@ bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
 bugReport.example = ['.tggbug']
 bugReport.priority = 'medium'
 
-def join_greeter(phenny, input):
-  """
-  Greetings depend on new sqlite database.  Schema is simple:
-
-  CREATE TABLE greetings (id INTEGER PRIMARY KEY, nickname, greeting, chance);
-
-  By default, the datebase lives in the bot's root directory tgg-BotSteve/tgg.db
-
-  Will eventually add auto-create and add code
-  """
-
-  db_conn = sqlite3.connect("tgg.db")
-  db_curr = db_conn.cursor()
-
-  nick = str(input.nick)
-  t = (nick,)
-  #db_query = "SELECT * FROM greetings WHERE nickname = '%s';" % nick
-  db_curr.execute( "SELECT * FROM greetings WHERE nickname = ?;" , t )
-  db_result = db_curr.fetchone()
-
-  if (db_result):
-    greet = db_result[2]
-    chance = db_result[3]
-    
-    #chance is an integer from 1 to 100, from the database
-    #if an integer chosen at random is below that, send the greet
-    #if the random integer is lower than the person's chance value, greet
-    import random
-    if random.randint(1,100) <= int(chance):
-      phenny.say(greet)
-    
-
-  db_conn.close()
-  
-join_greeter.event = 'JOIN'
-join_greeter.rule = r'(.*)'
-join_greeter.priority = 'low'
-
 def insult_user(phenny, input):
   db_conn = sqlite3.connect("tgg.db")
   db_curr = db_conn.cursor()
