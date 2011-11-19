@@ -7,7 +7,7 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, os, re, threading, imp, pickle, time
+import sys, os, re, threading, imp, time, traceback
 import irc
 
 home = os.getcwd()
@@ -60,9 +60,14 @@ class CommandInput(unicode):
         if self.owner:
             perms.append('owner')
         perms = ' '.join(perms)
-        if perms: perms = ' '+perms
-        return "<CommandInput %s sender=%r nick=%r event=%r match=%r args=%r %s>" % \
-            (super(CommandInput, self).__repr__(), self.sender, self.nick, self.event, self.match, self.args, perms)
+        if perms: 
+            perms = ' '+perms
+        
+        t = type(self)
+        clsname = "%s.%s" % (t.__module__, t.__name__)
+        
+        return "<%s %s sender=%r nick=%r event=%r groups=%r args=%r %s>" % \
+            (clsname, super(CommandInput, self).__repr__(), self.sender, self.nick, self.event, self.groups(), self.args, perms)
 
 class Phenny(irc.Bot):
     def __init__(self, config): 
@@ -116,15 +121,16 @@ class Phenny(irc.Bot):
             name = os.path.splitext(os.path.basename(filename))[0]
             if name in excluded_modules: continue
             try: module = imp.load_source(name, filename) #XXX: This is an obsolete function
-            except Exception, e: 
-               print >> sys.stderr, "Error loading %s: %s (in bot.py)" % (name, e)
+            except Exception, e:
+                traceback.print_exc()
+                print >> sys.stderr, "Error loading %s: %s (in bot.py)" % (name, e)
             else:
                 try:
                     #STORAGE: Initialize the module store
                     if hasattr(module, 'storage'):
-                    	module.storage = self.DataStore(self, module, module.storage)
+                        module.storage = self.DataStore(self, module, module.storage)
                     if hasattr(module, 'setup'): 
-                       module.setup(self)
+                        module.setup(self)
                 except:
                     #TODO: Report exception
                     raise
@@ -134,7 +140,8 @@ class Phenny(irc.Bot):
         
         if self.modules: 
             print >> sys.stderr, 'Registered modules:', ', '.join(m.__name__ for m in self.modules)
-        else: print >> sys.stderr, "Warning: Couldn't find any modules"
+        else: 
+            print >> sys.stderr, "Warning: Couldn't find any modules"
         
         self.bind_commands()
     
@@ -245,7 +252,7 @@ class Phenny(irc.Bot):
     def dispatch(self, origin, args): 
         bytes, event, args = args[0], args[1], args[2:]
         text = decode(bytes)
-
+        
         # File away activity
         if event in ('PRIVMSG', 'NOTICE'):
             #args[0] is the origin of the message as reported by IRC
@@ -279,6 +286,34 @@ class Phenny(irc.Bot):
                                 self.stats[(func.name, source)] += 1
                             except KeyError: 
                                 self.stats[(func.name, source)] = 1
+    
+########################
+# SERVICE MODULE HOOKS #
+########################
+    
+    def extendclass(self, name, newcls):
+        """p.extendclass(str, type) -> None
+        Takes the type and extends the named class using it. The type must 
+        inherit from the original type.
+        
+        These are the current classes:
+        * CommandInput
+        * PhennyWrapper
+        
+        This does some magic so that if multiple service hooks extend the same 
+        class, they all get called.
+        """
+        assert name in ('CommandInput', 'PhennyWrapper')
+        assert issubclass(newcls, globals()[name]) # Check inheritance
+        
+        # I've done console tests on this idea, and it seems to hold, even if repeated.
+        
+        oldcls = getattr(self, name)
+        patch = type(newcls.__name__, (newcls, oldcls), {
+            '__doc__': newcls.__doc__, 
+            '__module__': newcls.__module__,
+            })
+        setattr(self, name, patch)
     
 #####################
 # STORAGE UTILITIES #
