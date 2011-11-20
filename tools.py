@@ -6,9 +6,11 @@ Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
 """
-import collections, time, threading
+import collections, time, threading, warnings
 
 def deprecated(old): 
+   fname = "%s.%s" % (old.__module__, old.__name__)
+   warnings.warn("%s is using deprecated form." % fname, category=DeprecationWarning)
    def new(phenny, input, old=old): 
       self = phenny
       origin = type('Origin', (object,), {
