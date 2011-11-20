@@ -5,8 +5,8 @@ Copyright 2011, James Bliss, astro73.com
 Licensed under the Eiffel Forum License 2.
 """
 #TODO: Users of identified nicks start with a '~'. How can we use this?
-
-import time, bot, re, datetime, threading
+from __future__ import absolute_import
+import time, bot, re, datetime, threading, event
 
 storage = {} # This is used to store the data from INFO
 
@@ -65,9 +65,12 @@ class CommandInput(bot.CommandInput):
                 self.owner = self.canonnick.lower() == bot.config.owner.lower()
         return self
 
-class NickTracker(object):
+class NickTracker(event.EventSource):
     """
     The API for modules to access the nick database.
+    
+    Events defined:
+     * have-account: nick, account, status
     """
     # This is used to store the nick<->accounts mapping
     nicks = None # A dict: {nick.lower() : {'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
@@ -182,6 +185,9 @@ class NickTracker(object):
                 self.accounts[account.lower()].remove(nick.lower())
             except (KeyError, ValueError):
                 pass
+        
+        if data['status'] > 0 and data['account']:
+            self.emit('have-account', nick, data['account'], status)
     
     def _updateinfo(self, data):
         """
@@ -220,7 +226,7 @@ def processlist(phenny):
             pass
         else:
             query_acc(phenny, nick)
-        time.sleep(5) # The guideline is one message every 2 seconds.
+        time.sleep(5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
 
 ###################
 # QUERY FUNCTIONS #
