@@ -9,6 +9,7 @@ http://inamidst.com/phenny/
 
 import sys, re, time, traceback
 import socket, asyncore, asynchat
+import threading
 
 class Origin(object): 
    source = re.compile(r'([^!]*)!?([^@]*)@?(.*)')
@@ -42,7 +43,6 @@ class Bot(asynchat.async_chat):
       self.channels = channels or []
       self.stack = []
 
-      import threading
       self.sending = threading.RLock()
 
    def __write(self, args, text=None): 

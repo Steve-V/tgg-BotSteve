@@ -7,7 +7,8 @@ Licensed under the Eiffel Forum License 2.
 http://inamidst.com/phenny/
 """
 
-import sys, os, re, threading, imp, time, traceback
+import sys, os, re, imp, time, traceback
+from tools import startdaemon
 import irc
 
 home = os.getcwd()
@@ -30,13 +31,17 @@ class PhennyWrapper(object):
         self.sender = origin.sender or text
     
     def reply(self, msg):
-        self.bot.msg(self.sender, self.origin.nick + ': ' + msg)
+        self.msg(self.sender, self.origin.nick + ': ' + msg)
     
     def say(self, msg):
-        self.bot.msg(self.sender, msg)
+        self.msg(self.sender, msg)
+    
+    def msg(self, recipient, text):
+        self.bot.msg(recipient, text)
     
     def __getattr__(self, attr): 
-         return getattr(self.bot, attr)
+        # This isn't used by super() >.<
+        return getattr(self.bot, attr)
 
 class CommandInput(unicode): 
     def __new__(cls, bot, text, origin, bytes, match, event, args): 
@@ -295,10 +300,7 @@ class Phenny(irc.Bot):
                         input = self.input(origin, text, bytes, match, event, args)
                         
                         if func.thread: 
-                            targs = (func, origin, phenny, input)
-                            t = threading.Thread(target=self.call, args=targs)
-                            t.daemon = True
-                            t.start()
+                            startdaemon(self.call, func, origin, phenny, input)
                         else:
                             self.call(func, origin, phenny, input)
                         
@@ -333,7 +335,7 @@ class Phenny(irc.Bot):
         oldcls = getattr(self, name)
         patch = type(newcls.__name__, (newcls, oldcls), {
             '__doc__': newcls.__doc__, 
-            '__module__': newcls.__module__,
+            '__module__': '__patch__.'+newcls.__module__,
             })
         setattr(self, name, patch)
     
