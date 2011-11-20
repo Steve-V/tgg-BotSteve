@@ -32,6 +32,7 @@ def f_remind(phenny, input):
 
    # @@ Multiple comma-separated tellees? Cf. Terje, #swhack, 2006-04-15
    verb, tellee, msg = input.groups()
+   #NICKTRACKER: Canonize the nick
    verb = verb.encode('utf-8')
    tellee = tellee.encode('utf-8')
    msg = msg.encode('utf-8')
@@ -74,6 +75,7 @@ f_remind.rule = ( r'(?i)$nick', ['tell','ask'], r'(\S+) (.*)' )
 
 def getReminders(phenny, channel, key, tellee): 
    lines = []
+   #NICKTRACKER: Check this nick, canonical nick, and alt nicks.
    lines.append("%s: I have the following messages for you:" % tellee)
    template = "At %s, %s asked me to %s %s %s"
    today = time.strftime('%d %b', time.gmtime())
@@ -112,6 +114,8 @@ def message(phenny, input):
 
 message.rule = r'(.*)'
 message.priority = 'low'
+
+#NICKTRACKER: Listen to the have-account event and check tells then.
 
 if __name__ == '__main__': 
    print __doc__.strip()
