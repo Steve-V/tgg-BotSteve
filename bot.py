@@ -43,6 +43,7 @@ class CommandInput(unicode):
         self = unicode.__new__(cls, text)
         self.sender = origin.sender
         self.nick = origin.nick
+        self.origin = origin
         self.event = event
         self.bytes = bytes
         self.match = match
@@ -72,6 +73,7 @@ class CommandInput(unicode):
         del props['match']
         del props['group']
         del props['bytes']
+        del props['origin']
         props['groups'] = self.groups()
         pstr = ' '.join("%s=%r" % item for item in sorted(props.items(), key=lambda i: i[0]))
         
@@ -268,7 +270,8 @@ class Phenny(irc.Bot):
     def dispatch(self, origin, args): 
         bytes, event, args = args[0], args[1], args[2:]
         text = decode(bytes)
-        print "Dispatch: %r %r %r %r" % (event, args, origin, text)
+        if os.environ.get('SHOW_DISPATCH'):
+            print "Dispatch: %r %r %r %r" % (event, args, origin, text)
         
         # File away activity
         if event in ('PRIVMSG', 'NOTICE'):

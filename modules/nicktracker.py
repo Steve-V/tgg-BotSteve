@@ -3,15 +3,26 @@
 nicktracker.py - Phenny Nick Tracking Service Module
 Copyright 2011, James Bliss, astro73.com
 Licensed under the Eiffel Forum License 2.
-
-http://inamidst.com/phenny/
 """
+#TODO: Users of identified nicks start with a '~'. How can we use this?
+
 import time, bot, re, datetime, threading
 
 storage = {} # This is used to store the data from INFO
 
-OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(4)
-SUFFICIENT_PRIVLEDGE = (RECOGNIZED, LOGGEDIN)
+ACC_OFFLINE, ACC_LOGGEDOUT, ACC_RECOGNIZED, ACC_LOGGEDIN = range(4)
+ACCD_OFFLINE, ACCD_UNREGISTERED = 'offline', 'not registered'
+
+UNREGISTERED, OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(-2, 2)
+# Note: Status > 0 means they're sufficiently recognzied for us.
+
+ACC_MAP = {
+    (ACC_OFFLINE, ACCD_OFFLINE) : OFFLINE,
+    (ACC_OFFLINE, ACCD_UNREGISTERED) : UNREGISTERED,
+    (ACC_LOGGEDOUT, None) : LOGGEDOUT,
+    (ACC_REGOGNIZED, None) : RECOGNIZED,
+    (ACC_LOGGEDIN, None) : LOGGEDIN,
+    }
 
 def checkreserved(phenny, nick):
     """
@@ -48,29 +59,30 @@ class NickTracker(object):
     The API for modules to access the nick database.
     """
     # This is used to store the nick<->accounts mapping
-    nicks = accounts = None
+    nicks = None # A dict: {nick.lower() : {'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
+    accounts = None # A dict: { account.lower() : [nick, ...], ...}
     
     def __init__(self, phenny):
         self.phenny = phenny
         self.nicks = {}
         self.accounts = {}
     
-    def canonize(self, nick):
-        """nt.canonize(str) -> str
-        Returns the canonical nick for the given nick, or the same if there isn't one.
+    def getaccount(self, nick):
+        """nt.getaccount(str) -> str|None, int|None
+        Returns the canonical nick (account name) and status for the given nick.
         """
         global storage
         
         if checkreserved(self.phenny, nick):
             # If it's a reserved nick, just return it
-            return nick
+            return nick, LOGGEDIN
         
         try:
             data = self.nicks[nick.lower()]
         except KeyError:
             # If we don't have that data, query for it so we can use it in the future.
             query_acc(self.phenny, nick)
-            return nick
+            return nick, None
         else:
             # If the account information isn't available, query for it.
             if data['account']:
@@ -78,20 +90,35 @@ class NickTracker(object):
                     # If we have the account, but not the info, query it.
                     query_info(self.phenny, nick)
             else:
-                if data['status'] != OFFLINE or data['detail'] == 'offline':
+                if data['status'] != UNREGISTERED:
                     query_info(self.phenny, nick)
             
             # Actually do the canonization
-            if data['status'] in SUFFICIENT_PRIVLEDGE:
+            if data['status'] > 0:
                 # The user is considered identified enough.
-                if data['account']:
-                    return data['account']
-                else:
-                    # We queried for this info above
-                    return nick
+                return data['account'], data['status']
             else:
                 # Not considered identified
-                return nick
+                return None, data['status']
+    
+    def canonize(self, nick):
+        """nt.canonize(str) -> str
+        Returns the canonical nick for the given nick, or the same if there isn't one.
+        """
+        rv = self.getaccount(nick)[0]
+        if rv is None:
+            return nick
+        else:
+            return rv
+    
+    def getalts(self, nick):
+        """nt.getalts(str) -> [str], [str]
+        Returns the other nicks to the given user. The first list is the nicks 
+        that are known to be that user. The second list is the nicks that we 
+        haven't seen, but are registered to them.
+        """
+        
+        
     
     def _changenick(self, old, new):
         """
@@ -106,7 +133,7 @@ class NickTracker(object):
             self.accounts[account].append(new.lower())
             self.accounts[account].remove(old.lower())
     
-    def _updatelive(self, account, nick, status, detail=None):
+    def _updatelive(self, account, nick, status):
         """
         Update nick/account mapping
         """
@@ -117,25 +144,23 @@ class NickTracker(object):
             self.nicks[nick.lower()] = data = {
                 'account': account,
                 'status': status,
-                'detail': detail,
                 }
         else:
             if status is None:
                 # Called by _updateinfo
-                if data['status'] in SUFFICIENT_PRIVLEDGE:
+                if data['status'] > 0:
                     data['account'] = account
             else:
                 # Called by nickserv_acc
                 data['status'] = status
-                data['detail'] = detail
         
         # Update account->nicks
         if account is None:
             account = data['account']
-        if account is None:
+        if account is None and data['status'] > 0:
             query_info(self.phenny, nick)
             return
-        if status in SUFFICIENT_PRIVLEDGE:
+        if status > 0:
             print "Add nick: %r %r" % (account, nick)
             self.accounts.setdefault(account.lower(), []).append(nick.lower())
         else:
@@ -234,12 +259,15 @@ trigger_nick.rule = r'(.*)'
 trigger_nick.event = 'NICK'
 trigger_nick.priority = 'low'
 
+nick_host = {}
 
 def trigger_join(phenny, input):
     """
     When someone joins our channel, query them
     """
+    global nick_host
     print "Join:", repr(input)
+    nick_host[input.nick] = (input.origin.user, input.origin.host)
     if checkreserved(phenny, input.nick): return
     acc_retry = True
     query_acc(phenny, input.nick)
@@ -286,6 +314,11 @@ trigger_part.priority = 'low'
 #################
 # TEST COMMANDS #
 #################
+
+def cmd_nickhost(phenny, input):
+    from pprint import pprint
+    pprint(nick_host)
+cmd_nickhost.commands = ['nickhost']
 
 def cmd_acc(phenny, input):
     query_acc(phenny, input.group(2) or input.nick)
@@ -352,13 +385,12 @@ def nickserv_acc(phenny, input):
     print "ACC:", repr(input)
     
     nick = input.group(1)
-    status = int(input.group(2))
-    detail = input.group(3) # None, 'offline', or 'not registered'
+    status = ACC_MAP[(int(input.group(2)), input.group(3))]
     
     if nick == '*': return # Special nick
     
-    phenny.nicktracker._updatelive(None, nick, status, detail)
-    if status in SUFFICIENT_PRIVLEDGE:
+    phenny.nicktracker._updatelive(None, nick, status)
+    if status > 0:
         query_info(phenny, nick)
     elif acc_retry:
         acc_retry = False
@@ -450,6 +482,17 @@ nickserv_info_finish.event = 'NOTICE'
 nickserv_info_finish.priority = 'low'
 nickserv_info_finish.thread = True
 
+def nickserv_info_notregistered(phenny, input):
+    global tmp_info
+    if input.sender != 'NickServ': return
+    if tmp_info is None: return
+    
+    info_queried_nicks.remove(input.group(1).lower())
+    phenny.nicktracker._updateinfo(tmp_info)
+nickserv_info_notregistered.rule = r'\x02(.*)\x02 is not registered\.'
+nickserv_info_notregistered.event = 'NOTICE'
+nickserv_info_notregistered.priority = 'low'
+nickserv_info_notregistered.thread = True
 #####################
 # NICKSERV TAXONOMY #
 #####################
