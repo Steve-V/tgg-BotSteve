@@ -39,8 +39,8 @@ class CommandInput(bot.CommandInput):
         self = super(CommandInput, cls).__new__(cls, bot, text, origin, bytes, match, event, args)
         self.canonnick = bot.nicktracker.canonize(origin.nick)
         if hasattr(bot, 'nicktracker'):
-            self.admin = self.canonnick in bot.config.admins
-            self.owner = self.canonnick == bot.config.owner
+            self.admin = self.canonnick.lower() in [a.lower() for a in bot.config.admins]
+            self.owner = self.canonnick.lower() == bot.config.owner.lower()
         return self
 
 class NickTracker(object):
@@ -66,7 +66,7 @@ class NickTracker(object):
             return nick
         
         try:
-            data = self.nicks[nick]
+            data = self.nicks[nick.lower()]
         except KeyError:
             # If we don't have that data, query for it so we can use it in the future.
             query_acc(self.phenny, nick)
@@ -74,7 +74,7 @@ class NickTracker(object):
         else:
             # If the account information isn't available, query for it.
             if data['account']:
-                if data['account'] not in storage:
+                if data['account'].lower() not in storage:
                     # If we have the account, but not the info, query it.
                     query_info(self.phenny, nick)
             else:
@@ -98,11 +98,11 @@ class NickTracker(object):
         Update information to reflect the nick change.
         """
         # Update nick->account
-        self.nicks[new] = self.nicks[old]
-        del self.nicks[old]
+        self.nicks[new.lower()] = self.nicks[old.lower()]
+        del self.nicks[old.lower()]
         # Update account->nick
-        self.accounts[account].append(new)
-        self.accounts[account].remove(old)
+        self.accounts[account.lower()].append(new.lower())
+        self.accounts[account.lower()].remove(old.lower())
     
     def _updatelive(self, account, nick, status, detail=None):
         """
@@ -110,9 +110,9 @@ class NickTracker(object):
         """
         # Update nick->account
         try:
-            data = self.nicks[nick] # Atte
+            data = self.nicks[nick.lower()]
         except KeyError:
-            self.nicks[nick] = data = {
+            self.nicks[nick.lower()] = data = {
                 'account': account,
                 'status': status,
                 'detail': detail,
@@ -130,11 +130,15 @@ class NickTracker(object):
         # Update account->nicks
         if account is None:
             account = data['account']
+        if account is None:
+            query_info(self.phenny, nick)
+            return
         if status in SUFFICIENT_PRIVLEDGE:
-            self.accounts.setdefault(account, []).append(nick)
+            print "Add nick: %r %r" % (account, nick)
+            self.accounts.setdefault(account.lower(), []).append(nick.lower())
         else:
             try:
-                self.accounts[account].remove(nick)
+                self.accounts[account.lower()].remove(nick.lower())
             except (KeyError, ValueError):
                 pass
     
@@ -143,7 +147,7 @@ class NickTracker(object):
         Update the data from an INFO query.
         """
         global storage
-        storage[data.account] = data.items
+        storage[data.account.lower()] = data.items
         
         if data.nick is not None:
             # Update the nick/account mapping with the account/nick data
@@ -154,9 +158,9 @@ class NickTracker(object):
         Update the data from an TAXONOMY query.
         """
         global storage
-        d = storage[data.account]
+        d = storage[data.account.lower()]
         d['Metadata'] = data.items
-        storage[data.account] = d
+        storage[data.account.lower()] = d
 
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
@@ -175,7 +179,7 @@ def processlist(phenny):
             pass
         else:
             query_acc(phenny, nick)
-        time.sleep(10) # Pretty much arbitrary.
+        time.sleep(5) # The guideline is one message every 2 seconds.
 
 ###################
 # QUERY FUNCTIONS #
@@ -368,8 +372,6 @@ def nickserv_info_begin(phenny, input):
     global tmp_info
     if input.sender != 'NickServ': return
     
-    print "INFO Begin:", repr(input)
-    
     if input.group(2):
         nick, account = input.groups()
     else:
@@ -384,8 +386,6 @@ def nickserv_info_body(phenny, input):
     global tmp_info
     if input.sender != 'NickServ': return
     if tmp_info is None: return
-    
-    print "INFO Body:", repr(input)
     
     k, v = input.group(1,2)
     if k == 'Metadata':
@@ -419,7 +419,6 @@ def nickserv_info_protection(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_info is None: return
     
-    print "INFO Protection:", repr(input)
     assert tmp_info.account == input.group(1)
     tmp_info.items['__protection__'] = True
 nickserv_info_protection.rule = r'(.+?) has enabled nick protection'
@@ -432,7 +431,6 @@ def nickserv_info_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_info is None: return
     
-    print "INFO Finish:", repr(input)
     print "INFO:", repr(tmp_info)
     
     info_queried_nicks.remove(tmp_info.nick.lower())
@@ -456,8 +454,6 @@ def nickserv_taxonomy_begin(phenny, input):
     global tmp_taxo
     if input.sender != 'NickServ': return
     
-    print "TAXONOMY Begin:", repr(input)
-    
     tmp_taxo = DataHolder(input.group(1))
 nickserv_taxonomy_begin.rule = r'Taxonomy for \x02(.*)\x02:'
 nickserv_taxonomy_begin.event = 'NOTICE'
@@ -468,8 +464,6 @@ def nickserv_taxonomy_body(phenny, input):
     global tmp_taxo
     if input.sender != 'NickServ': return
     if tmp_taxo is None: return
-    
-    print "TAXONOMY Body:", repr(input)
     
     tmp_taxo.items[input.group(1)] = input.group(2)
 nickserv_taxonomy_body.rule = r'(.+?) *: +(.+)'
@@ -482,7 +476,6 @@ def nickserv_taxonomy_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_taxo is None: return
     
-    print "TAXONOMY Finish:", repr(input)
     print "TAXONOMY:", repr(tmp_taxo)
     
     assert tmp_taxo.account == input.group(1)
