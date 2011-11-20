@@ -6,7 +6,7 @@ Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
 """
-import collections, time, threading, warnings
+import collections, time, threading, warnings, sys, traceback
 
 def deprecated(old): 
    fname = "%s.%s" % (old.__module__, old.__name__)
@@ -43,13 +43,16 @@ class TimeTrackDict(collections.MutableMapping):
     The callback should take 3 parameters: The TimeTrackDict, the key, and how 
     old the key is.
     
-    Note that this class is naive with regards to threading, locking, and 
-    conflicts.
+    Other notes:
+     * No knowledge of threading, locking, and related issues.
+     * Will only notify about an expired key once.
+     * Any errors thrown by callbacks are printed and swallowed.
     """
-    _data = None
-    _times = None
-    _call = None
-    _expiry = None
+    _data   = None # The actual data dict
+    _times  = None # The time when data was last updated
+    _call   = None # The callback function
+    _expiry = None # How long until data is expired
+    _called = None # The set of keys that we've expired and notified.
     def __init__(self, callback, expiry, values=None):
         """TimeTrackDict(callable, number, [dictvals])
         * callback is the function to call.
@@ -60,8 +63,23 @@ class TimeTrackDict(collections.MutableMapping):
         self._expiry = expiry
         self._data = {}
         self._times = {}
+        self._called = set()
         if values:
             self.update(dict(values))
+    
+    def _expire(self, key, age):
+        """
+        Handles multi-call prevention and then actually calls the callback.
+        """
+        if key in self._called: return
+        self._called.add(key)
+        try:
+            self._call(self, key, age)
+        except KeyboardInterrupt:
+            raise
+        except:
+            print >> sys.stderr, "Error in TimeTrackDict callback, ignoring."
+            traceback.print_exc()
     
     def checktimes(self):
         """ttd.checktimes()
@@ -71,20 +89,22 @@ class TimeTrackDict(collections.MutableMapping):
         for key, st in self._times.iteritems():
             age = t - st
             if age > self._expiry:
-                self._call(self, key, age)
+                self._expire(key, age)
     
     def __getitem__(self, key):
         v = self._data[key]
         age = time.time() - self._times[key]
         if age  > self._expiry:
-            self._call(self, key, age)
+            self._expire(key, age)
         return v
     
     def __setitem__(self, key, value):
+        self._called.discard(key)
         self._times[key] = time.time()
         self._data[key] = value
     
     def __delitem__(self, key):
+        self._called.discard(key)
         del self._times[key]
         del self._data[key]
     
