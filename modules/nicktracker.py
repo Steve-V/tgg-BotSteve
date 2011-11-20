@@ -6,9 +6,11 @@ Licensed under the Eiffel Forum License 2.
 """
 #TODO: Users of identified nicks start with a '~'. How can we use this?
 from __future__ import absolute_import
-import time, bot, re, datetime, threading, event
-
+import time, bot, re, datetime, event
+from tools import TimeTrackDict, startdaemon
 storage = {} # This is used to store the data from INFO
+
+DATA_EXPIRY_TIME = 30*60 # 30 minutes
 
 ACC_OFFLINE, ACC_LOGGEDOUT, ACC_RECOGNIZED, ACC_LOGGEDIN = range(4)
 ACCD_OFFLINE, ACCD_UNREGISTERED = 'offline', 'not registered'
@@ -71,15 +73,18 @@ class NickTracker(event.EventSource):
     
     Events defined:
      * have-account: nick, account, status
+       This is called whenever the account/status information is updated and we 
+       have the account.
     """
     # This is used to store the nick<->accounts mapping
     nicks = None # A dict: {nick.lower() : {'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
     accounts = None # A dict: { account.lower() : [nick, ...], ...}
     
     def __init__(self, phenny):
+        super(NickTracker, self).__init__()
         self.phenny = phenny
-        self.nicks = {}
-        self.accounts = {}
+        self.nicks = TimeTrackDict(self._expire_nick, DATA_EXPIRY_TIME)
+        self.accounts = TimeTrackDict(self._expire_account, DATA_EXPIRY_TIME)
     
     def getaccount(self, nick):
         """nt.getaccount(str) -> str|None, int|None
@@ -141,6 +146,8 @@ class NickTracker(event.EventSource):
         Update information to reflect the nick change.
         """
         # Update nick->account
+        if old.lower() not in self.nicks:
+            return
         account = self.nicks[new.lower()] = self.nicks[old.lower()]
         del self.nicks[old.lower()]
         if account['account']:
@@ -208,13 +215,17 @@ class NickTracker(event.EventSource):
         d = storage[data.account.lower()]
         d['Metadata'] = data.items
         storage[data.account.lower()] = d
+    
+    def _expire_nick(self, ttd, key, age):
+        startdaemon(query_acc, self.phenny, key)
+    
+    def _expire_account(self, ttd, key, age):
+        startdaemon(query_info, self.phenny, key)
 
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
     phenny.extendclass('CommandInput', CommandInput)
-    t = threading.Thread(target=processlist, args=(phenny,))
-    t.daemon = True
-    t.start()
+    startdaemon(processlist, phenny)
 
 # The nick process queue. So that we don't flood nickserv when we connect, we do initial loads gradually over time.
 nicks_to_process = set()
@@ -262,9 +273,9 @@ def trigger_nick(phenny, input):
     """
     When someone changes nicks, update the information
     """
-    print "Nick:", repr(input)
     old = input.nick
     new = unicode(input)
+    print "Nick: %s -> %s" % (old, new)
     # Update the database
     phenny.nicktracker._changenick(old, new)
     
@@ -401,6 +412,7 @@ def parsedate(d):
     dt = datetime.datetime(year, month, day, hour, minute, second)
     return time.mktime(dt.timetuple())
 
+
 ################
 # NICKSERV ACC #
 ################
@@ -522,6 +534,8 @@ nickserv_info_notregistered.rule = r'\x02(.*)\x02 is not registered\.'
 nickserv_info_notregistered.event = 'NOTICE'
 nickserv_info_notregistered.priority = 'low'
 nickserv_info_notregistered.thread = True
+
+
 #####################
 # NICKSERV TAXONOMY #
 #####################
