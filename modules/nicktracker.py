@@ -78,8 +78,8 @@ class NickTracker(event.EventSource):
        have the account.
     """
     # This is used to store the nick<->accounts mapping
-    nicks = None # A dict: {nick.lower() : {'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
-    accounts = None # A dict: { account.lower() : [nick, ...], ...}
+    nicks = None # A dict: {nick.lower() : {'nick': nick, 'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
+    accounts = None # A dict: { account.lower() : set(nick.lower(), ...), ...}
     
     def __init__(self, phenny):
         super(NickTracker, self).__init__()
@@ -149,16 +149,17 @@ class NickTracker(event.EventSource):
         """
         Update information to reflect the nick change.
         """
-        # Update nick->account
         if old.lower() not in self.nicks:
+            # Not a nick we're currently tracking. Should only happen when entering.
             return
+        # Update nick->account
         account = self.nicks[new.lower()] = self.nicks[old.lower()]
         del self.nicks[old.lower()]
         if account['account']:
             account = account['account'].lower()
             # Update account->nick
-            self.accounts[account].append(new.lower())
-            self.accounts[account].remove(old.lower())
+            self.accounts[account].add(new.lower())
+            self.accounts[account].discard(old.lower())
     
     def _updatelive(self, account, nick, status):
         """
@@ -169,10 +170,18 @@ class NickTracker(event.EventSource):
             data = self.nicks[nick.lower()]
         except KeyError:
             self.nicks[nick.lower()] = data = {
+                'nick': nick,
                 'account': account,
                 'status': status,
                 }
         else:
+            if data['account'] and account and data['account'].lower() != account.lower():
+                # If we're changing accounts, make sure the nick gets removed from the old one
+                try:
+                    self.accounts[data['account'].lower()].discard(nick.lower())
+                except KeyError:
+                    pass
+            
             if status is None:
                 # Called by _updateinfo
                 if data['status'] > 0:
@@ -190,11 +199,11 @@ class NickTracker(event.EventSource):
             return
         if status > 0:
             print "Add nick: %r %r" % (account, nick)
-            self.accounts.setdefault(account.lower(), []).append(nick.lower())
+            self.accounts.setdefault(account.lower(), set()).add(nick.lower())
         else:
             try:
-                self.accounts[account.lower()].remove(nick.lower())
-            except (KeyError, ValueError):
+                self.accounts[account.lower()].discard(nick.lower())
+            except KeyError:
                 pass
         
         if data['status'] > 0 and data['account']:
@@ -226,6 +235,7 @@ class NickTracker(event.EventSource):
     
     def _expire_account(self, ttd, key, age):
         print "Expire: Account: %r" % key
+        # We should be querying the nicks on this one
         startdaemon(query_info, self.phenny, key)
 
 def setup(phenny): 
