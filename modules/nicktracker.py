@@ -8,12 +8,17 @@ http://inamidst.com/phenny/
 """
 import time, bot, re, datetime, threading
 
-storage = {} # Default value
-# storage is a persistant value, automagically loaded and saved by the bot.
+storage = {} # This is used to store the data from INFO
 
 OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(4)
+SUFFICIENT_PRIVLEDGE = (RECOGNIZED, LOGGEDIN)
 
 def checkreserved(phenny, nick):
+    """
+    Just checks the nick against a set of nicks that we shouldn't query.
+    
+    This is things like servers, services, and ourselves.
+    """
     # The server we're connected to
     if nick.endswith('.freenode.net'): #FIXME: Don't hardcode this
         return True
@@ -27,6 +32,9 @@ def checkreserved(phenny, nick):
         return False
 
 class CommandInput(bot.CommandInput):
+    """
+    Overrides CommandInput so that we use the canonical nick for access.
+    """
     def __new__(cls, bot, text, origin, bytes, match, event, args):
         self = super(CommandInput, cls).__new__(cls, bot, text, origin, bytes, match, event, args)
         self.canonnick = bot.nicktracker.canonize(origin.nick)
@@ -39,6 +47,8 @@ class NickTracker(object):
     """
     The API for modules to access the nick database.
     """
+    # This is used to store the nick<->accounts mapping
+    nicks = accounts = None
     
     def __init__(self, phenny):
         self.phenny = phenny
@@ -52,13 +62,17 @@ class NickTracker(object):
         global storage
         
         if checkreserved(self.phenny, nick):
+            # If it's a reserved nick, just return it
             return nick
+        
         try:
             data = self.nicks[nick]
         except KeyError:
+            # If we don't have that data, query for it so we can use it in the future.
             query_acc(self.phenny, nick)
             return nick
         else:
+            # If the account information isn't available, query for it.
             if data['account']:
                 if data['account'] not in storage:
                     # If we have the account, but not the info, query it.
@@ -66,52 +80,79 @@ class NickTracker(object):
             else:
                 if data['status'] != OFFLINE or data['detail'] == 'offline':
                     query_info(self.phenny, nick)
-            if data['status'] in (RECOGNIZED, LOGGEDIN):
+            
+            # Actually do the canonization
+            if data['status'] in SUFFICIENT_PRIVLEDGE:
+                # The user is considered identified enough.
                 if data['account']:
                     return data['account']
                 else:
+                    # We queried for this info above
                     return nick
             else:
+                # Not considered identified
                 return nick
     
+    def _changenick(self, old, new):
+        """
+        Update information to reflect the nick change.
+        """
+        # Update nick->account
+        self.nicks[new] = self.nicks[old]
+        del self.nicks[old]
+        # Update account->nick
+        self.accounts[account].append(new)
+        self.accounts[account].remove(old)
+    
     def _updatelive(self, account, nick, status, detail=None):
-        # Update nick index
+        """
+        Update nick/account mapping
+        """
+        # Update nick->account
         try:
-            data = self.nicks[nick]
+            data = self.nicks[nick] # Atte
         except KeyError:
             self.nicks[nick] = data = {
                 'account': account,
-                'nick': nick,
                 'status': status,
                 'detail': detail,
                 }
         else:
             if status is None:
-                # From _updateinfo
-                if data['status'] in (RECOGNIZED, LOGGEDIN):
+                # Called by _updateinfo
+                if data['status'] in SUFFICIENT_PRIVLEDGE:
                     data['account'] = account
             else:
+                # Called by nickserv_acc
                 data['status'] = status
                 data['detail'] = detail
         
-        # Update account index
+        # Update account->nicks
         if account is None:
             account = data['account']
-        if status in (RECOGNIZED, LOGGEDIN):
+        if status in SUFFICIENT_PRIVLEDGE:
             self.accounts.setdefault(account, []).append(nick)
         else:
             try:
                 self.accounts[account].remove(nick)
-            except KeyError, ValueError:
+            except (KeyError, ValueError):
                 pass
     
     def _updateinfo(self, data):
+        """
+        Update the data from an INFO query.
+        """
         global storage
         storage[data.account] = data.items
+        
         if data.nick is not None:
+            # Update the nick/account mapping with the account/nick data
             self._updatelive(data.account, data.nick, None)
     
     def _updatetaxo(self, data):
+        """
+        Update the data from an TAXONOMY query.
+        """
         global storage
         d = storage[data.account]
         d['Metadata'] = data.items
@@ -124,8 +165,8 @@ def setup(phenny):
     t.daemon = True
     t.start()
 
+# The nick process queue. So that we don't flood nickserv when we connect, we do initial loads gradually over time.
 nicks_to_process = set()
-
 def processlist(phenny):
     while True:
         try:
@@ -134,19 +175,22 @@ def processlist(phenny):
             pass
         else:
             query_acc(phenny, nick)
-        time.sleep(10)
+        time.sleep(10) # Pretty much arbitrary.
 
 ###################
 # QUERY FUNCTIONS #
 ###################
+# These functions do the query to NickServ
 
 def query_acc(phenny, nick):
+    # Don't query ourselves, NickServ, or servers
     if checkreserved(phenny, nick):
         return
-    nicks_to_process.discard(nick)
+    nicks_to_process.discard(nick) # Remove this nick from the processing queue
     phenny.msg('Nickserv', 'ACC %s' % nick)
 
 def query_info(phenny, nick):
+    # Don't query ourselves, NickServ, or servers
     if checkreserved(phenny, nick):
         return
     if nick.lower() not in info_queried_nicks: # Prevent repeated queries
@@ -161,8 +205,34 @@ def query_taxonomy(phenny, nick):
 ############
 # TRIGGERS #
 ############
+# Stuff we do when things happen
+
+def trigger_nick(phenny, input):
+    """
+    When someone changes nicks, update the information
+    """
+    print "Nick:", repr(input)
+    old = input.nick
+    new = unicode(input)
+    # Update the database
+    phenny.nicktracker._changenick(old, new)
+    
+    # Update the processing queue
+    try:
+        nicks_to_process.remove(old)
+    except KeyError:
+        pass
+    else:
+        nicks_to_process.add(new)
+trigger_nick.rule = r'(.*)'
+trigger_nick.event = 'NICK'
+trigger_nick.priority = 'low'
+
 
 def trigger_join(phenny, input):
+    """
+    When someone joins our channel, query them
+    """
     print "Join:", repr(input)
     if checkreserved(phenny, input.nick): return
     acc_retry = True
@@ -172,6 +242,9 @@ trigger_join.event = 'JOIN'
 trigger_join.priority = 'low'
 
 def trigger_list(phenny, input):
+    """
+    When we join a channel, schedule queries for existing members
+    """
     print "List:", repr(input)
     
     for nick in input.split(' '):
@@ -187,9 +260,21 @@ trigger_list.event = '353'
 trigger_list.priority = 'low'
 
 def trigger_part(phenny, input):
+    """
+    If someone leaves, remove them from the queue
+    """
     nicks_to_process.discard(input.nick)
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'PART'
+trigger_part.priority = 'low'
+
+def trigger_quit(phenny, input):
+    """
+    If someone leaves, remove them from the queue
+    """
+    nicks_to_process.discard(input.nick)
+trigger_part.rule = r'(.*)'
+trigger_part.event = 'QUIT'
 trigger_part.priority = 'low'
 
 #################
@@ -261,7 +346,7 @@ def nickserv_acc(phenny, input):
     if nick == '*': return # Special nick
     
     phenny.nicktracker._updatelive(None, nick, status, detail)
-    if status in (RECOGNIZED, LOGGEDIN):
+    if status in SUFFICIENT_PRIVLEDGE:
         query_info(phenny, nick)
     elif acc_retry:
         acc_retry = False
