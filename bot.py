@@ -66,8 +66,17 @@ class CommandInput(unicode):
         t = type(self)
         clsname = "%s.%s" % (t.__module__, t.__name__)
         
-        return "<%s %s sender=%r nick=%r event=%r groups=%r args=%r %s>" % \
-            (clsname, super(CommandInput, self).__repr__(), self.sender, self.nick, self.event, self.groups(), self.args, perms)
+        props = vars(self).copy()
+        del props['admin']
+        del props['owner']
+        del props['match']
+        del props['group']
+        del props['bytes']
+        props['groups'] = self.groups()
+        pstr = ' '.join("%s=%r" % item for item in sorted(props.items(), key=lambda i: i[0]))
+        
+        return "<%s %s %s %s>" % \
+            (clsname, super(CommandInput, self).__repr__(), pstr, perms)
 
 class Phenny(irc.Bot):
     def __init__(self, config): 
@@ -259,6 +268,7 @@ class Phenny(irc.Bot):
     def dispatch(self, origin, args): 
         bytes, event, args = args[0], args[1], args[2:]
         text = decode(bytes)
+        print "Dispatch: %r %r %r %r" % (event, args, origin, text)
         
         # File away activity
         if event in ('PRIVMSG', 'NOTICE'):

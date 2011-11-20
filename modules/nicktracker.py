@@ -13,6 +13,19 @@ storage = {} # Default value
 
 OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(4)
 
+def checkreserved(phenny, nick):
+    # The server we're connected to
+    if nick.endswith('.freenode.net'): #FIXME: Don't hardcode this
+        return True
+    # Services
+    elif nick.lower().endswith('serv'):
+        return True
+    # And Ourself
+    elif nick.lower() == phenny.nick:
+        return True
+    else:
+        return False
+
 class CommandInput(bot.CommandInput):
     def __new__(cls, bot, text, origin, bytes, match, event, args):
         self = super(CommandInput, cls).__new__(cls, bot, text, origin, bytes, match, event, args)
@@ -21,28 +34,82 @@ class CommandInput(bot.CommandInput):
             self.admin = self.canonnick in bot.config.admins
             self.owner = self.canonnick == bot.config.owner
         return self
-        
+
 class NickTracker(object):
     """
     The API for modules to access the nick database.
     """
+    
     def __init__(self, phenny):
         self.phenny = phenny
+        self.nicks = {}
+        self.accounts = {}
     
     def canonize(self, nick):
         """nt.canonize(str) -> str
         Returns the canonical nick for the given nick, or the same if there isn't one.
         """
-        return nick
+        global storage
+        
+        if checkreserved(self.phenny, nick):
+            return nick
+        try:
+            data = self.nicks[nick]
+        except KeyError:
+            query_acc(self.phenny, nick)
+            return nick
+        else:
+            if data['account']:
+                if data['account'] not in storage:
+                    # If we have the account, but not the info, query it.
+                    query_info(self.phenny, nick)
+            else:
+                if data['status'] != OFFLINE or data['detail'] == 'offline':
+                    query_info(self.phenny, nick)
+            if data['status'] in (RECOGNIZED, LOGGEDIN):
+                if data['account']:
+                    return data['account']
+                else:
+                    return nick
+            else:
+                return nick
     
     def _updatelive(self, account, nick, status, detail=None):
-        pass
+        # Update nick index
+        try:
+            data = self.nicks[nick]
+        except KeyError:
+            self.nicks[nick] = data = {
+                'account': account,
+                'nick': nick,
+                'status': status,
+                'detail': detail,
+                }
+        else:
+            if status is None:
+                # From _updateinfo
+                if data['status'] in (RECOGNIZED, LOGGEDIN):
+                    data['account'] = account
+            else:
+                data['status'] = status
+                data['detail'] = detail
+        
+        # Update account index
+        if account is None:
+            account = data['account']
+        if status in (RECOGNIZED, LOGGEDIN):
+            self.accounts.setdefault(account, []).append(nick)
+        else:
+            try:
+                self.accounts[account].remove(nick)
+            except KeyError, ValueError:
+                pass
     
     def _updateinfo(self, data):
         global storage
         storage[data.account] = data.items
-#        if data.nick is not None:
-#            self._updatelive(data.account, data.nick, LOGGEDIN)
+        if data.nick is not None:
+            self._updatelive(data.account, data.nick, None)
     
     def _updatetaxo(self, data):
         global storage
@@ -59,12 +126,20 @@ def setup(phenny):
 ###################
 
 def query_acc(phenny, nick):
+    if checkreserved(phenny, nick):
+        return
     phenny.msg('Nickserv', 'ACC %s' % nick)
 
 def query_info(phenny, nick):
-    phenny.msg('Nickserv', 'INFO %s' % nick)
+    if checkreserved(phenny, nick):
+        return
+    if nick.lower() not in info_queried_nicks: # Prevent repeated queries
+        info_queried_nicks.add(nick.lower())
+        phenny.msg('Nickserv', 'INFO %s' % nick)
 
 def query_taxonomy(phenny, nick):
+    if checkreserved(phenny, nick):
+        return
     phenny.msg('Nickserv', 'TAXONOMY %s' % nick)
 
 ############
@@ -80,7 +155,7 @@ trigger_join.rule = r'(.*)'
 trigger_join.event = 'JOIN'
 trigger_join.priority = 'low'
 
-# TODO: Some kind of trigger
+#XXX: Do we want to trigger on nick list? (333, 353, 366)
 
 #################
 # TEST COMMANDS #
@@ -167,6 +242,7 @@ nickserv_acc.priority = 'low'
 #################
 
 tmp_info = None
+info_queried_nicks = set()
 
 def nickserv_info_begin(phenny, input): 
     global tmp_info
@@ -239,6 +315,7 @@ def nickserv_info_finish(phenny, input):
     print "INFO Finish:", repr(input)
     print "INFO:", repr(tmp_info)
     
+    info_queried_nicks.remove(tmp_info.nick.lower())
     phenny.nicktracker._updateinfo(tmp_info)
     
     tmp_info = None
