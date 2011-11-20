@@ -117,7 +117,7 @@ def nickserv_acc(phenny, input):
         query_info(phenny, nick)
     elif acc_retry:
         acc_retry = False
-        time.sleep(60)
+        time.sleep(60) #Based on the length of NickServ's enforcement.
         query_acc(phenny, nick)
 nickserv_acc.rule = r'(.*) ACC ([0123])(?: \((.*)\))?'
 nickserv_acc.event = 'NOTICE'
@@ -272,20 +272,22 @@ trigger_join.rule = r'(.*)'
 trigger_join.event = 'JOIN'
 trigger_join.priority = 'low'
 
+# TODO: Some kind of trigger
+
 #################
 # TEST COMMANDS #
 #################
 
 def cmd_acc(phenny, input):
-    query_acc(phenny, input.nick)
+    query_acc(phenny, input.group(2) or input.nick)
 cmd_acc.commands = ['acc']
 
 def cmd_info(phenny, input):
-    query_info(phenny, input.nick)
+    query_info(phenny, input.group(2) or input.nick)
 cmd_info.commands = ['ninfo']
 
 def cmd_taxonomy(phenny, input):
-    query_taxonomy(phenny, input.nick)
+    query_taxonomy(phenny, input.group(2) or input.nick)
 cmd_taxonomy.commands = ['taxo']
 
 if __name__ == '__main__': 
