@@ -297,6 +297,12 @@ def cmd_taxonomy(phenny, input):
     query_taxonomy(phenny, input.group(2) or input.nick)
 cmd_taxonomy.commands = ['taxo']
 
+def cmd_canon(phenny, input):
+    print "Canon: %r" % input
+    nick = input.group(2) or input.nick
+    phenny.reply(phenny.nicktracker.canonize(nick))
+cmd_canon.commands = ['canon']
+
 ################
 # DATA HELPERS #
 ################
