@@ -98,7 +98,7 @@ class NickTracker(object):
         Update information to reflect the nick change.
         """
         # Update nick->account
-        self.nicks[new.lower()] = self.nicks[old.lower()]
+        account = self.nicks[new.lower()] = self.nicks[old.lower()]
         del self.nicks[old.lower()]
         # Update account->nick
         self.accounts[account.lower()].append(new.lower())
