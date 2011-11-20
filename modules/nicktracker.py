@@ -100,9 +100,11 @@ class NickTracker(object):
         # Update nick->account
         account = self.nicks[new.lower()] = self.nicks[old.lower()]
         del self.nicks[old.lower()]
-        # Update account->nick
-        self.accounts[account.lower()].append(new.lower())
-        self.accounts[account.lower()].remove(old.lower())
+        if account['account']:
+            account = account['account'].lower()
+            # Update account->nick
+            self.accounts[account].append(new.lower())
+            self.accounts[account].remove(old.lower())
     
     def _updatelive(self, account, nick, status, detail=None):
         """
