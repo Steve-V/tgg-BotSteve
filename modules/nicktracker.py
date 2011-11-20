@@ -54,6 +54,54 @@ def setup(phenny):
     phenny.nicktracker = NickTracker(phenny)
     phenny.extendclass('CommandInput', CommandInput)
 
+###################
+# QUERY FUNCTIONS #
+###################
+
+def query_acc(phenny, nick):
+    phenny.msg('Nickserv', 'ACC %s' % nick)
+
+def query_info(phenny, nick):
+    phenny.msg('Nickserv', 'INFO %s' % nick)
+
+def query_taxonomy(phenny, nick):
+    phenny.msg('Nickserv', 'TAXONOMY %s' % nick)
+
+############
+# TRIGGERS #
+############
+
+def trigger_join(phenny, input):
+    print "Join:", repr(input)
+    if input.nick == phenny.nick: return
+    acc_retry = True
+    query_acc(phenny, input.nick)
+trigger_join.rule = r'(.*)'
+trigger_join.event = 'JOIN'
+trigger_join.priority = 'low'
+
+# TODO: Some kind of trigger
+
+#################
+# TEST COMMANDS #
+#################
+
+def cmd_acc(phenny, input):
+    query_acc(phenny, input.group(2) or input.nick)
+cmd_acc.commands = ['acc']
+
+def cmd_info(phenny, input):
+    query_info(phenny, input.group(2) or input.nick)
+cmd_info.commands = ['ninfo']
+
+def cmd_taxonomy(phenny, input):
+    query_taxonomy(phenny, input.group(2) or input.nick)
+cmd_taxonomy.commands = ['taxo']
+
+################
+# DATA HELPERS #
+################
+
 class DataHolder(object):
     def __init__(self, account, nick=None):
         self.account = account
@@ -83,19 +131,6 @@ def parsedate(d):
     
     dt = datetime.datetime(year, month, day, hour, minute, second)
     return time.mktime(dt.timetuple())
-
-###################
-# QUERY FUNCTIONS #
-###################
-
-def query_acc(phenny, nick):
-    phenny.msg('Nickserv', 'ACC %s' % nick)
-
-def query_info(phenny, nick):
-    phenny.msg('Nickserv', 'INFO %s' % nick)
-
-def query_taxonomy(phenny, nick):
-    phenny.msg('Nickserv', 'TAXONOMY %s' % nick)
 
 ################
 # NICKSERV ACC #
@@ -258,37 +293,6 @@ nickserv_taxonomy_finish.rule = r'End of \x02(.*?)\x02 taxonomy.'
 nickserv_taxonomy_finish.event = 'NOTICE'
 nickserv_taxonomy_finish.priority = 'low'
 nickserv_taxonomy_finish.thread = True
-
-############
-# TRIGGERS #
-############
-
-def trigger_join(phenny, input):
-    print "Join:", repr(input)
-    if input.nick == phenny.nick: return
-    acc_retry = True
-    query_acc(phenny, input.nick)
-trigger_join.rule = r'(.*)'
-trigger_join.event = 'JOIN'
-trigger_join.priority = 'low'
-
-# TODO: Some kind of trigger
-
-#################
-# TEST COMMANDS #
-#################
-
-def cmd_acc(phenny, input):
-    query_acc(phenny, input.group(2) or input.nick)
-cmd_acc.commands = ['acc']
-
-def cmd_info(phenny, input):
-    query_info(phenny, input.group(2) or input.nick)
-cmd_info.commands = ['ninfo']
-
-def cmd_taxonomy(phenny, input):
-    query_taxonomy(phenny, input.group(2) or input.nick)
-cmd_taxonomy.commands = ['taxo']
 
 if __name__ == '__main__': 
    print __doc__.strip()
