@@ -139,6 +139,7 @@ def parsedate(d):
 acc_retry = False
 
 def nickserv_acc(phenny, input): 
+    global acc_retry
     if input.sender != 'NickServ': return
     
     print "ACC:", repr(input)
@@ -146,6 +147,8 @@ def nickserv_acc(phenny, input):
     nick = input.group(1)
     status = int(input.group(2))
     detail = input.group(3) # None, 'offline', or 'not registered'
+    
+    if nick == '*': return # Special nick
     
     phenny.nicktracker._updatelive(None, nick, status, detail)
     if status in (RECOGNIZED, LOGGEDIN):
