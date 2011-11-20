@@ -70,7 +70,7 @@ class TimeTrackDict(collections.MutableMapping):
         t = time.time()
         for key, st in self._times.iteritems():
             age = t - st
-            if age > self._expiry
+            if age > self._expiry:
                 self._call(self, key, age)
     
     def __getitem__(self, key):

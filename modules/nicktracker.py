@@ -221,9 +221,11 @@ class NickTracker(event.EventSource):
         storage[data.account.lower()] = d
     
     def _expire_nick(self, ttd, key, age):
+        print "Expire: Nick: %r" % key
         startdaemon(query_acc, self.phenny, key)
     
     def _expire_account(self, ttd, key, age):
+        print "Expire: Account: %r" % key
         startdaemon(query_info, self.phenny, key)
 
 def setup(phenny): 
