@@ -6,7 +6,7 @@ Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
 """
-import time, bot, re, datetime
+import time, bot, re, datetime, threading
 
 storage = {} # Default value
 # storage is a persistant value, automagically loaded and saved by the bot.
@@ -120,6 +120,21 @@ class NickTracker(object):
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
     phenny.extendclass('CommandInput', CommandInput)
+    t = threading.Thread(target=processlist, args=(phenny,))
+    t.daemon = True
+    t.start()
+
+nicks_to_process = set()
+
+def processlist(phenny):
+    while True:
+        try:
+            nick = nicks_to_process.pop()
+        except KeyError:
+            pass
+        else:
+            query_acc(phenny, nick)
+        time.sleep(10)
 
 ###################
 # QUERY FUNCTIONS #
@@ -128,6 +143,7 @@ def setup(phenny):
 def query_acc(phenny, nick):
     if checkreserved(phenny, nick):
         return
+    nicks_to_process.discard(nick)
     phenny.msg('Nickserv', 'ACC %s' % nick)
 
 def query_info(phenny, nick):
@@ -148,14 +164,33 @@ def query_taxonomy(phenny, nick):
 
 def trigger_join(phenny, input):
     print "Join:", repr(input)
-    if input.nick == phenny.nick: return
+    if checkreserved(phenny, input.nick): return
     acc_retry = True
     query_acc(phenny, input.nick)
 trigger_join.rule = r'(.*)'
 trigger_join.event = 'JOIN'
 trigger_join.priority = 'low'
 
-#XXX: Do we want to trigger on nick list? (333, 353, 366)
+def trigger_list(phenny, input):
+    print "List:", repr(input)
+    
+    for nick in input.split(' '):
+        if nick[0] in '@+':
+            nick = nick[1:]
+        if checkreserved(phenny, nick):
+            continue
+        nicks_to_process.add(nick)
+    
+    print "List:", nicks_to_process
+trigger_list.rule = r'(.*)'
+trigger_list.event = '353'
+trigger_list.priority = 'low'
+
+def trigger_part(phenny, input):
+    nicks_to_process.discard(input.nick)
+trigger_part.rule = r'(.*)'
+trigger_part.event = 'PART'
+trigger_part.priority = 'low'
 
 #################
 # TEST COMMANDS #
