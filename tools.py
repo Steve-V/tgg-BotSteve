@@ -6,7 +6,7 @@ Licensed under the Eiffel Forum License 2.
 
 http://inamidst.com/phenny/
 """
-import collections, time
+import collections, time, threading
 
 def deprecated(old): 
    def new(phenny, input, old=old): 
@@ -22,6 +22,16 @@ def deprecated(old):
    new.__module__ = old.__module__
    new.__name__ = old.__name__
    return new
+
+def startdaemon(func, *p, **kw):
+    """startdeamon(callable, ...) -> threading.Thread
+    Creates a thread, based on function and arguments, starts it, and returns 
+    it. Note that it will be a daemon thread.
+    """
+    t = threading.Thread(target=func, args=p, kwargs=kw)
+    t.daemon = True
+    t.start()
+    return t
 
 class TimeTrackDict(collections.MutableMapping):
     """
