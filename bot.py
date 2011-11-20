@@ -120,7 +120,10 @@ class Phenny(irc.Bot):
         for filename in filenames: 
             name = os.path.splitext(os.path.basename(filename))[0]
             if name in excluded_modules: continue
-            try: module = imp.load_source(name, filename) #XXX: This is an obsolete function
+            try: 
+                module = imp.load_source(name, filename) #XXX: This is an obsolete function
+            except KeyboardInterrupt:
+                raise
             except Exception, e:
                 traceback.print_exc()
                 print >> sys.stderr, "Error loading %s: %s (in bot.py)" % (name, e)
@@ -131,6 +134,8 @@ class Phenny(irc.Bot):
                         module.storage = self.DataStore(self, module, module.storage)
                     if hasattr(module, 'setup'): 
                         module.setup(self)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     #TODO: Report exception
                     raise
@@ -238,6 +243,8 @@ class Phenny(irc.Bot):
     def call(self, func, origin, phenny, input): 
         try: 
             func(phenny, input)
+        except KeyboardInterrupt:
+            raise
         except Exception, e: 
             self.error(origin)
     
@@ -267,7 +274,8 @@ class Phenny(irc.Bot):
                     
                     match = regexp.match(text)
                     if match: 
-                        if self.limit(origin, func): 
+                        if self.limit(origin, func):
+                            print "Limited!" 
                             continue
                         
                         phenny = self.wrapped(origin, text, match)
