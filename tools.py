@@ -42,6 +42,9 @@ class TimeTrackDict(collections.MutableMapping):
     
     The callback should take 3 parameters: The TimeTrackDict, the key, and how 
     old the key is.
+    
+    Note that this class is naive with regards to threading, locking, and 
+    conflicts.
     """
     _data = None
     _times = None
@@ -59,6 +62,16 @@ class TimeTrackDict(collections.MutableMapping):
         self._times = {}
         if values:
             self.update(dict(values))
+    
+    def checktimes(self):
+        """ttd.checktimes()
+        Force a scan for expired items.
+        """
+        t = time.time()
+        for key, st in self._times.iteritems():
+            age = t - st
+            if age > self._expiry
+                self._call(self, key, age)
     
     def __getitem__(self, key):
         v = self._data[key]
