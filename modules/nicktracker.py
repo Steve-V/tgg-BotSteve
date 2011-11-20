@@ -244,11 +244,13 @@ def processlist(phenny):
 ###################
 # These functions do the query to NickServ
 
-def query_acc(phenny, nick):
+def query_acc(phenny, nick, retry=False):
     # Don't query ourselves, NickServ, or servers
     if checkreserved(phenny, nick):
         return
     nicks_to_process.discard(nick) # Remove this nick from the processing queue
+    if retry:
+        acc_retry.add(nick.lower())
     phenny.msg('Nickserv', 'ACC %s' % nick)
 
 def query_info(phenny, nick):
@@ -300,8 +302,7 @@ def trigger_join(phenny, input):
     print "Join:", repr(input)
     nick_host[input.nick] = (input.origin.user, input.origin.host)
     if checkreserved(phenny, input.nick): return
-    acc_retry = True
-    query_acc(phenny, input.nick)
+    query_acc(phenny, input.nick, retry=True)
 trigger_join.rule = r'(.*)'
 trigger_join.event = 'JOIN'
 trigger_join.priority = 'low'
@@ -417,13 +418,14 @@ def parsedate(d):
 # NICKSERV ACC #
 ################
 
-acc_retry = False
+acc_retry = set()
 
 def nickserv_acc(phenny, input): 
     global acc_retry
     if input.sender != 'NickServ': return
     
     nick = input.group(1)
+    lownick = nick.lower()
     status = ACC_MAP[(int(input.group(2)), input.group(3))]
     
     print "ACC: %s: %s" % (nick, STATUS_TEXT.get(status, status))
@@ -433,13 +435,15 @@ def nickserv_acc(phenny, input):
     phenny.nicktracker._updatelive(None, nick, status)
     if status > 0:
         query_info(phenny, nick)
-    elif acc_retry:
-        acc_retry = False
+        acc_retry.discard(lownick)
+    elif lownick in acc_retry:
+        acc_retry.remove(lownick)
         time.sleep(60) #Based on the length of NickServ's enforcement.
         query_acc(phenny, nick)
 nickserv_acc.rule = r'(.*) ACC ([0123])(?: \((.*)\))?'
 nickserv_acc.event = 'NOTICE'
 nickserv_acc.priority = 'low'
+nickserv_acc.thread = True
 
 
 #################
