@@ -13,15 +13,23 @@ storage = {} # This is used to store the data from INFO
 ACC_OFFLINE, ACC_LOGGEDOUT, ACC_RECOGNIZED, ACC_LOGGEDIN = range(4)
 ACCD_OFFLINE, ACCD_UNREGISTERED = 'offline', 'not registered'
 
-UNREGISTERED, OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(-2, 2)
+UNREGISTERED, OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(-2, 3)
 # Note: Status > 0 means they're sufficiently recognzied for us.
 
 ACC_MAP = {
     (ACC_OFFLINE, ACCD_OFFLINE) : OFFLINE,
     (ACC_OFFLINE, ACCD_UNREGISTERED) : UNREGISTERED,
     (ACC_LOGGEDOUT, None) : LOGGEDOUT,
-    (ACC_REGOGNIZED, None) : RECOGNIZED,
+    (ACC_RECOGNIZED, None) : RECOGNIZED,
     (ACC_LOGGEDIN, None) : LOGGEDIN,
+    }
+
+STATUS_TEXT = {
+    UNREGISTERED: 'UNREGISTERED',
+    OFFLINE: 'OFFLINE',
+    LOGGEDOUT: 'LOGGEDOUT',
+    RECOGNIZED: 'RECOGNIZED',
+    LOGGEDIN: 'LOGGEDIN',
     }
 
 def checkreserved(phenny, nick):
@@ -48,10 +56,13 @@ class CommandInput(bot.CommandInput):
     """
     def __new__(cls, bot, text, origin, bytes, match, event, args):
         self = super(CommandInput, cls).__new__(cls, bot, text, origin, bytes, match, event, args)
-        self.canonnick = bot.nicktracker.canonize(origin.nick)
+        self.canonnick = None
         if hasattr(bot, 'nicktracker'):
-            self.admin = self.canonnick.lower() in [a.lower() for a in bot.config.admins]
-            self.owner = self.canonnick.lower() == bot.config.owner.lower()
+            account, status = bot.nicktracker.getaccount(origin.nick)
+            if account and status > 0:
+                self.canonnick = account
+                self.admin = self.canonnick.lower() in [a.lower() for a in bot.config.admins]
+                self.owner = self.canonnick.lower() == bot.config.owner.lower()
         return self
 
 class NickTracker(object):
@@ -117,8 +128,10 @@ class NickTracker(object):
         that are known to be that user. The second list is the nicks that we 
         haven't seen, but are registered to them.
         """
-        
-        
+        account, status = self.getaccount(nick)
+        if account is None or status <= 0:
+            return [], []
+        return list(self.accounts[account.lower()]), []
     
     def _changenick(self, old, new):
         """
@@ -157,8 +170,9 @@ class NickTracker(object):
         # Update account->nicks
         if account is None:
             account = data['account']
-        if account is None and data['status'] > 0:
-            query_info(self.phenny, nick)
+        if account is None:
+            if data['status'] > 0:
+                query_info(self.phenny, nick)
             return
         if status > 0:
             print "Add nick: %r %r" % (account, nick)
@@ -353,6 +367,15 @@ class DataHolder(object):
         if self.nick is not None:
             n = "n=%r " % self.nick
         return "<DataHolder u=%r %s%r>" % (self.account, n, self.items)
+    
+    def __unicode__(self):
+        if self.nick is None:
+            return u"(%s): %r" % (self.account, self.items)
+        else:
+            return u"%s (%s): %r" % (self.nick, self.account, self.items)
+    
+    def __str__(self):
+        return str(unicode(self))
 
 DATE = re.compile(r"(.+) (\d+) (\d+):(\d+):(\d+) (\d+) \(.*\)")
 def parsedate(d):
@@ -382,10 +405,10 @@ def nickserv_acc(phenny, input):
     global acc_retry
     if input.sender != 'NickServ': return
     
-    print "ACC:", repr(input)
-    
     nick = input.group(1)
     status = ACC_MAP[(int(input.group(2)), input.group(3))]
+    
+    print "ACC: %s: %s" % (nick, STATUS_TEXT.get(status, status))
     
     if nick == '*': return # Special nick
     
@@ -471,7 +494,7 @@ def nickserv_info_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_info is None: return
     
-    print "INFO:", repr(tmp_info)
+    print "INFO:", tmp_info
     
     info_queried_nicks.remove(tmp_info.nick.lower())
     phenny.nicktracker._updateinfo(tmp_info)
@@ -527,7 +550,7 @@ def nickserv_taxonomy_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_taxo is None: return
     
-    print "TAXONOMY:", repr(tmp_taxo)
+    print "TAXONOMY:", tmp_taxo
     
     assert tmp_taxo.account == input.group(1)
     
