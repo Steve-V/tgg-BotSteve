@@ -10,6 +10,7 @@ import time, bot, re, datetime, event
 from tools import TimeTrackDict, startdaemon
 storage = {} # This is used to store the data from INFO
 
+# Default expiry time, also configurable.
 DATA_EXPIRY_TIME = 30*60 # 30 minutes
 
 ACC_OFFLINE, ACC_LOGGEDOUT, ACC_RECOGNIZED, ACC_LOGGEDIN = range(4)
@@ -83,8 +84,11 @@ class NickTracker(event.EventSource):
     def __init__(self, phenny):
         super(NickTracker, self).__init__()
         self.phenny = phenny
-        self.nicks = TimeTrackDict(self._expire_nick, DATA_EXPIRY_TIME)
-        self.accounts = TimeTrackDict(self._expire_account, DATA_EXPIRY_TIME)
+        expiry = DATA_EXPIRY_TIME
+        if hasattr(phenny.config, 'nicktracker'):
+            expiry = phenny.config.nicktracker.get('expiry', expiry)
+        self.nicks = TimeTrackDict(self._expire_nick, expiry)
+        self.accounts = TimeTrackDict(self._expire_account, expiry)
     
     def getaccount(self, nick):
         """nt.getaccount(str) -> str|None, int|None
