@@ -282,6 +282,7 @@ class Phenny(irc.Bot):
                             self.call(func, origin, phenny, input)
                         
                         for source in [origin.sender, origin.nick]: 
+                            # XXX: Should this be moved to a service module?
                             try: 
                                 self.stats[(func.name, source)] += 1
                             except KeyError: 
