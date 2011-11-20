@@ -177,6 +177,22 @@ class Bot(asynchat.async_chat):
 
          self.msg(origin.sender, report[0] + ' (' + report[1] + ')')
       except: self.msg(origin.sender, "Got an error.")
+    
+   def handle_error(self):
+        # sometimes a user repr method will crash.
+        try:
+            self_repr = repr(self)
+        except:
+            self_repr = '<__repr__(self) failed for object at %0x>' % id(self)
+
+        self.log_info(
+            'Uncaptured python exception, closing channel %s:\n%s' % (
+                self_repr,
+                traceback.format_exc()
+                ),
+            'error'
+            )
+        self.handle_close()
 
 class TestBot(Bot): 
    def f_ping(self, origin, match, args): 
