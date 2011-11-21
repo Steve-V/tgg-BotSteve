@@ -9,6 +9,7 @@ http://inamidst.com/phenny/
 
 import os, re, time, random
 import web
+from tools import startdaemon
 
 maximum = 4
 lispchannels = frozenset([ '#lisp', '#scheme', '#opendarwin', '#macdev',
@@ -25,6 +26,11 @@ lispchannels = frozenset([ '#lisp', '#scheme', '#opendarwin', '#macdev',
 
 storage = {}
 
+def setup(phenny):
+    if hasattr(phenny, 'nicktracker'):
+        pass
+#        phenny.nicktracker.connect('have-account', do_have_account) # Can't get the correct context yet.
+
 #NICKTRACKER: Store to the canonical, so that they get told from other nicks
 
 def f_remind(phenny, input): 
@@ -32,7 +38,11 @@ def f_remind(phenny, input):
     
     # @@ Multiple comma-separated tellees? Cf. Terje, #swhack, 2006-04-15
     verb, tellee, msg = input.groups()
-    #NICKTRACKER: Canonize the nick
+    
+    #NICKTRACKER: Canonize the nicks
+    if hasattr(phenny, 'nicktracker'):
+        tellee = phenny.nicktracker.canonize(tellee)
+        teller = input.canonnick or teller
     verb = verb.encode('utf-8')
     tellee = tellee.encode('utf-8')
     msg = msg.encode('utf-8')
@@ -73,7 +83,7 @@ def f_remind(phenny, input):
         phenny.say("Hey, I'm not as stupid as themotkid you know!")
 f_remind.rule = ( r'(?i)$nick', ['tell','ask'], r'(\S+) (.*)' )
 
-def getReminders(phenny, channel, key, tellee): 
+def getReminders(phenny, key, tellee): 
     lines = []
     #NICKTRACKER: Check this nick, canonical nick, and alt nicks.
     lines.append("%s: I have the following messages for you:" % tellee)
@@ -88,23 +98,28 @@ def getReminders(phenny, channel, key, tellee):
     try: 
         del storage[key]
     except KeyError: 
-        phenny.msg(channel, 'Er...')
+        phenny.say('Er...')
     return lines
 
-def message(phenny, input): 
-    if not input.sender.startswith('#'): return
-    
-    tellee = input.nick
-    channel = input.sender
+def do_messages(phenny, nicks):
+    tellees = list(nicks)
+    for nick in nicks:
+        if hasattr(phenny, 'nicktracker'):
+            alts, maybes = phenny.nicktracker.getalts(nick)
+            tellees += [phenny.nicktracker.canonize(nick)] + alts + maybes
+    ltellees = [t.lower() for t in tellees]
     
     reminders = []
     remkeys = list(reversed(sorted(storage.keys())))
     for remkey in remkeys: 
         if not remkey.endswith('*') or remkey.endswith(':'): 
-            if tellee.lower() == remkey: 
-                reminders.extend(getReminders(phenny, channel, remkey, tellee))
-        elif tellee.lower().startswith(remkey.rstrip('*:')): 
-            reminders.extend(getReminders(phenny, channel, remkey, tellee))
+            if remkey in ltellees:
+                reminders.extend(getReminders(phenny, remkey, remkey))
+        else:
+            srk = remkey.rstrip('*:')
+            for lt in ltellees:
+                if lt.startswith(srk):
+                    reminders.extend(getReminders(phenny, remkey, lt))
     
     for line in reminders[:maximum]: 
         phenny.say(line)
@@ -113,10 +128,20 @@ def message(phenny, input):
         phenny.say('Further messages sent privately')
         for line in reminders[maximum:]: 
             phenny.msg(tellee, line)
+
+def message(phenny, input): 
+    if not input.sender.startswith('#'): return
+    do_messages(phenny, [input.nick])
 message.rule = r'(.*)'
 message.priority = 'low'
 
 #NICKTRACKER: Listen to the have-account event and check tells then.
+def do_have_account(nt, phenny, nick, account, status):
+    if status > 0:
+        n = [nick]
+        if account:
+            n += [account]
+        do_messages(phenny, n)
 
 if __name__ == '__main__': 
    print __doc__.strip()

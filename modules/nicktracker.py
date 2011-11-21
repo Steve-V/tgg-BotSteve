@@ -74,7 +74,7 @@ class NickTracker(event.EventSource):
     The API for modules to access the nick database.
     
     Events defined:
-     * have-account: nick, account, status
+     * have-account: phenny, nick, account, status
        This is called whenever the account/status information is updated and we 
        have the account.
     """
@@ -208,7 +208,7 @@ class NickTracker(event.EventSource):
                 pass
         
         if data['status'] > 0 and data['account']:
-            self.emit('have-account', nick, data['account'], status)
+            self.emit('have-account', self.phenny, nick, data['account'], status)
     
     def _removeaccount(self, account):
         laccount = account.lower()

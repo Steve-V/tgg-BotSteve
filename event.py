@@ -37,6 +37,7 @@ class EventSource(object):
         Throws the event and calls the callbacks for it. Any additional 
         parameters are passed to the callbacks.
         """
+        p = (self,) + p
         try:
             calls = self.__calls[event]
         except KeyError:
