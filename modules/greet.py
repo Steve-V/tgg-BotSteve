@@ -29,7 +29,7 @@ storage = {
         'chance' : 100,
         'greets' : ['Welcome back, Mr. Kidwell'],
         },
-    'Seroster' : {
+    'seroster' : {
         'chance' : 5,
         'greets' : ['All right, show us on the doll where Seroster touched you.'],
         },
