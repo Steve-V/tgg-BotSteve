@@ -67,6 +67,9 @@ class TimeTrackDict(collections.MutableMapping):
         if values:
             self.update(dict(values))
     
+    def __repr__(self):
+        return "<TimeTrackDict %r>" % self._data
+    
     def _expire(self, key, age):
         """
         Handles multi-call prevention and then actually calls the callback.

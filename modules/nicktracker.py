@@ -193,14 +193,7 @@ class NickTracker(event.EventSource):
                     self.accounts[data['account'].lower()].discard(nick.lower())
                 except KeyError:
                     pass
-            
-            if status is None:
-                # Called by _updateinfo
-                if data['status'] > 0:
-                    data['account'] = account
-            else:
-                # Called by nickserv_acc
-                data['status'] = status
+            data['status'] = status
         
         # Update account->nicks
         if account is None:
@@ -211,7 +204,10 @@ class NickTracker(event.EventSource):
             return
         if status > 0:
             print "Add nick: %r %r" % (account, nick)
-            self.accounts.setdefault(account.lower(), set()).add(nick.lower())
+            lacc = account.lower()
+            if lacc not in self.accounts:
+                self.accounts[lacc] = set()
+            self.accounts[lacc].add(nick.lower())
         else:
             try:
                 self.accounts[account.lower()].discard(nick.lower())
@@ -240,10 +236,6 @@ class NickTracker(event.EventSource):
         """
         global storage
         storage[data.account.lower()] = data.items
-        
-        if data.nick is not None:
-            # Update the nick/account mapping with the account/nick data
-            self._updatelive(data.account, data.nick, None)
     
     def _updatetaxo(self, data):
         """
