@@ -45,7 +45,6 @@ def f_seen(phenny, input):
     seennicks = {}
     for nick in nicks:
         try:
-            # TODO: Filter time
             data = storage[nick]
             if len(data) == 2:
                 data = storage[nick] = [nick, data[0], data[1]]
@@ -53,7 +52,7 @@ def f_seen(phenny, input):
         except KeyError:
             pass
     
-    seennicks = sorted(seennicks.values(), key=lambda i: i[2])
+    seennicks = sorted(seennicks.values(), key=lambda i: -i[2])
     
     if seennicks:
         showtime = True
