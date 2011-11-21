@@ -20,58 +20,69 @@ storage = {} # Default value
 
 #NICKTRACKER: If passed a known registered user, check agaisnt all names they've used and print the most recent ones.
 
-@deprecated
-def f_seen(self, origin, match, args): 
-  """.seen <nick> - Reports when <nick> was last seen."""
-  global storage
-  
-  if origin.sender == '#talis': return
-  try:
-    nick = match.group(2).lower()
-  except AttributeError:
-    self.msg(origin.sender, "No user provided!")
-    return 
-  
-  #misc easter eggs
-  if nick.lower() == "kyle":
-    return self.msg(origin.sender, "He's about this tall?  Seen Kyle?")
-  if nick.lower() == "botsteve":
-    return self.msg(origin.sender, "I'm right here, actually.")
-  
-  if nick in storage: 
-      channel, storedTime = storage[nick]
-      t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
-      currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
-      rawTimeDifference_hours = (time.time() - storedTime) / 3600
-      formattedTimeDiff = Decimal(str(rawTimeDifference_hours)).quantize(Decimal('1.00'))
-      
-      #requires python 2.7
-      #timeDifference_hr = timeDifference_sec.total_seconds() / 3600
-      
-
-      msg = "I last saw %s %s hours ago at %s on %s.  Current time: %s" % (nick, formattedTimeDiff, t, channel, currentTime)
-      self.msg(origin.sender, str(origin.nick) + ': ' + msg)
-  
-  #no record of user
-  else: self.msg(origin.sender, "Sorry, I haven't seen %s around." % nick)
+def f_seen(phenny, input): 
+    """.seen <nick> - Reports when <nick> was last seen."""
+    global storage
+    
+    if input.sender == '#talis': return
+    try:
+        nick = input.group(2).lower()
+    except AttributeError:
+        self.say("No user provided!")
+        return 
+    
+    #misc easter eggs
+    if nick.lower() == "kyle":
+        return self.say("He's about this tall?  Seen Kyle?")
+    if nick.lower() == phenny.nick.lower():
+        return self.say("I'm right here, actually.")
+    
+    nicks = [nick]
+    if hasattr(phenny, 'nicktracker'):
+        if input.canonnick:
+            nicks += [input.canonnick.lower()]
+        alts, maybes = phenny.nicktracker.getalts(nick)
+        nicks += [n.lower() for n in alts+maybes]
+    
+    print "Nicks:", nicks
+    
+    seennicks = {}
+    for nick in nicks:
+        print "Nick:", nick
+        try:
+            # TODO: Filter time
+            data = storage[nick]
+            seennicks[data[0].lower()] = data
+            print "Data", data
+        except KeyError:
+            pass
+    
+    print "Seen:", seennicks
+    
+    if seennicks:
+        for nick, channel, storedTime in seennicks.values():
+            t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
+            currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
+            rawTimeDifference_hours = (time.time() - storedTime) / 3600
+            formattedTimeDiff = Decimal(str(rawTimeDifference_hours)).quantize(Decimal('1.00'))
+            
+            #requires python 2.7
+            #timeDifference_hr = timeDifference_sec.total_seconds() / 3600
+            
+            msg = "I last saw %s %s hours ago at %s on %s.  Current time: %s" % (nick, formattedTimeDiff, t, channel, currentTime)
+            phenny.reply(msg)
+    
+    #no record of user
+    else: 
+        phenny.say("Sorry, I haven't seen %s around." % input.group(2))
 f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
-f_seen.thread = False
 
-@deprecated
-def f_note(self, origin, match, args): 
-   def note(self, origin, match, args): 
-      global storage
-      if origin.sender.startswith('#'): 
-         # if origin.sender == '#inamidst': return
-         storage[origin.nick.lower()] = (origin.sender, time.time())
-
-      # if not hasattr(self, 'chanspeak'): 
-      #    self.chanspeak = {}
-      # if (len(args) > 2) and args[2].startswith('#'): 
-      #    self.chanspeak[args[2]] = args[0]
-
-   try: note(self, origin, match, args)
-   except Exception, e: print e
+def f_note(phenny, input): 
+    global storage
+    if input.sender.startswith('#'):
+        storage[input.nick.lower()] = (input.nick, input.sender, time.time())
+        if hasattr(phenny, 'nicktracker') and input.canonnick:
+            storage[input.canonnick.lower()] = (input.nick, input.sender, time.time())
 f_note.rule = r'(.*)'
 f_note.priority = 'low'
 

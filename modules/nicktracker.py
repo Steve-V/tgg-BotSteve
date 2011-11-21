@@ -141,10 +141,21 @@ class NickTracker(event.EventSource):
         that are known to be that user. The second list is the nicks that we 
         haven't seen, but are registered to them.
         """
+        #TODO: Track maybes
+        alts = []
+        
         account, status = self.getaccount(nick)
         if account is None or status <= 0:
-            return [], []
-        return list(self.accounts[account.lower()]), []
+            pass
+        else:
+            alts += list(self.accounts[account.lower()])
+            
+        try:
+            alts += list(self.accounts[nick.lower()])
+        except KeyError:
+            pass
+            
+        return alts, []
     
     def _changenick(self, old, new):
         """
@@ -267,7 +278,7 @@ def processlist(phenny):
             pass
         else:
             query_acc(phenny, nick)
-        time.sleep(5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
+        time.sleep(3.5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
 
 ############
 # TRIGGERS #
@@ -372,6 +383,19 @@ def cmd_canon(phenny, input):
     nick = input.group(2) or input.nick
     phenny.reply(phenny.nicktracker.canonize(nick))
 cmd_canon.commands = ['canon']
+
+def cmd_alts(phenny, input):
+    print "Alts: %r" % input
+    nick = input.group(2) or input.nick
+    alts, maybes = phenny.nicktracker.getalts(nick)
+    msg = ', '.join(alts)
+    if maybes:
+        msg += " (Possibly %s)" % ', '.join(maybes)
+    if msg:
+        phenny.reply(msg)
+    else:
+        phenny.reply("No alternate nicks found for %s." % nick)
+cmd_alts.commands = ['alts']
 
 ################
 # DATA HELPERS #
