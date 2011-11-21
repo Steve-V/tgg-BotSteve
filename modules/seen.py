@@ -15,6 +15,8 @@ import os
 storage = {} # Default value
 # storage is a persistant value, automagically loaded and saved by the bot.
 
+SEEN_LIMIT = 5
+
 #def setup(self): 
 #    pass
 
@@ -44,23 +46,20 @@ def f_seen(phenny, input):
         alts, maybes = phenny.nicktracker.getalts(nick)
         nicks += [n.lower() for n in alts+maybes]
     
-    print "Nicks:", nicks
-    
     seennicks = {}
     for nick in nicks:
-        print "Nick:", nick
         try:
             # TODO: Filter time
             data = storage[nick]
             seennicks[data[0].lower()] = data
-            print "Data", data
         except KeyError:
             pass
     
-    print "Seen:", seennicks
+    seennicks = sorted(seennicks.values(), key=lambda i: i[2])
     
     if seennicks:
-        for nick, channel, storedTime in seennicks.values():
+        showtime = True
+        for nick, channel, storedTime in seennicks[:SEEN_LIMIT]:
             t = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(storedTime))
             currentTime = time.strftime('%H:%M:%S UTC', time.gmtime())
             rawTimeDifference_hours = (time.time() - storedTime) / 3600
@@ -69,8 +68,13 @@ def f_seen(phenny, input):
             #requires python 2.7
             #timeDifference_hr = timeDifference_sec.total_seconds() / 3600
             
-            msg = "I last saw %s %s hours ago at %s on %s.  Current time: %s" % (nick, formattedTimeDiff, t, channel, currentTime)
+            msg = "I last saw %s %s hours ago at %s on %s." % (nick, formattedTimeDiff, t, channel)
+            if showtime:
+                msg += "  Current time: %s" % currentTime
+            showtime = False
             phenny.reply(msg)
+        if len(seennicks) > SEEN_LIMIT:
+            phenny.reply("(%i more)" % (len(seennicks) - SEEN_LIMIT))
     
     #no record of user
     else: 
