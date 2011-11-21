@@ -17,9 +17,6 @@ storage = {} # Default value
 
 SEEN_LIMIT = 5
 
-#def setup(self): 
-#    pass
-
 #NICKTRACKER: If passed a known registered user, check agaisnt all names they've used and print the most recent ones.
 
 def f_seen(phenny, input): 
@@ -30,27 +27,28 @@ def f_seen(phenny, input):
     try:
         nick = input.group(2).lower()
     except AttributeError:
-        self.say("No user provided!")
+        phenny.say("No user provided!")
         return 
     
     #misc easter eggs
     if nick.lower() == "kyle":
-        return self.say("He's about this tall?  Seen Kyle?")
+        return phenny.say("He's about this tall?  Seen Kyle?")
     if nick.lower() == phenny.nick.lower():
-        return self.say("I'm right here, actually.")
+        return phenny.say("I'm right here, actually.")
     
-    nicks = [nick]
+    nicks = set(nick)
     if hasattr(phenny, 'nicktracker'):
-        if input.canonnick:
-            nicks += [input.canonnick.lower()]
+        nicks.add(phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
-        nicks += [n.lower() for n in alts+maybes]
+        nicks |= set(n.lower() for n in alts+maybes)
     
     seennicks = {}
     for nick in nicks:
         try:
             # TODO: Filter time
             data = storage[nick]
+            if len(data) == 2:
+                data = storage[nick] = [nick, data[0], data[1]]
             seennicks[data[0].lower()] = data
         except KeyError:
             pass
