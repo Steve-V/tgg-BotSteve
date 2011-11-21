@@ -9,7 +9,7 @@ http://inamidst.com/phenny/
 
 import sys, re, time, traceback
 import socket, asyncore, asynchat
-import threading
+import threading, os
 
 class Origin(object): 
    source = re.compile(r'([^!]*)!?([^@]*)@?(.*)')
@@ -193,6 +193,17 @@ class Bot(asynchat.async_chat):
             'error'
             )
         self.handle_close()
+    
+   def send(self, *args):
+        if os.environ.get('SHOW_DISPATCH'):
+            fmt = []
+            for arg in args:
+                if isinstance(arg, buffer):
+                    fmt += ['<buffer %r>' % str(arg)]
+                else:
+                    fmt += [repr(arg)]
+            print "Send: %s" % ', '.join(fmt)
+        return asynchat.async_chat.send(self, *args)
 
 class TestBot(Bot): 
    def f_ping(self, origin, match, args): 

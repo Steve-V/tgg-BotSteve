@@ -286,11 +286,11 @@ def trigger_nick(phenny, input):
     
     # Update the processing queue
     try:
-        nicks_to_process.remove(old)
+        nicks_to_process.remove(old.lower())
     except KeyError:
         pass
     else:
-        nicks_to_process.add(new)
+        nicks_to_process.add(new.lower())
 trigger_nick.rule = r'(.*)'
 trigger_nick.event = 'NICK'
 trigger_nick.priority = 'low'
@@ -321,7 +321,7 @@ def trigger_list(phenny, input):
             nick = nick[1:]
         if checkreserved(phenny, nick):
             continue
-        nicks_to_process.add(nick)
+        nicks_to_process.add(nick.lower())
     
     print "List:", nicks_to_process
 trigger_list.rule = r'(.*)'
@@ -330,18 +330,18 @@ trigger_list.priority = 'low'
 
 def trigger_part(phenny, input):
     """
-    If someone leaves, remove them from the queue
+    If somebody leaves, do a status update.
     """
-    nicks_to_process.discard(input.nick)
+    nicks_to_process.add(input.nick.lower())
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'PART'
 trigger_part.priority = 'low'
 
 def trigger_quit(phenny, input):
     """
-    If someone leaves, remove them from the queue
+    If somebody leaves, do a status update.
     """
-    nicks_to_process.discard(input.nick)
+    nicks_to_process.add(input.nick.lower())
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'QUIT'
 trigger_part.priority = 'low'
@@ -422,15 +422,19 @@ def parsedate(d):
 ################
 
 acc_retry = set()
+acc_queried_nicks = set()
 
 def query_acc(phenny, nick, retry=False, noacct=False):
     if nick == '*': return # Special nick that causes less-than-useful output
     # Don't query ourselves, NickServ, or servers
     if checkreserved(phenny, nick):
         return
-    nicks_to_process.discard(nick) # Remove this nick from the processing queue
+    lnick = nick.lower()
+    if lnick in acc_queried_nicks: return
+    nicks_to_process.discard(lnick) # Remove this nick from the processing queue
+    acc_queried_nicks.add(lnick)
     if retry:
-        acc_retry.add(nick.lower())
+        acc_retry.add(lnick)
     if noacct:
         phenny.msg('Nickserv', 'ACC %s' % nick)
     else:
@@ -439,12 +443,12 @@ def query_acc(phenny, nick, retry=False, noacct=False):
 def nickserv_acc(phenny, input): 
     global acc_retry
     if input.sender != 'NickServ': return
-    
     nick = input.group(1)
-    lownick = nick.lower()
+    lnick = nick.lower()
     account = input.group(2)
     status = ACC_MAP[(int(input.group(3)), input.group(4))]
     
+    acc_queried_nicks.discard(lnick)
     if account == '*':
         if status == OFFLINE:
             account = None
@@ -458,9 +462,9 @@ def nickserv_acc(phenny, input):
     phenny.nicktracker._updatelive(account, nick, status)
     if status > 0:
         query_info(phenny, nick)
-        acc_retry.discard(lownick)
-    elif lownick in acc_retry:
-        acc_retry.remove(lownick)
+        acc_retry.discard(lnick)
+    elif lnick in acc_retry:
+        acc_retry.remove(lnick)
         time.sleep(60) #Based on the length of NickServ's enforcement.
         query_acc(phenny, nick)
 nickserv_acc.rule = r'([^ ]*)(?: -> ([^ ]*))? ACC ([0123])(?: \((.*)\))?'
