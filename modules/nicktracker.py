@@ -4,8 +4,8 @@ nicktracker.py - Phenny Nick Tracking Service Module
 Copyright 2011, James Bliss, astro73.com
 Licensed under the Eiffel Forum License 2.
 """
-#TODO: Users of identified nicks start with a '~'. How can we use this?
 #TODO: Add a daemon to update nicks, accounts, and registrations, even those offline.
+#TODO: Better handling of offline nicks in nick/account mapping
 from __future__ import absolute_import
 import time, bot, re, datetime, event
 from tools import TimeTrackDict, startdaemon
@@ -219,7 +219,7 @@ class NickTracker(event.EventSource):
     
     def _removeaccount(self, account):
         laccount = account.lower()
-        if laccount not in self._accounts:
+        if laccount not in self.accounts:
             return
         nicks = self.accounts[laccount]
         del self.accounts[laccount]
@@ -348,6 +348,8 @@ def trigger_quit(phenny, input):
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'QUIT'
 trigger_part.priority = 'low'
+
+#TODO: Handle mode ("* ChanServ gives channel operator status to douglas")
 
 #################
 # TEST COMMANDS #
