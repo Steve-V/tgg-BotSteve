@@ -5,6 +5,7 @@ Copyright 2011, James Bliss, astro73.com
 Licensed under the Eiffel Forum License 2.
 """
 #TODO: Users of identified nicks start with a '~'. How can we use this?
+#TODO: Add a daemon to update nicks, accounts, and registrations, even those offline.
 from __future__ import absolute_import
 import time, bot, re, datetime, event
 from tools import TimeTrackDict, startdaemon
@@ -209,6 +210,19 @@ class NickTracker(event.EventSource):
         if data['status'] > 0 and data['account']:
             self.emit('have-account', nick, data['account'], status)
     
+    def _removeaccount(self, account):
+        laccount = account.lower()
+        if laccount not in self._accounts:
+            return
+        nicks = self.accounts[laccount]
+        del self.accounts[laccount]
+        nicks.add(laccount)
+        for nick in nicks:
+            if nick not in self.nicks: continue
+            self.nicks[nick]['account'] = None
+            self.nicks[nick]['status'] = UNREGISTERED
+            nicks_to_process.add(nick)
+    
     def _updateinfo(self, data):
         """
         Update the data from an INFO query.
@@ -254,33 +268,6 @@ def processlist(phenny):
         else:
             query_acc(phenny, nick)
         time.sleep(5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
-
-###################
-# QUERY FUNCTIONS #
-###################
-# These functions do the query to NickServ
-
-def query_acc(phenny, nick, retry=False):
-    # Don't query ourselves, NickServ, or servers
-    if checkreserved(phenny, nick):
-        return
-    nicks_to_process.discard(nick) # Remove this nick from the processing queue
-    if retry:
-        acc_retry.add(nick.lower())
-    phenny.msg('Nickserv', 'ACC %s' % nick)
-
-def query_info(phenny, nick):
-    # Don't query ourselves, NickServ, or servers
-    if checkreserved(phenny, nick):
-        return
-    if nick.lower() not in info_queried_nicks: # Prevent repeated queries
-        info_queried_nicks.add(nick.lower())
-        phenny.msg('Nickserv', 'INFO %s' % nick)
-
-def query_taxonomy(phenny, nick):
-    if checkreserved(phenny, nick):
-        return
-    phenny.msg('Nickserv', 'TAXONOMY %s' % nick)
 
 ############
 # TRIGGERS #
@@ -436,19 +423,39 @@ def parsedate(d):
 
 acc_retry = set()
 
+def query_acc(phenny, nick, retry=False, noacct=False):
+    if nick == '*': return # Special nick that causes less-than-useful output
+    # Don't query ourselves, NickServ, or servers
+    if checkreserved(phenny, nick):
+        return
+    nicks_to_process.discard(nick) # Remove this nick from the processing queue
+    if retry:
+        acc_retry.add(nick.lower())
+    if noacct:
+        phenny.msg('Nickserv', 'ACC %s' % nick)
+    else:
+        phenny.msg('Nickserv', 'ACC %s *' % nick)
+
 def nickserv_acc(phenny, input): 
     global acc_retry
     if input.sender != 'NickServ': return
     
     nick = input.group(1)
     lownick = nick.lower()
-    status = ACC_MAP[(int(input.group(2)), input.group(3))]
+    account = input.group(2)
+    status = ACC_MAP[(int(input.group(3)), input.group(4))]
     
-    print "ACC: %s: %s" % (nick, STATUS_TEXT.get(status, status))
+    if account == '*':
+        if status == OFFLINE:
+            account = None
+        elif status == UNREGISTERED:
+            # Possible that it's actually LOGGEDOUT
+            query_acc(phenny, nick, noacct=True) # We don't need to repass retry because we're not removing it.
+            return
     
-    if nick == '*': return # Special nick
+    print "ACC: %s (%s): %s" % (nick, account, STATUS_TEXT.get(status, status))
     
-    phenny.nicktracker._updatelive(None, nick, status)
+    phenny.nicktracker._updatelive(account, nick, status)
     if status > 0:
         query_info(phenny, nick)
         acc_retry.discard(lownick)
@@ -456,7 +463,7 @@ def nickserv_acc(phenny, input):
         acc_retry.remove(lownick)
         time.sleep(60) #Based on the length of NickServ's enforcement.
         query_acc(phenny, nick)
-nickserv_acc.rule = r'(.*) ACC ([0123])(?: \((.*)\))?'
+nickserv_acc.rule = r'([^ ]*)(?: -> ([^ ]*))? ACC ([0123])(?: \((.*)\))?'
 nickserv_acc.event = 'NOTICE'
 nickserv_acc.priority = 'low'
 nickserv_acc.thread = True
@@ -468,6 +475,14 @@ nickserv_acc.thread = True
 
 tmp_info = None
 info_queried_nicks = set()
+
+def query_info(phenny, nick):
+    # Don't query ourselves, NickServ, or servers
+    if checkreserved(phenny, nick):
+        return
+    if nick.lower() not in info_queried_nicks: # Prevent repeated queries
+        info_queried_nicks.add(nick.lower())
+        phenny.msg('Nickserv', 'INFO %s' % nick)
 
 def nickserv_info_begin(phenny, input): 
     global tmp_info
@@ -544,16 +559,28 @@ nickserv_info_finish.priority = 'low'
 nickserv_info_finish.thread = True
 
 def nickserv_info_notregistered(phenny, input):
-    global tmp_info
     if input.sender != 'NickServ': return
-    if tmp_info is None: return
     
-    info_queried_nicks.remove(input.group(1).lower())
-    phenny.nicktracker._updateinfo(tmp_info)
+    nick = input.group(1)
+    print "INFO: Not Registered:", nick
+    info_queried_nicks.remove(nick.lower())
+    phenny.nicktracker._removeaccount(nick)
 nickserv_info_notregistered.rule = r'\x02(.*)\x02 is not registered\.'
 nickserv_info_notregistered.event = 'NOTICE'
 nickserv_info_notregistered.priority = 'low'
 nickserv_info_notregistered.thread = True
+
+def nickserv_info_marked(phenny, input):
+    if input.sender != 'NickServ': return
+    
+    nick, setter, date, reason = input.groups()
+    print "INFO: Marked: %s (%s): by %s on %s" % (nick, reason, setter, date)
+    info_queried_nicks.remove(nick.lower())
+    phenny.nicktracker._removeaccount(nick)
+nickserv_info_marked.rule = r"\x02(.+)\x02 is not registered anymore, but was marked by (.+) on (.+) \((.+)\)\."
+nickserv_info_marked.event = 'NOTICE'
+nickserv_info_marked.priority = 'low'
+nickserv_info_marked.thread = True
 
 
 #####################
@@ -563,6 +590,11 @@ nickserv_info_notregistered.thread = True
 # Note: This isn't strictly required, but it's good to be complete.
 
 tmp_taxo = None
+
+def query_taxonomy(phenny, nick):
+    if checkreserved(phenny, nick):
+        return
+    phenny.msg('Nickserv', 'TAXONOMY %s' % nick)
 
 def nickserv_taxonomy_begin(phenny, input): 
     global tmp_taxo
