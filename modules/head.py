@@ -72,7 +72,7 @@ r_title = re.compile(r'(?ims)<title[^>]*>(.*?)</title\s*>')
 r_entity = re.compile(r'&[A-Za-z0-9#]+;')
 
 def gettitle(uri):
-    print "Getting title: %r" % uri
+    #print "Getting title: %r" % uri
     redirects = 0
     while True: 
         headers = {
