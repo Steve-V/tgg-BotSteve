@@ -142,20 +142,20 @@ class NickTracker(event.EventSource):
         haven't seen, but are registered to them.
         """
         #TODO: Track maybes
-        alts = []
+        alts = set()
         
         account, status = self.getaccount(nick)
         if account is None or status <= 0:
             pass
         else:
-            alts += list(self.accounts[account.lower()])
+            alts |= self.accounts[account.lower()]
             
         try:
-            alts += list(self.accounts[nick.lower()])
+            alts |= self.accounts[nick.lower()]
         except KeyError:
             pass
             
-        return alts, []
+        return list(alts), []
     
     def _changenick(self, old, new):
         """
@@ -203,7 +203,7 @@ class NickTracker(event.EventSource):
                 query_info(self.phenny, nick)
             return
         if status > 0:
-            print "Add nick: %r %r" % (account, nick)
+            print "Add nick: %s -> %s" % (nick, account)
             lacc = account.lower()
             if lacc not in self.accounts:
                 self.accounts[lacc] = set()
