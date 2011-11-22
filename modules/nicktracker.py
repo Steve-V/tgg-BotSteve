@@ -476,7 +476,7 @@ def query_info(phenny, nick):
         return
     if nick.lower() not in info_queried_nicks: # Prevent repeated queries
         info_queried_nicks.add(nick.lower())
-        phenny.msg('Nickserv', 'INFO %s' % nick)
+        phenny.msg('Nickserv', 'INFO =%s' % nick)
 
 def nickserv_info_begin(phenny, input): 
     global tmp_info
@@ -543,9 +543,8 @@ def nickserv_info_finish(phenny, input):
     
     print "INFO:", tmp_info
     
-    info_queried_nicks.remove(tmp_info.nick.lower())
+    info_queried_nicks.discard(tmp_info.nick.lower())
     phenny.nicktracker._updateinfo(tmp_info)
-    
     tmp_info = None
 nickserv_info_finish.rule = r'\*\*\* \x02End of Info\x02 \*\*\*'
 nickserv_info_finish.event = 'NOTICE'
@@ -557,8 +556,11 @@ def nickserv_info_notregistered(phenny, input):
     
     nick = input.group(1)
     print "INFO: Not Registered:", nick
-    info_queried_nicks.remove(nick.lower())
-    phenny.nicktracker._removeaccount(nick)
+    lnick = nick.lower()
+    info_queried_nicks.discard(lnick)
+    if nick[0] == '=':
+        phenny.msg('Nickserv', 'INFO %s' % nick[1:])
+        phenny.nicktracker._removeaccount(nick)
 nickserv_info_notregistered.rule = r'\x02(.*)\x02 is not registered\.'
 nickserv_info_notregistered.event = 'NOTICE'
 nickserv_info_notregistered.priority = 'low'
@@ -569,7 +571,7 @@ def nickserv_info_marked(phenny, input):
     
     nick, setter, date, reason = input.groups()
     print "INFO: Marked: %s (%s): by %s on %s" % (nick, reason, setter, date)
-    info_queried_nicks.remove(nick.lower())
+    info_queried_nicks.discard(nick.lower())
     phenny.nicktracker._removeaccount(nick)
 nickserv_info_marked.rule = r"\x02(.+)\x02 is not registered anymore, but was marked by (.+) on (.+) \((.+)\)\."
 nickserv_info_marked.event = 'NOTICE'
