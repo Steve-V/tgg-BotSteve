@@ -7,8 +7,9 @@ Licensed under the Eiffel Forum License 2.
 #TODO: Add a daemon to update nicks, accounts, and registrations, even those offline.
 #TODO: Better handling of offline nicks in nick/account mapping
 from __future__ import absolute_import
-import time, bot, re, datetime, event
-from tools import TimeTrackDict, startdaemon
+import time, bot, re, datetime, event, sqlite3, os
+from tools import startdaemon
+
 storage = {} # This is used to store the data from INFO
 
 # Default expiry time, also configurable.
@@ -69,6 +70,15 @@ class CommandInput(bot.CommandInput):
                 self.owner = self.canonnick.lower() == bot.config.owner.lower()
         return self
 
+CREATE_TABLE = """
+CREATE TABLE IF NOT EXISTS nickmap (
+    nick TEXT PRIMARY KEY COLLATE NOCASE, 
+    account TEXT COLLATE NOCASE, 
+    status INTEGER, 
+    updated INTEGER NOT NULL DEFAULT (datetime('now'))
+);
+"""
+
 class NickTracker(event.EventSource):
     """
     The API for modules to access the nick database.
@@ -79,17 +89,25 @@ class NickTracker(event.EventSource):
        have the account.
     """
     # This is used to store the nick<->accounts mapping
-    nicks = None # A dict: {nick.lower() : {'nick': nick, 'account': account, 'status': UNREGISTERED..LOGGEDIN }, ...}
-    accounts = None # A dict: { account.lower() : set(nick.lower(), ...), ...}
+    db = None
+    expiry = None
     
     def __init__(self, phenny):
         super(NickTracker, self).__init__()
         self.phenny = phenny
-        expiry = DATA_EXPIRY_TIME
+        self.expiry = DATA_EXPIRY_TIME
         if hasattr(phenny.config, 'nicktracker'):
-            expiry = phenny.config.nicktracker.get('expiry', expiry)
-        self.nicks = TimeTrackDict(self._expire_nick, expiry)
-        self.accounts = TimeTrackDict(self._expire_account, expiry)
+            self.expiry = phenny.config.nicktracker.get('expiry', self.expiry)
+        self.db = os.path.expanduser('~/.phenny/nicktracker.sqlite')
+        
+        cursor = self._cursor()
+        cursor.executescript(CREATE_TABLE)
+    
+    def _cursor(self):
+        # GRRRRRRR. sqlite3 doesn't allow multithreading. Want to strangle it.
+        con = sqlite3.connect(self.db, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
+        con.row_factory = sqlite3.Row
+        return con.cursor()
     
     def getaccount(self, nick):
         """nt.getaccount(str) -> str|None, int|None
@@ -101,29 +119,33 @@ class NickTracker(event.EventSource):
             # If it's a reserved nick, just return it
             return nick, LOGGEDIN
         
-        try:
-            data = self.nicks[nick.lower()]
-        except KeyError:
+        cursor = self._cursor()
+        cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
+        data = cursor.fetchone()
+        if data is None:
             # If we don't have that data, query for it so we can use it in the future.
             query_acc(self.phenny, nick)
             return nick, None
+        # Check to see if the data is out of date.
+        if time.time() - data['updated'] > self.expiry:
+            self._expire_data(nick)
+        
+        # If the account information isn't available, query for it.
+        if data['account']:
+            if data['account'].lower() not in storage:
+                # If we have the account, but not the info, query it.
+                query_info(self.phenny, nick)
         else:
-            # If the account information isn't available, query for it.
-            if data['account']:
-                if data['account'].lower() not in storage:
-                    # If we have the account, but not the info, query it.
-                    query_info(self.phenny, nick)
-            else:
-                if data['status'] != UNREGISTERED:
-                    query_info(self.phenny, nick)
-            
-            # Actually do the canonization
-            if data['status'] > 0:
-                # The user is considered identified enough.
-                return data['account'], data['status']
-            else:
-                # Not considered identified
-                return None, data['status']
+            if data['status'] != UNREGISTERED:
+                query_info(self.phenny, nick)
+        
+        # Actually do the canonization
+        if data['status'] > 0:
+            # The user is considered identified enough.
+            return data['account'], data['status']
+        else:
+            # Not considered identified
+            return None, data['status']
     
     def canonize(self, nick):
         """nt.canonize(str) -> str
@@ -142,93 +164,45 @@ class NickTracker(event.EventSource):
         haven't seen, but are registered to them.
         """
         #TODO: Track maybes
-        alts = set()
-        
-        account, status = self.getaccount(nick)
-        if account is None or status <= 0:
-            pass
+        cursor = self._cursor()
+        cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
+        data = cursor.fetchone()
+        if data is None:
+            nicks_to_process.add(nick.lower())
+            cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?;", (nick,))
         else:
-            alts |= self.accounts[account.lower()]
-            
-        try:
-            alts |= self.accounts[nick.lower()]
-        except KeyError:
-            pass
-            
-        return list(alts), []
+            cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?;", (nick, data['account']))
+        
+        return list(r['nick'] for r in cursor), []
     
     def _changenick(self, old, new):
         """
         Update information to reflect the nick change.
         """
-        if old.lower() not in self.nicks:
-            # Not a nick we're currently tracking. Should only happen when entering.
-            return
-        # Update nick->account
-        account = self.nicks[new.lower()] = self.nicks[old.lower()]
-        del self.nicks[old.lower()]
-        if account['account']:
-            account = account['account'].lower()
-            # Update account->nick
-            self.accounts[account].add(new.lower())
-            self.accounts[account].discard(old.lower())
+        cursor = self._cursor()
+        cursor.execute("UPDATE nickmap SET nick=:new WHERE nick=:old;", {'old': old, 'new': new}) # Don't set updated, since we don't know anything
     
     def _updatelive(self, account, nick, status):
         """
         Update nick/account mapping
         """
-        # Update nick->account
-        try:
-            data = self.nicks[nick.lower()]
-        except KeyError:
-            self.nicks[nick.lower()] = data = {
-                'nick': nick,
-                'account': account,
-                'status': status,
-                }
-        else:
-            if data['account'] and account and data['account'].lower() != account.lower():
-                # If we're changing accounts, make sure the nick gets removed from the old one
-                try:
-                    self.accounts[data['account'].lower()].discard(nick.lower())
-                except KeyError:
-                    pass
-            data['status'] = status
+        cursor = self._cursor()
+        if nick is None:
+            raise ValueError
         
-        # Update account->nicks
-        if account is None:
-            account = data['account']
-        if account is None:
-            if data['status'] > 0:
-                query_info(self.phenny, nick)
-            return
-        if status > 0:
-            print "Add nick: %s -> %s" % (nick, account)
-            lacc = account.lower()
-            if lacc not in self.accounts:
-                self.accounts[lacc] = set()
-            self.accounts[lacc].add(nick.lower())
-        else:
-            try:
-                self.accounts[account.lower()].discard(nick.lower())
-            except KeyError:
-                pass
+        data = {'nick': nick, 'account': account, 'status': status, 'updated': time.time()}
+        cursor.execute("UPDATE nickmap SET nick=:nick, account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
+        if cursor.rowcount == 0:
+            cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated);", data)
+        # Is this still needed?
+        if account is None and status > 0:
+            query_info(self.phenny, nick)
         
-        if data['status'] > 0 and data['account']:
-            self.emit('have-account', self.phenny, nick, data['account'], status)
+        if status > 0 and account:
+            self.emit('have-account', self.phenny, nick, account, status)
     
     def _removeaccount(self, account):
-        laccount = account.lower()
-        if laccount not in self.accounts:
-            return
-        nicks = self.accounts[laccount]
-        del self.accounts[laccount]
-        nicks.add(laccount)
-        for nick in nicks:
-            if nick not in self.nicks: continue
-            self.nicks[nick]['account'] = None
-            self.nicks[nick]['status'] = UNREGISTERED
-            nicks_to_process.add(nick)
+        cursor.execute("UPDATE nickmap SET account=NULL WHERE account=?;", (account,))
     
     def _updateinfo(self, data):
         """
@@ -246,14 +220,9 @@ class NickTracker(event.EventSource):
         d['Metadata'] = data.items
         storage[data.account.lower()] = d
     
-    def _expire_nick(self, ttd, key, age):
-        print "Expire: Nick: %r" % key
+    def _expire_data(self, key):
+        print "Expire: %r" % key
         startdaemon(query_acc, self.phenny, key)
-    
-    def _expire_account(self, ttd, key, age):
-        print "Expire: Account: %r" % key
-        # We should be querying the nicks on this one
-        startdaemon(query_info, self.phenny, key)
 
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
