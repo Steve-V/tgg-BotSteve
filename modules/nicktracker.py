@@ -171,6 +171,8 @@ class NickTracker(event.EventSource):
             nicks_to_process.add(nick.lower())
             cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?;", (nick,))
         else:
+            if time.time() - data['updated'] > self.expiry:
+                self._expire_data(nick)
             cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?;", (nick, data['account']))
         
         return list(r['nick'] for r in cursor), []
@@ -220,9 +222,9 @@ class NickTracker(event.EventSource):
         d['Metadata'] = data.items
         storage[data.account.lower()] = d
     
-    def _expire_data(self, key):
-        print "Expire: %r" % key
-        startdaemon(query_acc, self.phenny, key)
+    def _expire_data(self, nick):
+        print "Expire: %r" % nick
+        nicks_to_process.add(nick.lower())
 
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
