@@ -103,11 +103,14 @@ class NickTracker(event.EventSource):
         cursor = self._cursor()
         cursor.executescript(CREATE_TABLE)
     
-    def _cursor(self):
+    def _conn(self):
         # GRRRRRRR. sqlite3 doesn't allow multithreading. Want to strangle it.
-        con = sqlite3.connect(self.db, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
-        con.row_factory = sqlite3.Row
-        return con.cursor()
+        conn = sqlite3.connect(self.db, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn.row_factory = sqlite3.Row
+        return conn
+    
+    def _cursor(self):
+        return self._conn().cursor()
     
     def getaccount(self, nick):
         """nt.getaccount(str) -> str|None, int|None
@@ -124,7 +127,7 @@ class NickTracker(event.EventSource):
         data = cursor.fetchone()
         if data is None:
             # If we don't have that data, query for it so we can use it in the future.
-            query_acc(self.phenny, nick)
+            query_acc(self.phenny, nick) # This needs to be done quickly, since we probably need that info.
             return nick, None
         # Check to see if the data is out of date.
         if time.time() - data['updated'] > self.expiry:
@@ -164,16 +167,17 @@ class NickTracker(event.EventSource):
         haven't seen, but are registered to them.
         """
         #TODO: Track maybes
-        cursor = self._cursor()
-        cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
-        data = cursor.fetchone()
-        if data is None:
-            nicks_to_process.add(nick.lower())
-            cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?;", (nick,))
-        else:
-            if time.time() - data['updated'] > self.expiry:
-                self._expire_data(nick)
-            cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?;", (nick, data['account']))
+        with self._conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
+            data = cursor.fetchone()
+            if data is None:
+                query_acc(self.phenny, nick) # This needs to be done quickly, since we probably need that info.
+                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?;", (nick,))
+            else:
+                if time.time() - data['updated'] > self.expiry:
+                    self._expire_data(nick)
+                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?;", (nick, data['account']))
         
         return list(r['nick'] for r in cursor), []
     
@@ -181,27 +185,31 @@ class NickTracker(event.EventSource):
         """
         Update information to reflect the nick change.
         """
-        cursor = self._cursor()
-        cursor.execute("UPDATE nickmap SET nick=:new WHERE nick=:old;", {'old': old, 'new': new}) # Don't set updated, since we don't know anything
+        params = {'old': old, 'new': new}
+        with self._conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM nickmap WHERE nick=:old;", params)
+            cursor.execute("UPDATE nickmap SET nick=:new WHERE nick=:old;", params) # Don't set updated, since we don't know anything new
     
     def _updatelive(self, account, nick, status):
         """
         Update nick/account mapping
         """
-        cursor = self._cursor()
         if nick is None:
             raise ValueError
         
-        data = {'nick': nick, 'account': account, 'status': status, 'updated': time.time()}
-        cursor.execute("UPDATE nickmap SET nick=:nick, account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
-        if cursor.rowcount == 0:
-            cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated);", data)
-        # Is this still needed?
-        if account is None and status > 0:
-            query_info(self.phenny, nick)
-        
-        if status > 0 and account:
-            self.emit('have-account', self.phenny, nick, account, status)
+        with self._conn() as conn:
+            cursor = conn.cursor()
+            data = {'nick': nick, 'account': account, 'status': status, 'updated': time.time()}
+            cursor.execute("UPDATE nickmap SET nick=:nick, account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
+            if cursor.rowcount == 0:
+                cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated);", data)
+            # Is this still needed?
+            if account is None and status > 0:
+                query_info(self.phenny, nick)
+            
+            if status > 0 and account:
+                self.emit('have-account', self.phenny, nick, account, status)
     
     def _removeaccount(self, account):
         cursor = self._cursor()
