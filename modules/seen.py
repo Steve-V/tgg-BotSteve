@@ -36,11 +36,16 @@ def f_seen(phenny, input):
     if nick.lower() == phenny.nick.lower():
         return phenny.say("I'm right here, actually.")
     
-    nicks = set(nick)
+    lnick = nick.lower()
+    if lnick in storage:
+        storage['nick:'+lnick] = storage[lnick]
+        del storage[lnick]
+    nicks = set('nick:'+lnick)
+    
     if hasattr(phenny, 'nicktracker'):
-        nicks.add(phenny.nicktracker.canonize(nick).lower())
+        nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
-        nicks |= set(n.lower() for n in alts+maybes)
+        nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
     for nick in nicks:
@@ -81,9 +86,12 @@ f_seen.rule = (['seen', 'lastseen'], r'(\S+)')
 def f_note(phenny, input): 
     global storage
     if input.sender.startswith('#'):
-        storage[input.nick.lower()] = (input.nick, input.sender, time.time())
+        lnick = input.nick.lower()
+        if lnick in storage:
+            del storage[lnick]
+        storage['nick:'+lnick] = (input.nick, input.sender, time.time())
         if hasattr(phenny, 'nicktracker') and input.canonnick:
-            storage[input.canonnick.lower()] = (input.nick, input.sender, time.time())
+            storage['account:'+input.canonnick.lower()] = (input.nick, input.sender, time.time()) #XXX: Make this a list?
 f_note.rule = r'(.*)'
 f_note.priority = 'low'
 
