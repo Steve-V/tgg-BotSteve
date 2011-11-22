@@ -2,6 +2,7 @@
 Defines a mix-in class for events.
 """
 import threading, traceback
+from tools import startdaemon
 
 class EventSource(object):
     """
@@ -37,7 +38,6 @@ class EventSource(object):
         Throws the event and calls the callbacks for it. Any additional 
         parameters are passed to the callbacks.
         """
-        p = (self,) + p
         try:
             calls = self.__calls[event]
         except KeyError:
@@ -45,12 +45,10 @@ class EventSource(object):
         
         for func, thread in calls.items():
             if thread:
-                t = threading.Thread(target=func, args=p, kwargs=kw)
-                t.setDaemon(True)
-                t.start()
+                startdaemon(func, self, *p, **kw)
             else:
                 try:
-                    func(*p, **kw)
+                    func(self, *p, **kw)
                 except KeyboardInterrupt:
                     raise
                 except:
