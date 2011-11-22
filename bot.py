@@ -93,10 +93,7 @@ class Phenny(irc.Bot):
        self.doc = {}
        self.stats = {}
        self.activity = {}
-       self.DataStore = __import__(
-           'storebackends.'+config.datastore, 
-           fromlist=['DataStore'],
-           ).DataStore
+       self.DataStore = __import__('storebackends.'+getattr(config, 'datastore', 'jsonfile'), fromlist=['DataStore'], ).DataStore
        
        # Used to track extensions
        self.CommandInput = CommandInput
