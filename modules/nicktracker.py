@@ -204,6 +204,7 @@ class NickTracker(event.EventSource):
             self.emit('have-account', self.phenny, nick, account, status)
     
     def _removeaccount(self, account):
+        cursor = self._cursor()
         cursor.execute("UPDATE nickmap SET account=NULL WHERE account=?;", (account,))
     
     def _updateinfo(self, data):
