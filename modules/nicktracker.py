@@ -201,7 +201,10 @@ class NickTracker(event.EventSource):
         with self._conn() as conn:
             cursor = conn.cursor()
             data = {'nick': nick, 'account': account, 'status': status, 'updated': time.time()}
-            cursor.execute("UPDATE nickmap SET nick=:nick, account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
+            if status == OFFLINE:
+                cursor.execute("UPDATE nickmap SET status=:status, updated=:updated WHERE nick=:nick;", data)
+            else:
+                cursor.execute("UPDATE nickmap SET account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
             if cursor.rowcount == 0:
                 cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated);", data)
             # Is this still needed?
