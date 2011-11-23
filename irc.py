@@ -8,7 +8,8 @@ http://inamidst.com/phenny/
 """
 
 import sys, re, time, traceback
-import socket, asyncore, asynchat
+import socket, asyncore
+import asynchat2 as asynchat
 import threading, os
 
 class Origin(object): 
