@@ -8,7 +8,9 @@ http://inamidst.com/phenny/
 """
 
 import sys, re, time, traceback
-import socket, asyncore, asynchat
+import socket, asyncore
+import asynchat2 as asynchat
+import threading, os
 
 class Origin(object): 
    source = re.compile(r'([^!]*)!?([^@]*)@?(.*)')
@@ -42,7 +44,6 @@ class Bot(asynchat.async_chat):
       self.channels = channels or []
       self.stack = []
 
-      import threading
       self.sending = threading.RLock()
 
    def __write(self, args, text=None): 
@@ -177,6 +178,33 @@ class Bot(asynchat.async_chat):
 
          self.msg(origin.sender, report[0] + ' (' + report[1] + ')')
       except: self.msg(origin.sender, "Got an error.")
+    
+   def handle_error(self):
+        # sometimes a user repr method will crash.
+        try:
+            self_repr = repr(self)
+        except:
+            self_repr = '<__repr__(self) failed for object at %0x>' % id(self)
+
+        self.log_info(
+            'Uncaptured python exception, closing channel %s:\n%s' % (
+                self_repr,
+                traceback.format_exc()
+                ),
+            'error'
+            )
+        self.handle_close()
+    
+   def send(self, *args):
+        if os.environ.get('SHOW_DISPATCH'):
+            fmt = []
+            for arg in args:
+                if isinstance(arg, buffer):
+                    fmt += ['<buffer %r>' % str(arg)]
+                else:
+                    fmt += [repr(arg)]
+            print "Send: %s" % ', '.join(fmt)
+        return asynchat.async_chat.send(self, *args)
 
 class TestBot(Bot): 
    def f_ping(self, origin, match, args): 

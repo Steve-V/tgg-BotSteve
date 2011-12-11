@@ -68,12 +68,11 @@ def join_greeter(phenny, input):
     print "%s joined %s" % (input.nick, input.sender)
     
     nick = str(input.nick)
-    #NICKTRACKER: Canonize the nick
-    try:
-        ginfo = storage[nick.lower()]
-    except KeyError:
-        return
-    else:
+    ginfo = storage.get(nick.lower())
+    #NICKTRACKER: Check the canonical nick of the real nick fails.
+    if hasattr(phenny, 'nicktracker') and not ginfo and input.canonnick:
+        ginfo = storage.get(input.canonnick.lower())
+    if ginfo:
         if random.randint(1,100) <= int(ginfo['chance']):
             phenny.say(random.choice(ginfo['greets']))
 

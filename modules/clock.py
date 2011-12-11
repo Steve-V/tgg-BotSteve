@@ -200,6 +200,7 @@ def f_time(self, origin, match, args):
    tz = match.group(2) or 'GMT'
 
    # Personal time zones, because they're rad
+   #NICKTRACKER: Use the configured timezone.
    if hasattr(self.config, 'timezones'): 
       People = self.config.timezones
    else: People = {}
