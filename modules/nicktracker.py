@@ -8,7 +8,7 @@ Licensed under the Eiffel Forum License 2.
 #TODO: Better handling of offline nicks in nick/account mapping
 from __future__ import absolute_import
 import time, bot, re, datetime, event, sqlite3, os
-from tools import startdaemon
+from tools import DaemonThread
 
 storage = {} # This is used to store the data from INFO
 
@@ -236,24 +236,61 @@ class NickTracker(event.EventSource):
     
     def _expire_data(self, nick):
         print "Expire: %r" % nick
-        nicks_to_process.add(nick.lower())
+        nickprocessor.queue(nick)
 
 def setup(phenny): 
     phenny.nicktracker = NickTracker(phenny)
     phenny.extendclass('CommandInput', CommandInput)
-    startdaemon(processlist, phenny)
+    nickprocessor = _DelayedNickProcessor(phenny)
+    nickprocessor.start()
 
 # The nick process queue. So that we don't flood nickserv when we connect, we do initial loads gradually over time.
-nicks_to_process = set()
-def processlist(phenny):
-    while True:
+class _DelayedNickProcessor(DaemonThread):
+    """
+    Class to manage the delayed processing queue.
+    """
+    nicks_to_process = None
+    phenny = None
+    def __init__(self, phenny, **kw):
+        super(_DelayedNickProcessor, self).__init__(**kw)
+        self.daemon = True
+        self.phenny = phenny
+        self.nicks_to_process = set()
+    
+    def queue(self, nick):
+        """dnp.queue(str)
+        Queues the given nick for future processing.
+        
+        If the given nick is already queued, nothing is done.
+        """
+        self.nicks_to_process.add(nick.lower())
+    
+    def _rename(self, old, new):
+        """
+        Updates the queue in the case of a rename.
+        """
         try:
-            nick = nicks_to_process.pop()
+            self.nicks_to_process.remove(old.lower())
         except KeyError:
             pass
         else:
-            query_acc(phenny, nick)
-        time.sleep(3.5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
+            self.nicks_to_process.add(new.lower())
+    
+    def _processed(self, nick):
+        """
+        We got a status for this nick, remove from queue.
+        """
+        self.nicks_to_process.discard(nick.lower())
+    
+    def run(self):
+        while True:
+            try:
+                nick = self.nicks_to_process.pop()
+            except KeyError:
+                pass
+            else:
+                query_acc(self.phenny, nick)
+            time.sleep(3.5) # The guideline is one message every 2 seconds, and irc.py enforces 3.
 
 ############
 # TRIGGERS #
@@ -271,12 +308,7 @@ def trigger_nick(phenny, input):
     phenny.nicktracker._changenick(old, new)
     
     # Update the processing queue
-    try:
-        nicks_to_process.remove(old.lower())
-    except KeyError:
-        pass
-    else:
-        nicks_to_process.add(new.lower())
+    nickprocessor._rename(old, new)
 trigger_nick.rule = r'(.*)'
 trigger_nick.event = 'NICK'
 trigger_nick.priority = 'low'
@@ -307,9 +339,7 @@ def trigger_list(phenny, input):
             nick = nick[1:]
         if checkreserved(phenny, nick):
             continue
-        nicks_to_process.add(nick.lower())
-    
-    print "List:", nicks_to_process
+        nickprocessor.queue(nick.lower())
 trigger_list.rule = r'(.*)'
 trigger_list.event = '353'
 trigger_list.priority = 'low'
@@ -318,7 +348,7 @@ def trigger_part(phenny, input):
     """
     If somebody leaves, do a status update.
     """
-    nicks_to_process.add(input.nick.lower())
+    nickprocessor.queue(input.nick.lower())
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'PART'
 trigger_part.priority = 'low'
@@ -327,7 +357,7 @@ def trigger_quit(phenny, input):
     """
     If somebody leaves, do a status update.
     """
-    nicks_to_process.add(input.nick.lower())
+    nickprocessor.queue(input.nick.lower())
 trigger_part.rule = r'(.*)'
 trigger_part.event = 'QUIT'
 trigger_part.priority = 'low'
@@ -432,7 +462,7 @@ def query_acc(phenny, nick, retry=False, noacct=False):
         return
     lnick = nick.lower()
     if lnick in acc_queried_nicks: return
-    nicks_to_process.discard(lnick) # Remove this nick from the processing queue
+    nickprocessor._processed(nick) # Remove this nick from the processing queue
     acc_queried_nicks.add(lnick)
     if retry:
         acc_retry.add(lnick)
