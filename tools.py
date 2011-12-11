@@ -25,13 +25,22 @@ def deprecated(old):
    new.__name__ = old.__name__
    return new
 
+class DaemonThread(threading.Thread):
+    """
+    Exactly the same as a normal thread, but defaults to daemon mode.
+    """
+    def __init__(self, **kw):
+        super(DaemonThread, self).__init__(**kw)
+        self.daemon = True
+
 def startdaemon(func, *p, **kw):
     """startdeamon(callable, ...) -> threading.Thread
     Creates a thread, based on function and arguments, starts it, and returns 
-    it. Note that it will be a daemon thread.
+    it. 
+    
+    Note that it will be a daemon thread.
     """
-    t = threading.Thread(target=func, args=p, kwargs=kw)
-    t.daemon = True
+    t = DaemonThread(target=func, args=p, kwargs=kw)
     t.start()
     return t
 
