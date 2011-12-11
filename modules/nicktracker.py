@@ -36,7 +36,7 @@ DATA_EXPIRY_TIME = 30*60 # 30 minutes
 ACC_OFFLINE, ACC_LOGGEDOUT, ACC_RECOGNIZED, ACC_LOGGEDIN = range(4)
 ACCD_OFFLINE, ACCD_UNREGISTERED = 'offline', 'not registered'
 
-UNREGISTERED, OFFLINE, LOGGEDOUT, RECOGNIZED, LOGGEDIN = range(-2, 3)
+UNREGISTERED, LOGGEDOUT, OFFLINE, RECOGNIZED, LOGGEDIN = range(-1, 4)
 # Note: Status > 0 means they're sufficiently recognzied for us.
 
 ACC_MAP = {
