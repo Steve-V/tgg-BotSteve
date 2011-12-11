@@ -15,6 +15,7 @@ def setup(phenny):
 
   def monitor(phenny): 
     global storage
+    #NICKTRACKER: Use currently logged-in nicks as fallback targets.
     time.sleep(5)
     while True: 
       now = int(time.time())
@@ -95,7 +96,9 @@ def remind(phenny, input):
     if duration % 1: 
         duration = int(duration) + 1
     else: duration = int(duration)
-
+    
+    
+    #NICKTRACKER: Store in the canonical name
     t = int(time.time()) + duration
     reminder = (input.sender, input.nick, message)
 
