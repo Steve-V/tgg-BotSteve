@@ -3,6 +3,24 @@
 nicktracker.py - Phenny Nick Tracking Service Module
 Copyright 2011, James Bliss, astro73.com
 Licensed under the Eiffel Forum License 2.
+
+This module tracks nicks and the accounts they're signed in to.
+
+Pieces of information stored:
+ * Nick: The nick in question
+ * Account: The account for that nick, or None
+ * Status: A value of UNREGISTERED, OFFLINE, LOGGEDOUT, RECOGNIZED, or LOGGEDIN.
+           Nick/Account mappings are valid for status > 0.
+ * Updated: When did we last update the information for this nick. Used 
+            internally for updating the data.
+
+NickTracker also has some configuration options. Example:
+    nicktracker = {
+        'expiry': 30*60,
+    }
+
+Options:
+ * expiry: How long (in seconds) we should keep data before updating it.
 """
 #TODO: Add a daemon to update nicks, accounts, and registrations, even those offline.
 #TODO: Better handling of offline nicks in nick/account mapping
@@ -239,6 +257,7 @@ class NickTracker(event.EventSource):
         nickprocessor.queue(nick)
 
 def setup(phenny): 
+    global nickprocessor
     phenny.nicktracker = NickTracker(phenny)
     phenny.extendclass('CommandInput', CommandInput)
     nickprocessor = _DelayedNickProcessor(phenny)
