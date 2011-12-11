@@ -7,6 +7,8 @@ INSERT INTO "insults" VALUES(3,'how many different kinds of stupid are you tryin
 INSERT INTO "insults" VALUES(4,'after talking to you, I now understand why animals eat their young.','TRUE');
 INSERT INTO "insults" VALUES(5,'don''t feel bad, I think your poor self-image is *completely* justified.','TRUE');
 INSERT INTO "insults" VALUES(6,'I would have been your father, but the other guy had exact change.','TRUE');
+INSERT INTO "insults" VALUES(7,'your mom is so fat, fat people run around her for exercise.','TRUE');
+INSERT INTO "insults" VALUES(8,'your mom is so old, she farts dust.','TRUE');
 CREATE TABLE cookie_flavors (id INTEGER PRIMARY KEY AUTOINCREMENT, flavor);
 INSERT INTO "cookie_flavors" VALUES(1,'chocolate chip');
 INSERT INTO "cookie_flavors" VALUES(2,'sugar');
@@ -248,7 +250,7 @@ INSERT INTO "pie_flavor" VALUES(17,'peanut butter');
 INSERT INTO "pie_flavor" VALUES(18,'bannana nut');
 INSERT INTO "pie_flavor" VALUES(19,'3.14 math');
 DELETE FROM sqlite_sequence;
-INSERT INTO "sqlite_sequence" VALUES('insults',6);
+INSERT INTO "sqlite_sequence" VALUES('insults',8);
 INSERT INTO "sqlite_sequence" VALUES('cookie_flavors',36);
 INSERT INTO "sqlite_sequence" VALUES('skittles_colors',12);
 INSERT INTO "sqlite_sequence" VALUES('sandwich_type',10);
