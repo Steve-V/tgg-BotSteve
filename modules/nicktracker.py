@@ -123,7 +123,7 @@ class NickTracker(event.EventSource):
             return nick, LOGGEDIN
         
         cursor = self._cursor()
-        cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
+        cursor.execute("SELECT * FROM nickmap WHERE nick=?", (nick,))
         data = cursor.fetchone()
         if data is None:
             # If we don't have that data, query for it so we can use it in the future.
@@ -169,15 +169,15 @@ class NickTracker(event.EventSource):
         #TODO: Track maybes
         with self._conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM nickmap WHERE nick=?;", (nick,))
+            cursor.execute("SELECT * FROM nickmap WHERE nick=?", (nick,))
             data = cursor.fetchone()
             if data is None:
                 query_acc(self.phenny, nick) # This needs to be done quickly, since we probably need that info.
-                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?;", (nick,))
+                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=?", (nick,))
             else:
                 if time.time() - data['updated'] > self.expiry:
                     self._expire_data(nick)
-                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?;", (nick, data['account']))
+                cursor.execute("SELECT DISTINCT nick FROM nickmap WHERE account=? OR account=?", (nick, data['account']))
         
         return list(r['nick'] for r in cursor), []
     
@@ -188,8 +188,8 @@ class NickTracker(event.EventSource):
         params = {'old': old, 'new': new}
         with self._conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM nickmap WHERE nick=:old;", params)
-            cursor.execute("UPDATE nickmap SET nick=:new WHERE nick=:old;", params) # Don't set updated, since we don't know anything new
+            cursor.execute("INSERT OR REPLACE INTO nickmap (nick, account, status, updated) SELECT :new, account, status, updated FROM nickmap WHERE nick=:old", params) # Don't set updated, since we don't know anything new
+            cursor.execute("UPDATE nickmap SET status=:status WHERE nick=:old", dict(status=OFFLINE, **params))
     
     def _updatelive(self, account, nick, status):
         """
@@ -202,11 +202,11 @@ class NickTracker(event.EventSource):
             cursor = conn.cursor()
             data = {'nick': nick, 'account': account, 'status': status, 'updated': time.time()}
             if status == OFFLINE:
-                cursor.execute("UPDATE nickmap SET status=:status, updated=:updated WHERE nick=:nick;", data)
+                cursor.execute("UPDATE nickmap SET status=:status, updated=:updated WHERE nick=:nick", data)
             else:
-                cursor.execute("UPDATE nickmap SET account=:account, status=:status, updated=:updated WHERE nick=:nick;", data)
+                cursor.execute("UPDATE nickmap SET account=:account, status=:status, updated=:updated WHERE nick=:nick", data)
             if cursor.rowcount == 0:
-                cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated);", data)
+                cursor.execute("INSERT INTO nickmap (nick, account, status, updated) VALUES (:nick, :account, :status, :updated)", data)
             # Is this still needed?
             if account is None and status > 0:
                 query_info(self.phenny, nick)
@@ -216,7 +216,7 @@ class NickTracker(event.EventSource):
     
     def _removeaccount(self, account):
         cursor = self._cursor()
-        cursor.execute("UPDATE nickmap SET account=NULL WHERE account=?;", (account,))
+        cursor.execute("UPDATE nickmap SET account=NULL WHERE account=?", (account,))
     
     def _updateinfo(self, data):
         """

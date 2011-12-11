@@ -259,6 +259,7 @@ class Phenny(irc.Bot):
         except KeyboardInterrupt:
             raise
         except Exception, e: 
+            traceback.print_exc()
             self.error(origin)
     
     def limit(self, origin, func): 
