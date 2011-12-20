@@ -75,65 +75,6 @@ logFile.commands = ['history','log']
 logFile.example = ['View the history with:  .history']
 logFile.priority = 'medium'
 
-def rolldice(phenny, input):
-    import random
-    
-    
-    #check if there is anything after dice
-    if not input.group(2):
-    #then roll a d6 and return
-        return( phenny.say( str( random.choice( range(1,7) ) ) ) )
-    
-    
-    #if there is something else, then...
-    #if there's a space, then we are using "dice 1 20" format
-    args = input.group(2).lower()
-    if " " in args:
-      #then split the string by the space
-      (dice,sep,sides) = args.partition(' ')
-    #if there's a 'd' then we are using '1d20' format
-    elif "d" in args:
-      #then split the string by the d
-      (dice,sep,sides) = args.partition('d')
-    else:
-      return( phenny.say("Can't translate that! Use '.dice 1d20' or '.dice 1 20' format") )
-    print("Dice: {}, Sides: {}".format(dice,sides) )
-    
-    # stupid user checking
-    try:
-        dice = int(dice)
-        sides = int(sides)
-    except:
-        return( phenny.say("Can't translate that!") )
-    
-    #not enough dice
-    if dice == "":
-        dice = 1
-    if dice < 1:
-        dice = 0
-    
-    # not enough sides
-    if sides == "":
-        sides = 6
-    if sides <= 1:
-        return( phenny.say("Non-Euclidean dice not supported!") )
-    
-    # too many dice or sides
-    if dice > 10:
-        dice = 10
-    if sides > 1000:
-        sides = 1000
-        
-    diceResult = []
-    for eachDice in range(dice):
-        diceResult.append( random.choice( range(1,sides+1) ) )
-    
-    #print(diceResult)
-    phenny.say( str(diceResult) )
-rolldice.commands = ['dice']
-rolldice.example = ['.dice']
-rolldice.priority = 'medium'
-
 def bugReport(phenny, input):
   phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
 bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
