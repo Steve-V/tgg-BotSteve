@@ -15,7 +15,7 @@ import os
 storage = {} # Default value
 # storage is a persistant value, automagically loaded and saved by the bot.
 
-SEEN_LIMIT = 5
+SEEN_LIMIT = 1
 
 #NICKTRACKER: If passed a known registered user, check agaisnt all names they've used and print the most recent ones.
 
@@ -38,13 +38,17 @@ def f_seen(phenny, input):
     
     lnick = nick.lower()
     if lnick in storage:
+        print("lnick is in storage") #debug
         storage['nick:'+lnick] = storage[lnick]
         del storage[lnick]
+    else:
+        print("lnick not in storage") #debug
     nicks = set('nick:'+lnick)
     
     if hasattr(phenny, 'nicktracker'):
         nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
+        # |= is a nicks.update() operation
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
@@ -75,8 +79,8 @@ def f_seen(phenny, input):
                 msg += "  Current time: %s" % currentTime
             showtime = False
             phenny.reply(msg)
-        if len(seennicks) > SEEN_LIMIT:
-            phenny.reply("(%i more)" % (len(seennicks) - SEEN_LIMIT))
+        #if len(seennicks) > SEEN_LIMIT:
+            #phenny.reply("(%i more)" % (len(seennicks) - SEEN_LIMIT))
     
     #no record of user
     else: 
