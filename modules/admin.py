@@ -409,6 +409,10 @@ def farts(phenny,input):
     else:
         phenny.say("No owner, no farts")
         phenny.say("Owner: {}    You: {}   Input.Sender: {}".format(phenny.config.owner, input.nick, input.sender))
+        if phenny.config.owner == input.nick:
+            phenny.say("equals")
+        else:
+            phenny.say("not equals")
 farts.commands = ['farts']
 farts.priority = 'high'
 
