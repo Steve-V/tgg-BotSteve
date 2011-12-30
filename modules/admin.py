@@ -402,12 +402,13 @@ def farts(phenny,input):
     '''farts'''
     if input.sender.startswith('#'):
         phenny.say("no hash, no farts")
-        return
+    if input.admin:
+        phenny.say("You're an admin")
     if input.owner: 
-        phenny.say("Farts")
+        phenny.say("You're an owner")
     else:
         phenny.say("No owner, no farts")
-        phenny.say("Owner: {}".format(input.owner))
+        phenny.say("Owner: {}    You: {}   Input.Sender: {}".format(phenny.config.owner, input.nick, input.sender))
 farts.commands = ['farts']
 farts.priority = 'high'
 
