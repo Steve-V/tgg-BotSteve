@@ -27,7 +27,7 @@ thanks.priority = 'high'
 thanks.thread = False
 
 def amiright(phenny, input):
-  reply = random.choice( ("Yep!", "You're right", "Definitely", "Absolutely", "Nope", "No way", "Not a chance", "I don't think so", "Maybe", "Ask again later!", "Reply hazy, try again later") )
+  reply = random.choice( ("Yep!", "You're right", "Definitely", "Absolutely", "Nope", "No way", "Not a chance", "I don't think so", "Maybe") )
   phenny.say(reply)
 amiright.rule = r'(?i)(right|correct|is that right|am i right) (?i)$nickname\b'
 amiright.priority = 'high'
@@ -41,7 +41,7 @@ sorry.priority = 'high'
 sorry.thread = False
 
 def shouldI(phenny, input):
-  reply = random.choice( ("Yep!", "Oh yeah!", "Definitely", "Absolutely", "Nope", "No way", "Not a chance", "I don't think so", "Maybe", "Ask again later!", "Reply hazy, try again later") )
+  reply = random.choice( ("Yep!", "Oh yeah!", "Definitely", "Absolutely", "Nope", "No way", "Not a chance", "I don't think so", "Maybe") )
   phenny.say(reply)
 shouldI.rule = r'(?i)$nickname\b(?i)(, should| should |: should |, will| will |: will | do |, do |: do | does | ,does |: does )'
 shouldI.priority = 'high'
