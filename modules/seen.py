@@ -43,18 +43,21 @@ def f_seen(phenny, input):
         del storage[lnick]
     else:
         print("lnick {} not in storage".format(lnick)) #debug
+    
+    #when you make a string into a set, it gets broken into individual characters
+    
     nicks = set('nick:'+lnick)
+    print("Nicks (Line 47): {}".format(nicks))
     
     if hasattr(phenny, 'nicktracker'):
         nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
         # |= is a nicks.update() operation
-        #i think this is where the nick gets broken into letters
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
     print("Beginning nick check")
-    print("Nick List: {}".format(nicks) )
+    print("Nicks (Line 58): {}".format(nicks) )
     for nick in nicks:
         try:
             print("Checking: {}".format(nick))
