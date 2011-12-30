@@ -84,6 +84,9 @@ def f_etymology(self, origin, match, args):
       return
    except AttributeError: 
       result = None
+   except ValueError as e:
+      self.msg(origin.sender,e.args[0])
+      return
 
    if result is not None: 
       self.msg(origin.sender, result)
