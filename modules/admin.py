@@ -398,6 +398,19 @@ def topic(phenny, input):
 topic.commands = ['topic']
 topic.priority = 'low'
 
+def farts(phenny,input):
+    '''farts'''
+    if input.sender.startswith('#'):
+        phenny.say("no hash, no farts")
+        return
+    if input.owner: 
+        phenny.say("Farts")
+    else:
+        phenny.say("No owner, no farts")
+        phenny.say("Owner: {}".format(input.owner))
+farts.commands = ['farts']
+farts.priority = 'high'
+
 #def defend_ground (phenny, input):
     #"""
     #This function monitors all kicks across all channels phenny is in. If she

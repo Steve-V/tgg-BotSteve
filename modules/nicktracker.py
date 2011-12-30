@@ -253,7 +253,7 @@ class NickTracker(event.EventSource):
         storage[data.account.lower()] = d
     
     def _expire_data(self, nick):
-        print "Expire: %r" % nick
+        #print "Expire: %r" % nick
         nickprocessor.queue(nick)
 
 def setup(phenny): 
@@ -322,7 +322,7 @@ def trigger_nick(phenny, input):
     """
     old = input.nick
     new = unicode(input)
-    print "Nick: %s -> %s" % (old, new)
+    #print "Nick: %s -> %s" % (old, new)
     # Update the database
     phenny.nicktracker._changenick(old, new)
     
@@ -339,7 +339,7 @@ def trigger_join(phenny, input):
     When someone joins our channel, query them
     """
     global nick_host
-    print "Join:", repr(input)
+    #print "Join:", repr(input)
     nick_host[input.nick] = (input.origin.user, input.origin.host)
     if checkreserved(phenny, input.nick): return
     query_acc(phenny, input.nick, retry=True)
@@ -351,7 +351,7 @@ def trigger_list(phenny, input):
     """
     When we join a channel, schedule queries for existing members
     """
-    print "List:", repr(input)
+    #print "List:", repr(input)
     
     for nick in input.split(' '):
         if nick[0] in '@+':
@@ -405,13 +405,13 @@ def cmd_taxonomy(phenny, input):
 cmd_taxonomy.commands = ['taxo']
 
 def cmd_canon(phenny, input):
-    print "Canon: %r" % input
+    #print "Canon: %r" % input
     nick = input.group(2) or input.nick
     phenny.reply(phenny.nicktracker.canonize(nick))
 cmd_canon.commands = ['canon']
 
 def cmd_alts(phenny, input):
-    print "Alts: %r" % input
+    #print "Alts: %r" % input
     nick = input.group(2) or input.nick
     alts, maybes = phenny.nicktracker.getalts(nick)
     msg = ', '.join(alts)
@@ -507,7 +507,7 @@ def nickserv_acc(phenny, input):
             query_acc(phenny, nick, noacct=True) # We don't need to repass retry because we're not removing it.
             return
     
-    print "ACC: %s (%s): %s" % (nick, account, STATUS_TEXT.get(status, status))
+    #print "ACC: %s (%s): %s" % (nick, account, STATUS_TEXT.get(status, status))
     
     phenny.nicktracker._updatelive(account, nick, status)
     if status > 0:
@@ -601,7 +601,7 @@ def nickserv_info_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_info is None: return
     
-    print "INFO:", tmp_info
+    #print "INFO:", tmp_info
     
     info_queried_nicks.discard(tmp_info.nick.lower())
     phenny.nicktracker._updateinfo(tmp_info)
@@ -615,7 +615,7 @@ def nickserv_info_notregistered(phenny, input):
     if input.sender != 'NickServ': return
     
     nick = input.group(1)
-    print "INFO: Not Registered:", nick
+    #print "INFO: Not Registered:", nick
     lnick = nick.lower()
     info_queried_nicks.discard(lnick)
     if nick[0] == '=':
@@ -630,7 +630,7 @@ def nickserv_info_marked(phenny, input):
     if input.sender != 'NickServ': return
     
     nick, setter, date, reason = input.groups()
-    print "INFO: Marked: %s (%s): by %s on %s" % (nick, reason, setter, date)
+    #print "INFO: Marked: %s (%s): by %s on %s" % (nick, reason, setter, date)
     info_queried_nicks.discard(nick.lower())
     phenny.nicktracker._removeaccount(nick)
 nickserv_info_marked.rule = r"\x02(.+)\x02 is not registered anymore, but was marked by (.+) on (.+) \((.+)\)\."
@@ -678,7 +678,7 @@ def nickserv_taxonomy_finish(phenny, input):
     if input.sender != 'NickServ': return
     if tmp_taxo is None: return
     
-    print "TAXONOMY:", tmp_taxo
+    #print "TAXONOMY:", tmp_taxo
     
     assert tmp_taxo.account == input.group(1)
     

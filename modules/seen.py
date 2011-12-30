@@ -52,15 +52,19 @@ def f_seen(phenny, input):
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
+    print("Beginning nick check")
     for nick in nicks:
         try:
+            print("Checking: {}".format(nick))
             data = storage[nick]
             if len(data) == 2:
                 data = storage[nick] = [nick, data[0], data[1]]
             seennicks[data[0].lower()] = data
         except KeyError:
+            print("Keyerror on: {}".format(nick))
             pass
     
+    print("Ending nick check")
     seennicks = sorted(seennicks.values(), key=lambda i: -i[2])
     
     if seennicks:
@@ -94,6 +98,7 @@ def f_note(phenny, input):
         if lnick in storage:
             del storage[lnick]
         storage['nick:'+lnick] = (input.nick, input.sender, time.time())
+        print("Supposedly added nick: {}".format( storage['nick:'+lnick] ) ) #debug
         if hasattr(phenny, 'nicktracker') and input.canonnick:
             storage['account:'+input.canonnick.lower()] = (input.nick, input.sender, time.time()) #XXX: Make this a list?
 f_note.rule = r'(.*)'
