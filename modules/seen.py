@@ -38,21 +38,23 @@ def f_seen(phenny, input):
     
     lnick = nick.lower()
     if lnick in storage:
-        print("lnick is in storage") #debug
+        print("lnick {} is in storage".format(lnick)) #debug
         storage['nick:'+lnick] = storage[lnick]
         del storage[lnick]
     else:
-        print("lnick not in storage") #debug
+        print("lnick {} not in storage".format(lnick)) #debug
     nicks = set('nick:'+lnick)
     
     if hasattr(phenny, 'nicktracker'):
         nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
         # |= is a nicks.update() operation
+        #i think this is where the nick gets broken into letters
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
     print("Beginning nick check")
+    print("Nick List: {}".format(nicks) )
     for nick in nicks:
         try:
             print("Checking: {}".format(nick))
@@ -66,6 +68,8 @@ def f_seen(phenny, input):
     
     print("Ending nick check")
     seennicks = sorted(seennicks.values(), key=lambda i: -i[2])
+    
+    print("Seen Nicks: {}".format(seennicks))
     
     if seennicks:
         showtime = True
