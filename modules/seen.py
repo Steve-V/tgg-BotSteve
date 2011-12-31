@@ -38,43 +38,31 @@ def f_seen(phenny, input):
     
     lnick = nick.lower()
     if lnick in storage:
-        #print("lnick {} is in storage".format(lnick)) #debug
         storage['nick:'+lnick] = storage[lnick]
         del storage[lnick]
-    #else:
-        #print("lnick {} not in storage".format(lnick)) #debug
     
     #when you make a string into a set, it gets broken into individual characters, so let's do it in two steps
     nicks = set()
     nicks.add('nick:'+lnick)
     
-    #print("Nicks (Line 47): {}".format(nicks)) #debug
-    
     if hasattr(phenny, 'nicktracker'):
         nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
-        #print("Alts: {} Maybes: {}".format(alts,maybes) ) #debug
         # |= is a nicks.update() operation
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
-    #print("Beginning nick check") #debug
-    #print("Nicks (Line 58): {}".format(nicks) ) #debug
+    
     for nick in nicks:
         try:
-            #print("Checking: {}".format(nick)) #debug
             data = storage[nick]
             if len(data) == 2:
                 data = storage[nick] = [nick, data[0], data[1]]
             seennicks[data[0].lower()] = data
         except KeyError:
-            #print("Keyerror on: {}".format(nick)) #debug
             pass
     
-    #print("Ending nick check") #debug
     seennicks = sorted(seennicks.values(), key=lambda i: -i[2])
-    
-    #print("Seen Nicks: {}".format(seennicks)) #debug
     
     if seennicks:
         showtime = True
