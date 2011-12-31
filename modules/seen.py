@@ -41,7 +41,7 @@ def f_seen(phenny, input):
         #print("lnick {} is in storage".format(lnick)) #debug
         storage['nick:'+lnick] = storage[lnick]
         del storage[lnick]
-    else:
+    #else:
         #print("lnick {} not in storage".format(lnick)) #debug
     
     #when you make a string into a set, it gets broken into individual characters, so let's do it in two steps
