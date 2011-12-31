@@ -38,41 +38,43 @@ def f_seen(phenny, input):
     
     lnick = nick.lower()
     if lnick in storage:
-        print("lnick {} is in storage".format(lnick)) #debug
+        #print("lnick {} is in storage".format(lnick)) #debug
         storage['nick:'+lnick] = storage[lnick]
         del storage[lnick]
     else:
-        print("lnick {} not in storage".format(lnick)) #debug
+        #print("lnick {} not in storage".format(lnick)) #debug
     
-    #when you make a string into a set, it gets broken into individual characters
+    #when you make a string into a set, it gets broken into individual characters, so let's do it in two steps
+    nicks = set()
+    nicks.add('nick:'+lnick)
     
-    nicks = set('nick:'+lnick)
-    print("Nicks (Line 47): {}".format(nicks))
+    #print("Nicks (Line 47): {}".format(nicks)) #debug
     
     if hasattr(phenny, 'nicktracker'):
         nicks.add('account:'+phenny.nicktracker.canonize(nick).lower())
         alts, maybes = phenny.nicktracker.getalts(nick)
+        #print("Alts: {} Maybes: {}".format(alts,maybes) ) #debug
         # |= is a nicks.update() operation
         nicks |= set('nick:'+n.lower() for n in alts+maybes)
     
     seennicks = {}
-    print("Beginning nick check")
-    print("Nicks (Line 58): {}".format(nicks) )
+    #print("Beginning nick check") #debug
+    #print("Nicks (Line 58): {}".format(nicks) ) #debug
     for nick in nicks:
         try:
-            print("Checking: {}".format(nick))
+            #print("Checking: {}".format(nick)) #debug
             data = storage[nick]
             if len(data) == 2:
                 data = storage[nick] = [nick, data[0], data[1]]
             seennicks[data[0].lower()] = data
         except KeyError:
-            print("Keyerror on: {}".format(nick))
+            #print("Keyerror on: {}".format(nick)) #debug
             pass
     
-    print("Ending nick check")
+    #print("Ending nick check") #debug
     seennicks = sorted(seennicks.values(), key=lambda i: -i[2])
     
-    print("Seen Nicks: {}".format(seennicks))
+    #print("Seen Nicks: {}".format(seennicks)) #debug
     
     if seennicks:
         showtime = True
@@ -105,7 +107,7 @@ def f_note(phenny, input):
         if lnick in storage:
             del storage[lnick]
         storage['nick:'+lnick] = (input.nick, input.sender, time.time())
-        print("Supposedly added nick: {}".format( storage['nick:'+lnick] ) ) #debug
+        #print("Supposedly added nick: {}".format( storage['nick:'+lnick] ) ) #debug
         if hasattr(phenny, 'nicktracker') and input.canonnick:
             storage['account:'+input.canonnick.lower()] = (input.nick, input.sender, time.time()) #XXX: Make this a list?
 f_note.rule = r'(.*)'
