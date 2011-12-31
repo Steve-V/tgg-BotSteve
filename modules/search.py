@@ -172,6 +172,8 @@ r_bing = re.compile(r'<h3><a href="([^"]+)"')
 
 def bing(phenny, input): 
    """Queries Bing for the specified input."""
+   if not input.group(2):
+       return phenny.reply("No search term!")
    query = input.group(2)
    if query.startswith(':'): 
       lang, query = query.split(' ', 1)
