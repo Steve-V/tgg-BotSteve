@@ -17,7 +17,7 @@ def rolldice(phenny, input):
     #check if there is anything after dice
     if not input.group(2):
     #then roll a d6 and return
-        return( phenny.say( str( random.choice( range(1,7) ) ) ) )
+        return( phenny.reply( str( random.choice( range(1,7) ) ) ) )
     
     
     #if there is something else, then...
@@ -36,7 +36,7 @@ def rolldice(phenny, input):
         try:
             modifier = int(modifier)
         except:
-            return(phenny.say("Can't understand that") )
+            return(phenny.reply("Can't understand that") )
         modifierExists = True
     else:
         modifier = 0
@@ -55,7 +55,7 @@ def rolldice(phenny, input):
       dice = dice.strip()
       sides = sides.strip()
     else:
-      return( phenny.say("Can't translate that! Use '.dice 1d20' or '.dice 1 20' format") )
+      return( phenny.reply("Can't translate that! Use '.dice 1d20' or '.dice 1 20' format") )
     print("Dice: {}, Sides: {}, Mod: {}".format(dice,sides,modifier) )
     
     # stupid user checking
@@ -63,7 +63,7 @@ def rolldice(phenny, input):
         dice = int(dice)
         sides = int(sides)
     except:
-        return( phenny.say("Can't translate that! (If you're using d notation, don't use spaces)") )
+        return( phenny.reply("Can't translate that! (If you're using d notation, don't use spaces)") )
     
     #not enough dice
     if dice == "":
@@ -75,7 +75,7 @@ def rolldice(phenny, input):
     if sides == "":
         sides = 6
     if sides <= 1:
-        return( phenny.say("Non-Euclidean dice not supported!") )
+        return( phenny.reply("Non-Euclidean dice not supported!") )
     
     # too many dice or sides
     if dice > 10:
@@ -98,7 +98,7 @@ def rolldice(phenny, input):
         total += modifier
     else:
         seperator = " = "
-    phenny.say( "{}{} {}".format( str(diceResult), seperator, total ) )
+    phenny.reply( "{}{} {}".format( str(diceResult), seperator, total ) )
 rolldice.commands = ['dice']
 rolldice.example = ['.dice']
 rolldice.priority = 'medium'
