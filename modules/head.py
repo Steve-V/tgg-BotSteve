@@ -187,6 +187,8 @@ def showtitle(phenny, input):
         title = gettitle(uri)
     except IOError: 
         pass
+    except UnicodeEncodeError:
+        return phenny.say("Unencodable character in link")
     else:
         if title is None: pass
         elif title is Ellipsis: pass
