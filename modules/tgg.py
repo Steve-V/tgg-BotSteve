@@ -24,13 +24,24 @@ fortune.example = ".quote"
 fortune.priority = 'low'
 
 def minecraft(phenny, input):
+    
+    # Set up
     s = socket.socket()
+    t = socket.socket()
+    gamerx = cprossu = "UP"
+    
+    # Attempt connections
     try:
         s.connect(('gamerxreviews.net', 25565))
     except:
-        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net **** THE SERVER IS DOWN ****" )
-    else:
-        phenny.say( "The 'official' TGG minecraft server address is: gamerxreviews.net (online)" )
+        gamerx = "DOWN"
+    try:
+        t.connect(('72.222.196.252',25565))
+    except:
+        cprossu = "DOWN"
+    
+    # output
+    phenny.reply( "Legacy TGG minecraft server address is: gamerxreviews.net. Server Status: {}\nCprossu's minecraft server address: 72.222.196.252:25565. Server Status: {}".format(gamerx,cprossu) )
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
 minecraft.priority = 'low'
