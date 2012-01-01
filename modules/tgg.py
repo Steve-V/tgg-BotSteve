@@ -41,7 +41,7 @@ def minecraft(phenny, input):
         cprossu = "DOWN"
     
     # output
-    phenny.reply( "Legacy TGG minecraft server: gamerxreviews.net:25565. Server Status: {}".format(gamerx)
+    phenny.reply( "Legacy TGG minecraft server: gamerxreviews.net:25565. Server Status: {}".format(gamerx) )
     phenny.reply( "Cprossu's minecraft server: 72.222.196.252:25565. Server Status: {}".format(cprossu) )
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
