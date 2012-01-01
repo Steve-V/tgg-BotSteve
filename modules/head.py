@@ -186,13 +186,13 @@ def showtitle(phenny, input):
     try: 
         title = gettitle(uri)
     except IOError: 
-        pass
+        return
     except UnicodeEncodeError:
-        return phenny.say("Unencodable character in link")
+        return
     else:
-        if title is None: pass
-        elif title is Ellipsis: pass
-        elif title == '': pass
+        if title is None: return
+        elif title is Ellipsis: return
+        elif title == '': return
         else:
             phenny.say('Title: %s' % title)
 showtitle.rule = r'.*(http[s]?://[^<> "\x01]+)[,.]?'
