@@ -64,12 +64,12 @@ def f_remind(phenny, input):
         warn = False
         if tellee not in storage: 
             storage[tellee] = [(teller, verb, timenow, msg)]
-            print("DEBUG - Tellee not in storage. New Storage[tellee]: {}".format(storage[tellee]) )
+            print("DEBUG - Tellee not in storage. New Storage[{}]: {}".format(tellee, storage[tellee]) )
         else: 
             # if len(storage[tellee]) >= maximum: 
             #    warn = True
             storage[tellee].append((teller, verb, timenow, msg))
-            print("DEBUG - Tellee in storage. Storage[tellee]: {}".format(storage[tellee]) )
+            print("DEBUG - Tellee in storage. Storage[{}]: {}".format(tellee, storage[tellee]) )
         # @@ Stephanie's augmentation
         response = "I'll pass that on when %s is around." % tellee_original
         # if warn: response += (" I'll have to use a pastebin, though, so " + 
