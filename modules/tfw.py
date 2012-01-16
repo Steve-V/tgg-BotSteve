@@ -47,13 +47,13 @@ def tfw(phenny, input, fahrenheit=False, celsius=False):
 		if c.isdigit():
 			tempt += c
 	temp = int(tempt)
-	deg = unichr(176).encode('latin-1')
+	#deg = unichr(176).encode('latin-1')
 			
 	# add units and convert if necessary
 	if fahrenheit:
-		temp = "%d%cF?!" % (temp, deg)
+		temp = "%d degrees F?!" % (temp)
 	elif celsius:
-		temp = "%d%cC?!" % (temp, deg)
+		temp = "%d degrees C?!" % (temp)
 	else:
 		tempev = (temp + 273.15) * 8.617343e-5 * 1000
 		temp = "%f meV?!" % tempev
