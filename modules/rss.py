@@ -91,11 +91,11 @@ def setup(phenny):
       for items in oldYoutubeFeed.entry:
         youtubeURLsOld.append( str( items.GetSwfUrl() ).split("?")[0] )
       for items in currentYoutubeFeed.entry:
-        youtubeTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0] ) )
+        youtubeTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0], items.media.duration.seconds ) )
       
-      for title,url in youtubeTitlesCurrent:
+      for title,url,duration in youtubeTitlesCurrent:
         if url not in youtubeURLsOld:
-          youtubeTitlesChanged.append( [title, url] )
+          youtubeTitlesChanged.append( [title, url, duration] )
       
       #rebuild the output string
       if youtubeTitlesChanged:
@@ -106,9 +106,11 @@ def setup(phenny):
         #phenny.msg(mainChannel, outputString)
         
         #print the videos
-        for eachTitle, eachURL in youtubeTitlesChanged:
+        for eachTitle, eachURL, eachDuration in youtubeTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
+          formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
           outputString += eachTitle
+          outputString += formattedTime
           outputString += " "
           outputString += formattedURL
           
@@ -136,11 +138,11 @@ def setup(phenny):
       for items in oldTggYoutubeFeed.entry:
         youtubeTggURLsOld.append( str( items.GetSwfUrl() ).split("?")[0] )
       for items in currentYoutubeTggFeed.entry:
-        youtubeTggTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0] ) )
+          youtubeTggTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0], items.media.duration.seconds  ) )
       
-      for title,url in youtubeTggTitlesCurrent:
+      for title,url,duration in youtubeTggTitlesCurrent:
         if url not in youtubeTggURLsOld:
-          youtubeTggTitlesChanged.append( [title, url] )
+            youtubeTggTitlesChanged.append( [title, url, duration] )
       
       #rebuild the output string
       if youtubeTggTitlesChanged:
@@ -154,9 +156,11 @@ def setup(phenny):
         #phenny.msg(mainChannel, outputString)
         
         #print the videos
-        for eachTitle, eachURL in youtubeTggTitlesChanged:
+        for eachTitle, eachURL, eachDuration in youtubeTggTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
+          formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
           outputString += eachTitle
+          outputString += formattedTime
           outputString += " "
           outputString += formattedURL
           
