@@ -100,8 +100,7 @@ def gettitle(uri):
 
     try: mtype = info['content-type']
     except: 
-        err = "Couldn't get the Content-Type, sorry"
-        return self.reply(err)
+        return None
     if not (('/html' in mtype) or ('/xhtml' in mtype)): 
         return None
 
