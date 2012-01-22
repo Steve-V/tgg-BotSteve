@@ -230,22 +230,37 @@ deauth_nick.event = 'NICK'
 deauth_nick.rule = '.*'
 
 def kick(phenny, input):
-  if not input.admin: return
-  text = input.group().split()
-  argc = len(text)
-  if argc < 2: return
-  opt = text[1]
-  nick = opt
-  channel = input.sender
-  reasonidx = 2
-  if opt.startswith('#'):
-    if argc < 3: return
-    nick = text[2]
-    channel = opt
-    reasonidx = 3
-  reason = ' '.join(text[reasonidx:])
-  if nick != phenny.config.nick:
+    if not input.admin and not input.halfop:
+        return phenny.reply("Sorry, either an error occurred or I don't trust you yet.")
+    text = input.group().split()
+    argc = len(text)
+    if argc < 2: return
+    opt = text[1]
+    nick = opt
+    channel = input.sender
+    reasonidx = 2
+    if opt.startswith('#'):
+        if argc < 3: return
+        nick = text[2]
+        channel = opt
+        reasonidx = 3
+    reason = ' '.join(text[reasonidx:])
+    
+    verify = auth_check(phenny, phenny.origin.nick, nick)
+    if not verify:
+        return phenny.reply("Sorry, either an error occurred or you're not authenticated to nickserv")
+    
+    print("Debug: text: {}  opt: {}  nick: {}  channel: {}  input.sender:  {}   reason: {}  kicker: {}  END ".format(text,opt,nick,channel,input.sender, reason, phenny.origin.nick) ) #DEBUG
+  
+    if nick != phenny.config.nick:
+        kickalert = "{} was kicked from {} by {}.  Reason: {}".format(nick, channel, phenny.origin.nick, reason)
+    else:
+        kickalert = "{} tried to kick me from {} for '{}', but was kicked by me instead.".format(phenny.origin.nick, channel, reason)
+        nick = phenny.origin.nick
+        reason = "I'm sorry. I cannot self-terminate."
     phenny.write(['KICK', channel, nick, reason])
+    phenny.msg(phenny.config.owner, kickalert)
+    phenny.msg('#tgg-admins', kickalert)
 kick.commands = ['kick']
 kick.priority = 'high'
 

@@ -56,6 +56,7 @@ class CommandInput(unicode):
         self.groups = match.groups
         self.args = args
         self.admin = origin.nick in bot.config.admins
+        self.halfop = origin.nick in bot.config.halfops
         self.owner = origin.nick == bot.config.owner
         return self
     
