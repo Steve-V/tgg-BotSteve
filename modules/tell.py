@@ -64,7 +64,7 @@ def f_remind(phenny, input):
         warn = False
         
         tells = storage.get(tellee, [])
-        tels.append((teller, verb, timenow, msg))
+        tells.append((teller, verb, timenow, msg))
         storage[tellee] = tells
         print("DEBUG - Tellee in storage. Storage Type: {} Storage[{}]: {}".format(tellee, type(storage), tells) )
         # @@ Stephanie's augmentation
