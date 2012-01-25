@@ -62,20 +62,11 @@ def f_remind(phenny, input):
     if not tellee in (teller.lower(), phenny.nick, 'me'): # @@
         # @@ <deltab> and year, if necessary
         warn = False
-        if tellee not in storage: 
-            storage[tellee] = [(teller, verb, timenow, msg)]
-            print("DEBUG - Tellee not in storage. New Storage[{}]: {}".format(tellee, storage[tellee]) )
-        else: 
-            # if len(storage[tellee]) >= maximum: 
-            #    warn = True
-            tempTellee = storage[tellee]
-            tempTellee.append((teller, verb, timenow, msg))
-            try: 
-                del storage[tellee]
-            except KeyError: 
-                phenny.say('Er...')
-            storage[tellee] = tempTellee
-            print("DEBUG - Tellee in storage. Storage Type: {} Storage[{}]: {}".format(tellee, type(storage), storage[tellee]) )
+        
+        tells = storage.get(tellee, [])
+        tels.append((teller, verb, timenow, msg))
+        storage[tellee] = tells
+        print("DEBUG - Tellee in storage. Storage Type: {} Storage[{}]: {}".format(tellee, type(storage), tells) )
         # @@ Stephanie's augmentation
         response = "I'll pass that on when %s is around." % tellee_original
         # if warn: response += (" I'll have to use a pastebin, though, so " + 
