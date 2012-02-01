@@ -44,7 +44,7 @@ def setup(phenny):
     while True: 
       
       #pull forum feed again
-      #phenny.msg(testChannel, "Pulling new video feeds")
+      print("Pulling new video feeds: {}".format(testChannel)) #DEBUG
       currentFeed = ''
       currentFeed = feedparser.parse("http://thegeekgroup.org/bb/?xfeed=all&feedkey=60635da5-d00a-4f9e-a007-a9102251b1c1")
       
@@ -109,6 +109,7 @@ def setup(phenny):
         for eachTitle, eachURL, eachDuration in youtubeTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
           formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
+          print("Formatted Time (PhysicsDuck): {}".format(formattedTime)) #DEBUG
           outputString += eachTitle
           outputString += formattedTime
           outputString += " "
@@ -122,8 +123,8 @@ def setup(phenny):
       
       #debugging
       else:
-        pass
-        #phenny.msg(testChannel, "No new feeds from PhysicsDuck")
+        #pass
+        print("No new feeds from PhysicsDuck")
       
       #=======================
       
@@ -159,6 +160,7 @@ def setup(phenny):
         for eachTitle, eachURL, eachDuration in youtubeTggTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
           formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
+          print("Formatted Time (TheGeekGroup): {}".format(formattedTime))
           outputString += eachTitle
           outputString += formattedTime
           outputString += " "
@@ -172,8 +174,8 @@ def setup(phenny):
       
       #debugging
       else:
-        pass
-       # phenny.msg(testChannel, "No new feeds from TheGeekGroup")
+          #pass
+          print("No new feeds from TheGeekGroup")
       
       #display the string, if there's anything to display
       if outputString:
