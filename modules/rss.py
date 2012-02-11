@@ -108,7 +108,7 @@ def setup(phenny):
         #print the videos
         for eachTitle, eachURL, eachDuration in youtubeTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
-          formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
+          formattedTime = "( " + str(float(eachDuration) / 60.0) + " ) min"
           print("Formatted Time (PhysicsDuck): {}".format(formattedTime)) #DEBUG
           outputString += eachTitle
           outputString += formattedTime
@@ -159,7 +159,7 @@ def setup(phenny):
         #print the videos
         for eachTitle, eachURL, eachDuration in youtubeTggTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
-          formattedTime = "( " + str(eachDuration / 60.0) + " ) min"
+          formattedTime = "( " + str(float(eachDuration) / 60.0) + " ) min"
           print("Formatted Time (TheGeekGroup): {}".format(formattedTime))
           outputString += eachTitle
           outputString += formattedTime
