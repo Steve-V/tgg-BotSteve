@@ -13,6 +13,7 @@ Licensed under the MIT License: http://www.opensource.org/licenses/mit-license.p
 #later we can make this use SQlite if we want
 #import sqlite3
 import time, threading, feedparser, gdata.youtube, gdata.youtube.service
+from decimal import *
 
 def setup(phenny): 
 
@@ -108,7 +109,10 @@ def setup(phenny):
         #print the videos
         for eachTitle, eachURL, eachDuration in youtubeTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
-          formattedTime = "( " + str(float(eachDuration) / 60.0) + " ) min"
+          
+          unformattedTime = str(float(eachDuration) / 60.0)
+          decimalTime = Decimal(str(unformattedTime)).quantize(Decimal('1.00'))
+          formattedTime = "[" + str(decimalTime) + " min]"
           print("Formatted Time (PhysicsDuck): {}".format(formattedTime)) #DEBUG
           outputString += eachTitle
           outputString += formattedTime
@@ -159,7 +163,9 @@ def setup(phenny):
         #print the videos
         for eachTitle, eachURL, eachDuration in youtubeTggTitlesChanged:
           formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
-          formattedTime = "( " + str(float(eachDuration) / 60.0) + " ) min"
+          unformattedTime = str(float(eachDuration) / 60.0)
+          decimalTime = Decimal(str(unformattedTime)).quantize(Decimal('1.00'))
+          formattedTime = "[" + str(decimalTime) + " min]"
           print("Formatted Time (TheGeekGroup): {}".format(formattedTime))
           outputString += eachTitle
           outputString += formattedTime
