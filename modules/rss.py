@@ -76,7 +76,7 @@ def setup(phenny):
                 phenny.msg(mainChannel, outputString)
             else:
                 print("No new RSS feeds")
-                oldFeed = currentFeed #don't forget to update
+            oldFeed = currentFeed #don't forget to update
             
             #=======================
             
