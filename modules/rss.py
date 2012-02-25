@@ -72,8 +72,8 @@ def setup(phenny):
             
             #print the string only if there's something to output
             if titlesChanged:
-                print("{}".format(outputString))
-                #phenny.msg(mainChannel, outputString)
+                #print("{}".format(outputString))
+                phenny.msg(mainChannel, outputString)
             else:
                 print("No new RSS feeds")
                 oldFeed = currentFeed #don't forget to update
