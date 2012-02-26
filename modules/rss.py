@@ -158,7 +158,7 @@ class youtubeWatcher:
         else:
             noun = 'videos'
 
-        outputString = '{} has posted {} new {}: '.format(self.watchTarget, str(len(titlesChanged)), noun
+        outputString = '{} has posted {} new {}: '.format(self.watchTarget, str(len(titlesChanged)), noun)
         
         for eachTitle, eachURL, eachDuration in titlesChanged:
             formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
