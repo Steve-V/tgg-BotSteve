@@ -15,9 +15,14 @@ from decimal import *
 
 class rssWatcher:
     import feedparser
-    def __init__(self, watchTarget):
+    def __init__(self, watchTarget, executeInterval=1):
         # Get the URL that we're going to monitor
         self.target = watchTarget
+        
+        # How often do we want this code to execute?
+        # Will execute every one in INTERVAL times
+        self.interval = executeInterval
+        self.executions = 0
         
         # Parse the feed for the first time, this will be the baseline
         self.feed = feedparser.parse(self.target)
@@ -85,13 +90,25 @@ class rssWatcher:
                 outputString += "....."
         
         return outputString
+    
+    def intervalExecute(self):
+        self.executions += 1
+        if self.executions == self.executeInterval:
+            return getPrettyOutput()
+            self.executions = 0
+
 
 class youtubeWatcher:
     import gdata.youtube, gdata.youtube.service
     
-    def __init__(self, watchTarget):
+    def __init__(self, watchTarget, executeInterval=1):
         # Get the YouTube username that we're going to monitor
         self.target = watchTarget
+        
+        # How often do we want this code to execute?
+        # Will execute every one in INTERVAL times
+        self.interval = executeInterval
+        self.executions = 0
         
         # Pull the list of videos for the first time, this will be the baseline
         self.yService = gdata.youtube.service.YouTubeService()
@@ -156,8 +173,12 @@ class youtubeWatcher:
         
         # Output
         return outputString
-
-
+    
+    def intervalExecute(self):
+        self.executions += 1
+        if self.executions == self.executeInterval:
+            return getPrettyOutput()
+            self.executions = 0
 
 def setup(phenny): 
 
@@ -167,89 +188,22 @@ def setup(phenny):
         #this should be read from a config file
         mainChannel = '#thegeekgroup'
         testChannel = '#tgg-bots'
-        youtubeUserName = 'physicsduck'
-        tggUserName = 'thegeekgroup'
         
+        forum = rssWatcher("http://thegeekgroup.org/forums/feed",2)
+        ytPhysicsduck = youtubeWatcher("physicsduck")
+        ytThegeekgroup = youtubeWatcher("thegeekgroup")
         
         import time
         time.sleep(20)
         
-        while True: 
-
-
-
-                    
-                    #don't display the string - preserved for historical purposes
-                    #phenny.msg(mainChannel, outputString)
-                
-                #update to the new feed
-                oldYoutubeFeed = currentYoutubeFeed
-            
-            #debugging
-            else:
-                #pass
-                print("No new feeds from PhysicsDuck")
-            
-            #=======================
-            
-            #pull thegeekgroup feed again
-            currentYoutubeTggFeed = youtubeTggServe.GetYouTubeVideoFeed(youtubeTggUri)
-            
-            #compare forum feeds
-            youtubeTggURLsOld = []
-            youtubeTggTitlesCurrent = []
-            youtubeTggTitlesChanged = []
-            
-            for items in oldTggYoutubeFeed.entry:
-                youtubeTggURLsOld.append( str( items.GetSwfUrl() ).split("?")[0] )
-            for items in currentYoutubeTggFeed.entry:
-                youtubeTggTitlesCurrent.append( (items.media.title.text, str( items.GetSwfUrl() ).split("?")[0], items.media.duration.seconds  ) )
-            
-            for title,url,duration in youtubeTggTitlesCurrent:
-                if url not in youtubeTggURLsOld:
-                    youtubeTggTitlesChanged.append( [title, url, duration] )
-            
-            #rebuild the output string
-            if youtubeTggTitlesChanged:
-                #if there's something already in the output string from above
-                if outputString:
-                    outputString += " ||| "
-                outputString += 'In the last hour, there have been '
-                outputString += str( len(youtubeTggTitlesChanged) )
-                outputString += " new YouTube videos posted by TheGeekGroup.  New videos: "
-                #print the header
-                #phenny.msg(mainChannel, outputString)
-                
-                #print the videos
-                for eachTitle, eachURL, eachDuration in youtubeTggTitlesChanged:
-                    formattedURL = eachURL.replace("http://www.youtube.com/v/","http://youtu.be/")
-                    unformattedTime = str(float(eachDuration) / 60.0)
-                    decimalTime = Decimal(str(unformattedTime)).quantize(Decimal('1.00'))
-                    formattedTime = "[" + str(decimalTime) + " min]"
-                    print("Formatted Time (TheGeekGroup): {}".format(formattedTime))
-                    outputString += eachTitle
-                    outputString += formattedTime
-                    outputString += " "
-                    outputString += formattedURL
-                    
-                    #don't display the string - preserved for historical purposes
-                    #phenny.msg(mainChannel, outputString)
-                
-                #update to the new feed
-                oldTggYoutubeFeed = currentYoutubeTggFeed
-            
-            #debugging
-            else:
-                #pass
-                print("No new feeds from TheGeekGroup")
-            
-            #display the string, if there's anything to display
-            if outputString:
-                phenny.msg(mainChannel, outputString)
-            
-            #phenny.msg(testChannel, "sleeping...")
-            import time
-            time.sleep(3600)
+        
+        while True:
+            print("Executing feed check...")
+            print( forum.intervalExecute() )
+            print( ytPhysicsduck.intervalExecute() )
+            print( ytThegeekgroup.intervalExecute() )
+            print("Feed check complete!")
+            time.sleep(60)
 
     targs = (phenny,)
     t = threading.Thread(target=monitor, args=targs)
