@@ -314,10 +314,13 @@ give_pie.priority = 'medium'
 
 
 def steveFunction1(phenny,input):
-  if not input.group(1):
-    return phenny.say("no input")
-  else:
-    return phenny.say(input.group(1))
+  from rss import rssWatcher
+  import time
+  forums = rssWatcher("http://thegeekgroup.org/forums/feed")
+  print("Sleeping, post your thread now")
+  time.sleep(60)
+  print(forums.getPrettyOutput())
+  print("End output")
 steveFunction1.commands = ['steveFunction1','steveFunction2']
 steveFunction1.priority = 'low'
 
