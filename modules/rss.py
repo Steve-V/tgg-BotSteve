@@ -10,11 +10,10 @@ Licensed under the MIT License: http://www.opensource.org/licenses/mit-license.p
 """
 
 
-import time, threading
+import time, threading, feedparser, gdata.youtube, gdata.youtube.service
 from decimal import *
 
 class rssWatcher:
-    import feedparser
     def __init__(self, watchTarget, executeInterval=1):
         # Get the URL that we're going to monitor
         self.target = watchTarget
@@ -59,7 +58,7 @@ class rssWatcher:
         titlesChanged = self.changes()
         
         if not titlesChanged:
-            return ""
+            return None
         
         #build the output string
         if len(titlesChanged) == 1:
@@ -93,14 +92,14 @@ class rssWatcher:
     
     def intervalExecute(self):
         self.executions += 1
-        if self.executions == self.executeInterval:
-            return getPrettyOutput()
+        if self.executions == self.interval:
+            return self.getPrettyOutput()
             self.executions = 0
+        else:
+            print("NOPE")
 
 
 class youtubeWatcher:
-    import gdata.youtube, gdata.youtube.service
-    
     def __init__(self, watchTarget, executeInterval=1):
         # Get the YouTube username that we're going to monitor
         self.target = watchTarget
@@ -115,7 +114,7 @@ class youtubeWatcher:
         
         self.yURI = 'http://gdata.youtube.com/feeds/api/users/%s/uploads' % self.target
         
-        self.feed = yService.GetYouTubeVideoFeed(yURI)
+        self.feed = self.yService.GetYouTubeVideoFeed(self.yURI)
         
     
     def changes(self):
@@ -150,7 +149,7 @@ class youtubeWatcher:
         titlesChanged = self.changes()
         
         if not titlesChanged:
-            return ""
+            return None
         
         #build the output string
         if len(titlesChanged) == 1:
@@ -176,8 +175,8 @@ class youtubeWatcher:
     
     def intervalExecute(self):
         self.executions += 1
-        if self.executions == self.executeInterval:
-            return getPrettyOutput()
+        if self.executions == self.interval:
+            return self.getPrettyOutput()
             self.executions = 0
 
 def setup(phenny): 
@@ -189,7 +188,7 @@ def setup(phenny):
         mainChannel = '#thegeekgroup'
         testChannel = '#tgg-bots'
         
-        forum = rssWatcher("http://thegeekgroup.org/forums/feed",2)
+        forum = rssWatcher("http://thegeekgroup.org/forums/feed",60)
         ytPhysicsduck = youtubeWatcher("physicsduck")
         ytThegeekgroup = youtubeWatcher("thegeekgroup")
         
@@ -199,9 +198,19 @@ def setup(phenny):
         
         while True:
             print("Executing feed check...")
-            print( forum.intervalExecute() )
-            print( ytPhysicsduck.intervalExecute() )
-            print( ytThegeekgroup.intervalExecute() )
+            
+            if forum.intervalExecute() is not None:
+                phenny.msg(mainChannel, forum.getPrettyOutput())
+                forum.updateFeed()
+            
+            if ytPhysicsduck.intervalExecute() is not None:
+                phenny.msg(mainChannel, ytPhysicsduck.getPrettyOutput())
+                ytPhysicsduck.updateFeed()
+            
+            if ytThegeekgroup.intervalExecute() is not None:
+                phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput())
+                ytThegeekgroup.updateFeed()
+            
             print("Feed check complete!")
             time.sleep(60)
 
