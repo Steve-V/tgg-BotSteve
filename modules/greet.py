@@ -65,7 +65,7 @@ def join_greeter(phenny, input):
     """
     global storage
     
-    print "%s joined %s" % (input.nick, input.sender)
+    #print "%s joined %s" % (input.nick, input.sender)
     
     nick = str(input.nick)
     ginfo = storage.get(nick.lower())
