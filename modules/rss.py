@@ -96,7 +96,8 @@ class rssWatcher:
             return self.getPrettyOutput()
             self.executions = 0
         else:
-            print("NOPE")
+            #print("NOPE")
+            return None
 
 
 class youtubeWatcher:
@@ -178,6 +179,8 @@ class youtubeWatcher:
         if self.executions == self.interval:
             return self.getPrettyOutput()
             self.executions = 0
+        else:
+            return None
 
 def setup(phenny): 
 
@@ -197,7 +200,7 @@ def setup(phenny):
         
         
         while True:
-            print("Executing feed check...")
+            #print("Executing feed check...")
             
             if forum.intervalExecute() is not None:
                 phenny.msg(mainChannel, forum.getPrettyOutput())
@@ -211,7 +214,7 @@ def setup(phenny):
                 phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput())
                 ytThegeekgroup.updateFeed()
             
-            print("Feed check complete!")
+            #print("Feed check complete!")
             time.sleep(60)
 
     targs = (phenny,)
