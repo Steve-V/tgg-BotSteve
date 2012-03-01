@@ -88,7 +88,7 @@ logFile.example = ['View the history with:  .history']
 logFile.priority = 'medium'
 
 def bugReport(phenny, input):
-  phenny.say( "To report website bugs, email:  helpdesk at thegeekgroup dot org" )
+  phenny.say( "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org" )
 bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
 bugReport.example = ['.tggbug']
 bugReport.priority = 'medium'
