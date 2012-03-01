@@ -200,21 +200,30 @@ def setup(phenny):
         
         
         while True:
-            #print("Executing feed check...")
+            print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
             
             if forum.intervalExecute() is not None:
                 phenny.msg(mainChannel, forum.getPrettyOutput())
                 forum.updateFeed()
+                print("New rss")
+            else:
+                print("No new RSS")
             
             if ytPhysicsduck.intervalExecute() is not None:
                 phenny.msg(mainChannel, ytPhysicsduck.getPrettyOutput())
                 ytPhysicsduck.updateFeed()
+                print("New physicsduck")
+            else:
+                print("No new physicsduck")
             
             if ytThegeekgroup.intervalExecute() is not None:
                 phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput())
                 ytThegeekgroup.updateFeed()
+                print("New TGG")
+            else:
+                print("No new TGG")
             
-            #print("Feed check complete!")
+            print("Feed check complete at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) )
             time.sleep(60)
 
     targs = (phenny,)
