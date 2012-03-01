@@ -109,6 +109,12 @@ def insult_user(phenny, input):
 insult_user.commands = ['insult']
 insult_user.priority = 'medium'
 
+def retort(phenny,input):
+    '''http://www.gigaville.com/comic.php?id=109'''
+    phenny.say("Your mother's a whore.")
+retort.commands = ['retort']
+retort.priority = 'medium'
+
 def give_cookie(phenny, input):
   #if it's the bot getting the cookie, or if the user is cookieing themselves
   #code here
