@@ -358,7 +358,7 @@ steveFunction1.priority = 'low'
 
 def HitorMiss(phenny, input):
   import random
-  HitorMiss Result = random.choice(('HIT!!!!! :D', 'miss :/'))
+  HitorMissResult = random.choice(('HIT!!!!! :D', 'miss :/'))
   phenny.say(HitorMissResult)
 HitorMiss.commands = ['HitorMiss']
 HitorMiss.example = ['.HitorMiss']
