@@ -356,13 +356,13 @@ def steveFunction1(phenny,input):
 steveFunction1.commands = ['steveFunction1','steveFunction2']
 steveFunction1.priority = 'low'
 
-def HitorMiss(phenny, input):
+def hitormiss(phenny, input):
   import random
-  HitorMissResult = random.choice(('HIT!!!!! :D', 'miss :/'))
-  phenny.say(HitorMissResult)
-HitorMiss.commands = ['HitorMiss']
-HitorMiss.example = ['.HitorMiss']
-HitorMiss.priority = 'medium'
+  hitormissResult = random.choice(('HIT!!!!! :D', 'miss :/'))
+  phenny.say(hitormissResult)
+hitormiss.commands = ['hitormiss']
+hitormiss.example = ['.hitormiss']
+hitormiss.priority = 'medium'
 
 if __name__ == '__main__': 
    print __doc__.strip()
