@@ -29,7 +29,8 @@ def minecraft(phenny, input):
     s = socket.socket()
     t = socket.socket()
     u = socket.socket()
-    gamerx = cprossu = packethumper = "UP"
+    v = socket.socket()
+    gamerx = cprossu = packethumper = bitviper = "UP"
     
     # Attempt connections
     try:
@@ -44,11 +45,16 @@ def minecraft(phenny, input):
         u.connect(('minecraft.nerderosity.com',25565))
     except:
         packethumper = "DOWN"
+    try:
+        v.connect(('minecraft.bitviper.org',25565))
+    except:
+        bitviper = "DOWN"
     
     # output
     phenny.reply( "GuardianZozo's minecraft server: gamerxreviews.net:25565. Server Status: {}".format(gamerx) )
     phenny.reply( "Cprossu's minecraft server: 72.222.196.252:25565. Server Status: {}".format(cprossu) )
     phenny.reply( "PacketHumper's minecraft server: minecraft.nerderosity.com:25565. Server Status: {}".format(packethumper) )
+    phenny.reply( "BitViper's minecraft server: minecraft.bitviper.org:25565. Server Status: {}".format(bitviper) )
 minecraft.commands = ['minecraft']
 minecraft.example = ".minecraft"
 minecraft.priority = 'low'
