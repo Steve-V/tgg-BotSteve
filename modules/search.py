@@ -58,7 +58,7 @@ def tvtropes(phenny, input):
   query = input.group(2)
   if not query: 
     return phenny.reply('Sorry, you need to enter a trope')
-  query2 = '+'.join([query,'site:tvtropes.org'])
+  query2 = ' '.join([query,'site:tvtropes.org'])
   uri = result(query2)
   if uri: 
     phenny.reply(uri)
@@ -75,7 +75,7 @@ def jargon(phenny, input):
   query = input.group(2)
   if not query: 
     return phenny.reply('Sorry, you need to enter something to define')
-  query2 = '+'.join([query,'site:catb.org'])
+  query2 = ' '.join([query,'site:catb.org'])
   uri = result(query2)
   if uri: 
     phenny.reply(uri)
@@ -92,7 +92,7 @@ def wikiGoog(query):
   """Queries wikipedia via google for the specified input."""
   if not query: 
     return None
-  query2 = '+'.join([query,'site:en.wikipedia.org'])
+  query2 = ' '.join([query,'site:en.wikipedia.org'])
   uri = result(query2)
   if uri: 
     return uri
@@ -104,7 +104,7 @@ def urbanDictionary(phenny, input):
   query = input.group(2)
   if not query: 
     return phenny.reply('Sorry, you need to enter a search term')
-  query2 = '+'.join([query,'site:urbandictionary.com'])
+  query2 = ' '.join([query,'site:urbandictionary.com'])
   uri = result(query2)
   if uri: 
     phenny.reply(uri)
@@ -121,7 +121,7 @@ def youtubeSearch(phenny, input):
   query = input.group(2)
   if not query: 
     return phenny.reply('Sorry, you need to enter a search term')
-  query2 = '+'.join([query,'site:youtube.com'])
+  query2 = ' '.join([query,'site:youtube.com'])
   uri = result(query2)
   if uri: 
     phenny.reply(uri)
