@@ -44,8 +44,7 @@ def tfw(phenny, input, fahrenheit=False, celsius=False):
     # temperature is everything up to first <br />
     tempt = ""
     for c in main[0].text:
-        if c.isdigit():
-            print(c)
+        if c.isdigit() or c == '-':
             tempt += c
     print("Temp text: {}".format(tempt))
     temp = int(tempt)
