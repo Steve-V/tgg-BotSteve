@@ -99,8 +99,8 @@ def f_time(self, origin, match, args):
     # States or parts of Indiana 
     if time.localtime().tm_isdst:
         TZTGG = {'TGG': -4}
-
-        else TZTGG = {'TGG': -5}
+    else:
+        TZTGG = {'TGG': -5}
     TimeZones.update(TZTGG)
    
     if (TZ == 'UTC') or (TZ == 'Z'): 
@@ -131,10 +131,10 @@ def f_time(self, origin, match, args):
             else: 
                 error = "Sorry, I don't know about the '%s' timezone." % tz
                 self.msg(origin.sender, origin.nick + ': ' + error)
-            else: 
-                timenow = time.gmtime(time.time() + (t * 3600))
-                msg = time.strftime("%a, %d %b %Y %H:%M:%S " + str(tz), timenow)
-                self.msg(origin.sender, msg)
+        else: 
+            timenow = time.gmtime(time.time() + (t * 3600))
+            msg = time.strftime("%a, %d %b %Y %H:%M:%S " + str(tz), timenow)
+            self.msg(origin.sender, msg)
 f_time.commands = ['t']
 f_time.name = 't'
 f_time.example = '.t UTC'
@@ -174,7 +174,7 @@ tock.commands = ['tock']
 tock.priority = 'high'
 
 def npl(phenny, input): 
-   """Shows the time from NPL's SNTP server."""
+    """Shows the time from NPL's SNTP server."""
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client.sendto('\x1b' + 47 * '\0', ('ntp1.npl.co.uk', 123))
     data, address = client.recvfrom(1024)
