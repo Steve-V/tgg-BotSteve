@@ -184,8 +184,7 @@ TZ2 = {
 
 TZ3 = {
    'AEST': 10, 
-   'AEDT': 11,
-   'TGG': -4
+   'AEDT': 11
 }
 
 # TimeZones.update(TZ2) # do these have to be negated?
@@ -198,7 +197,7 @@ r_local = re.compile(r'\([a-z]+_[A-Z]+\)')
 def f_time(self, origin, match, args): 
    """Returns the current time."""
    tz = match.group(2) or 'GMT'
-
+   
    # Personal time zones, because they're rad
    #NICKTRACKER: Use the configured timezone.
    if hasattr(self.config, 'timezones'): 
@@ -212,7 +211,13 @@ def f_time(self, origin, match, args):
 
    TZ = tz.upper()
    if len(tz) > 30: return
-
+   
+   # Handle the special case of TGG daylight savings time
+   # This may not work correctly if the bot is ever hosted outside of the United
+   # States or parts of Indiana 
+   TZTGG = {'TGG': -4} if time.localtime().tm_isdst else TZTGG = {'TGG': -5}
+   TimeZones.update(TZTGG)
+   
    if (TZ == 'UTC') or (TZ == 'Z'): 
       msg = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
       self.msg(origin.sender, msg)
