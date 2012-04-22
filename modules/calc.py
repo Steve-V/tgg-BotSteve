@@ -86,6 +86,8 @@ def c(phenny, input):
     answer = answer.replace(u'\xc2\xa0', ',')
     answer = answer.replace('<sup>', '^(')
     answer = answer.replace('</sup>', ')')
+    answer = answer.replace('<sub>', '(')
+    answer = answer.replace('</sub>', ')')
     answer = web.decode(answer)
     phenny.say(answer)
   else: phenny.say('Sorry, no result.')
