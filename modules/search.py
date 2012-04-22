@@ -66,7 +66,7 @@ def tvtropes(phenny, input):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
   else: phenny.reply("No results found for '%s'." % query)
-tvtropes.commands = ['trope','tvtropes']
+tvtropes.commands = ['trope','tvtropes', 'tropes']
 tvtropes.priority = 'high'
 tvtropes.example = '.trope CrowningMomentOfAwesome'
 
