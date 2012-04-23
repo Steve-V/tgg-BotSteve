@@ -87,6 +87,22 @@ jargon.commands = ['jargon','catb']
 jargon.priority = 'high'
 jargon.example = '.jargon Story of Mel'
 
+def imdb(phenny, input):
+  """Queries imdb for the specified input."""
+  query = input.group(2)
+  if not query: 
+    return phenny.reply('Sorry, you need to enter a film')
+  query2 = ' '.join([query,'site:imdb.com'])
+  uri = result(query2)
+  if uri: 
+    phenny.reply(uri)
+    if not hasattr(phenny.bot, 'last_seen_uri'):
+      phenny.bot.last_seen_uri = {}
+    phenny.bot.last_seen_uri[input.sender] = uri
+  else: phenny.reply("No results found for '%s'." % query)
+imdb.commands = ['film', 'imdb']
+imdb.priority = 'high'
+imdb.example = '.imdb Saving Private Ryan'
 
 def wikiGoog(query):
   """Queries wikipedia via google for the specified input."""
