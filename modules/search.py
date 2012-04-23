@@ -124,9 +124,12 @@ def youtubeSearch(phenny, input):
   query2 = ' '.join([query,'site:youtube.com'])
   uri = result(query2)
   if uri:
-    from head import gettitle
-    output = gettitle(uri) + ": " + uri
-    phenny.reply(output)
+    try:
+      from head import gettitle
+      output = gettitle(uri) + ": " + uri
+      phenny.reply(output)
+    except:
+      phenny.reply(uri)
     if not hasattr(phenny.bot, 'last_seen_uri'):
       phenny.bot.last_seen_uri = {}
     phenny.bot.last_seen_uri[input.sender] = uri
