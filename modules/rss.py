@@ -14,14 +14,9 @@ import time, threading, feedparser, gdata.youtube, gdata.youtube.service
 from decimal import *
 
 class rssWatcher:
-    def __init__(self, watchTarget, executeInterval=1):
+    def __init__(self, watchTarget):
         # Get the URL that we're going to monitor
         self.target = watchTarget
-        
-        # How often do we want this code to execute?
-        # Will execute every one in INTERVAL times
-        self.interval = executeInterval
-        self.executions = 0
         
         # Parse the feed for the first time, this will be the baseline
         self.feed = feedparser.parse(self.target)
@@ -47,7 +42,10 @@ class rssWatcher:
                 changed.append(title)
         
         # Return them
-        return changed
+        if changed:
+            return changed
+        else:
+            return False
     
     def updateFeed(self):
         self.feed = feedparser.parse(self.target)
@@ -56,9 +54,6 @@ class rssWatcher:
         
         # See if anything has changed
         titlesChanged = self.changes()
-        
-        if not titlesChanged:
-            return None
         
         #build the output string
         if len(titlesChanged) == 1:
@@ -89,26 +84,12 @@ class rssWatcher:
                 outputString += "....."
         
         return outputString
-    
-    def intervalExecute(self):
-        self.executions += 1
-        if self.executions == self.interval:
-            return self.getPrettyOutput()
-            self.executions = 0
-        else:
-            #print("NOPE")
-            return None
 
 
 class youtubeWatcher:
-    def __init__(self, watchTarget, executeInterval=1):
+    def __init__(self, watchTarget):
         # Get the YouTube username that we're going to monitor
         self.target = watchTarget
-        
-        # How often do we want this code to execute?
-        # Will execute every one in INTERVAL times
-        self.interval = executeInterval
-        self.executions = 0
         
         # Pull the list of videos for the first time, this will be the baseline
         self.yService = gdata.youtube.service.YouTubeService()
@@ -139,7 +120,10 @@ class youtubeWatcher:
                 changed.append( [title, url, duration] )
         
         # Return it
-        return changed
+        if changed:
+            return changed
+        else:
+            return False
     
     def updateFeed(self):
         self.feed = self.yService.GetYouTubeVideoFeed(self.yURI)
@@ -148,9 +132,6 @@ class youtubeWatcher:
         
         # See if anything has changed
         titlesChanged = self.changes()
-        
-        if not titlesChanged:
-            return None
         
         #build the output string
         if len(titlesChanged) == 1:
@@ -173,14 +154,6 @@ class youtubeWatcher:
         
         # Output
         return outputString
-    
-    def intervalExecute(self):
-        self.executions += 1
-        if self.executions == self.interval:
-            return self.getPrettyOutput()
-            self.executions = 0
-        else:
-            return None
 
 def setup(phenny): 
 
@@ -191,7 +164,7 @@ def setup(phenny):
         mainChannel = '#thegeekgroup'
         testChannel = '#tgg-bots'
         
-        forum = rssWatcher("http://thegeekgroup.org/forums/feed",60)
+        forum = rssWatcher("http://thegeekgroup.org/forums/feed")
         ytPhysicsduck = youtubeWatcher("physicsduck")
         ytThegeekgroup = youtubeWatcher("thegeekgroup")
         
@@ -202,26 +175,20 @@ def setup(phenny):
         while True:
             print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
             
-            if forum.intervalExecute() is not None:
-                phenny.msg(mainChannel, forum.getPrettyOutput())
+            if forum.changes():
+                print( forum.getPrettyOutput() )
+                phenny.msg(testChannel, forum.getPrettyOutput())
                 forum.updateFeed()
-                print("New rss")
-            else:
-                print("No new RSS")
             
-            if ytPhysicsduck.intervalExecute() is not None:
-                phenny.msg(mainChannel, ytPhysicsduck.getPrettyOutput())
+            if ytPhysicsduck.changes():
+                print( ytPhysicsduck.getPrettyOutput() )
+                phenny.msg(testChannel, ytPhysicsduck.getPrettyOutput() )
                 ytPhysicsduck.updateFeed()
-                print("New physicsduck")
-            else:
-                print("No new physicsduck")
             
-            if ytThegeekgroup.intervalExecute() is not None:
-                phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput())
+            if ytThegeekgroup.changes(): 
+                print( ytThegeekgroup.getPrettyOutput() )
+                phenny.msg(testChannel, ytThegeekgroup.getPrettyOutput() )
                 ytThegeekgroup.updateFeed()
-                print("New TGG")
-            else:
-                print("No new TGG")
             
             print("Feed check complete at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) )
             time.sleep(60)
