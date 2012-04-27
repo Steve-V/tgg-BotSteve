@@ -60,24 +60,6 @@ minecraft.example = ".minecraft"
 minecraft.priority = 'low'
 minecraft.thread = True
 
-def tellPlaceholder(phenny, input):
-  phenny.say("Sorry, .tell is not yet implemented.  Use BotSteve: tell ")
-tellPlaceholder.commands = ['tell']
-tellPlaceholder.example = ['Not yet implemented']
-tellPlaceholder.priority = 'low'
-
-def liveStream(phenny, input):
-  phenny.say("The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ")
-liveStream.commands = ['stream']
-liveStream.example = ['.stream']
-liveStream.priority = 'medium'
-
-def BotStevesCode(phenny, input):
-  phenny.say("You can download my code at https://github.com/Steve-V/tgg-BotSteve ")
-BotStevesCode.commands = ['code']
-BotStevesCode.example = ['.code']
-BotStevesCode.priority = 'medium'
-
 def bored(phenny, input):
   import bored
   phenny.say( "Maybe you should..." + str(random.choice( bored.boredThings ) ) )
@@ -92,18 +74,6 @@ def coinFlip(phenny, input):
 coinFlip.commands = ['coin']
 coinFlip.example = ['.coin']
 coinFlip.priority = 'medium'
-
-def logFile(phenny, input):
-  phenny.say("Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today")
-logFile.commands = ['history','log']
-logFile.example = ['View the history with:  .history']
-logFile.priority = 'medium'
-
-def bugReport(phenny, input):
-  phenny.say( "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org" )
-bugReport.commands = ['tggbug','bug','websiteproblem','errorreport','error']
-bugReport.example = ['.tggbug']
-bugReport.priority = 'medium'
 
 def insult_user(phenny, input):
   db_conn = sqlite3.connect("tgg.db")
@@ -120,12 +90,6 @@ def insult_user(phenny, input):
     phenny.say("Hey, " + str(nick) + ", " + str(insult) )
 insult_user.commands = ['insult']
 insult_user.priority = 'medium'
-
-def retort(phenny,input):
-    '''http://www.gigaville.com/comic.php?id=109'''
-    phenny.say("Your mother's a whore.")
-retort.commands = ['retort']
-retort.priority = 'medium'
 
 def give_cookie(phenny, input):
   #if it's the bot getting the cookie, or if the user is cookieing themselves
