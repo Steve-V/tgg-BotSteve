@@ -177,17 +177,17 @@ def setup(phenny):
             
             if forum.changes():
                 print( forum.getPrettyOutput() )
-                phenny.msg(testChannel, forum.getPrettyOutput())
+                phenny.msg(mainChannel, forum.getPrettyOutput())
                 forum.updateFeed()
             
             if ytPhysicsduck.changes():
                 print( ytPhysicsduck.getPrettyOutput() )
-                phenny.msg(testChannel, ytPhysicsduck.getPrettyOutput() )
+                phenny.msg(mainChannel, ytPhysicsduck.getPrettyOutput() )
                 ytPhysicsduck.updateFeed()
             
             if ytThegeekgroup.changes(): 
                 print( ytThegeekgroup.getPrettyOutput() )
-                phenny.msg(testChannel, ytThegeekgroup.getPrettyOutput() )
+                phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput() )
                 ytThegeekgroup.updateFeed()
             
             print("Feed check complete at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) )
