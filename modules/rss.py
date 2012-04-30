@@ -61,7 +61,7 @@ class rssWatcher:
         else:
             noun = 'posts'
             
-        outputString = '{} new forum {} ( http://goo.gl/t0vze ):'.format( str(len(titlesChanged)),noun )
+        outputString = '{} new forum {} ( http://goo.gl/t0vze ): '.format( str(len(titlesChanged)),noun )
         
         for eachPost in titlesChanged:
             
