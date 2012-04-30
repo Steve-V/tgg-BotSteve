@@ -173,7 +173,7 @@ def setup(phenny):
         
         
         while True:
-            print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
+            #print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
             
             if forum.changes():
                 print( forum.getPrettyOutput() )
@@ -190,7 +190,7 @@ def setup(phenny):
                 phenny.msg(mainChannel, ytThegeekgroup.getPrettyOutput() )
                 ytThegeekgroup.updateFeed()
             
-            print("Feed check complete at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) )
+            #print("Feed check complete at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) )
             time.sleep(60)
 
     targs = (phenny,)
