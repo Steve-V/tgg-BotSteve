@@ -83,7 +83,7 @@ class rssWatcher:
                 newPost = eachPost
 
             # Tack it on to the end of the output
-            outputString += "{} [{}]".format(newPost, eachLink)
+            outputString += "{} [ {} ]".format(newPost, eachLink)
             
             # If this is not the final post
             if not finalPost:
