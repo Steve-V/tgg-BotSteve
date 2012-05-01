@@ -39,8 +39,13 @@ class rssWatcher:
         # Extract the changed items and bitly the links
         for title,time,link in current:
             if time not in old:
-                import bitly
-                changed.append(title, link)
+                import bitly_api
+                import shelve
+                bitly_data = shelve.open('bitly.data')
+                bitly = bitly_api.Connection(bitly_data['name'], bitly_data['api_key'])
+                bitly_data.close()
+                short = bitly.shorten(link)
+                changed.append( (title, short['url']) )
         
         # Return them
         if changed:
@@ -78,7 +83,7 @@ class rssWatcher:
                 newPost = eachPost
 
             # Tack it on to the end of the output
-            outputString += newPost
+            outputString += "{} [{}]".format(newPost, eachLink)
             
             # If this is not the final post
             if not finalPost:
@@ -172,14 +177,19 @@ def setup(phenny):
         import time
         time.sleep(20)
         
+        increment = 0
         
         while True:
-            #print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
             
-            if forum.changes():
-                print( forum.getPrettyOutput() )
-                phenny.msg(mainChannel, forum.getPrettyOutput())
-                forum.updateFeed()
+            increment += 1
+            
+            #print("Executing feed check at: {}".format(time.strftime('%d %b %H:%MZ', time.gmtime() ) ) ) 
+            if increment > 20:
+                if forum.changes():
+                    print( forum.getPrettyOutput() )
+                    phenny.msg(mainChannel, forum.getPrettyOutput())
+                    forum.updateFeed()
+                    increment = 0
             
             if ytPhysicsduck.changes():
                 print( ytPhysicsduck.getPrettyOutput() )
