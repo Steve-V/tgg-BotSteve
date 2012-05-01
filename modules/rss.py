@@ -34,12 +34,13 @@ class rssWatcher:
         for items in self.feed.entries:
             old.append(items.updated)
         for items in newFeed.entries:
-            current.append( (items.title,items.updated) )
+            current.append( (items.title,items.updated, items.link) )
         
-        # Extract the changed items
-        for title,time in current:
+        # Extract the changed items and bitly the links
+        for title,time,link in current:
             if time not in old:
-                changed.append(title)
+                import bitly
+                changed.append(title, link)
         
         # Return them
         if changed:
@@ -61,9 +62,9 @@ class rssWatcher:
         else:
             noun = 'posts'
             
-        outputString = '{} new forum {} ( http://goo.gl/t0vze ): '.format( str(len(titlesChanged)),noun )
+        outputString = '{} new forum {}: '.format( str(len(titlesChanged)),noun )
         
-        for eachPost in titlesChanged:
+        for eachPost, eachLink in titlesChanged:
             
             # First, figure out if this is the final post
             finalPost = False
