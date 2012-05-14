@@ -38,8 +38,11 @@ def f_seen(phenny, input):
     
     lnick = nick.lower()
     if lnick in storage:
-        storage['nick:'+lnick] = storage[lnick]
-        del storage[lnick]
+        try:
+            storage['nick:'+lnick] = storage[lnick]
+            del storage[lnick]
+        except KeyError:
+            return
     
     #when you make a string into a set, it gets broken into individual characters, so let's do it in two steps
     nicks = set()
