@@ -76,12 +76,14 @@ tfw.rule = (['tfwMEV'], r'(.*)')
 
 def tfwf(phenny, input):
     """.tfw <city/zip> - The fucking weather, in fucking degrees Fahrenheit."""
-    return tfw(phenny, input, fahrenheit=True)
+    #return tfw(phenny, input, fahrenheit=True)
+    phenny.reply("THE TFW MODULE IS FUCKING BROKEN")
 tfwf.rule = (['tfw'], r'(.*)')
 
 def tfwc(phenny, input):
     """.tfwc <city/zip> - The fucking weather, in fucking degrees celsius."""
-    return tfw(phenny, input, celsius=True)
+    #return tfw(phenny, input, celsius=True)
+    phenny.reply("THE TFWC MODULE IS FUCKING BROKEN")
 tfwc.rule = (['tfwc'], r'(.*)')
 
 if __name__ == '__main__':
