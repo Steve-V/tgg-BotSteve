@@ -20,7 +20,7 @@ def bark(phenny, input):
         "tell" : "Sorry, .tell is not yet implemented.  Use BotSteve: tell",
         "stream" : "The Geek Group Live Web Stream can be found at: http://justin.tv/thegeekgroup ",
         "code" : "You can download my code at https://github.com/Steve-V/tgg-BotSteve ",
-        "history" : "Channel history can be found at: http://irclog.perlgeek.de/thegeekgroup/today",
+        "history" : "Channel history can be found at: http://irclog.perlgeek.de/#thegeekgroup/today",
         "log" : "Channel history can be found at: http://irclog.perlgeek.de/#thegeekgroup/today",
         "tggbug" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
         "bug" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
