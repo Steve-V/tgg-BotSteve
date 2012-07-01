@@ -22,11 +22,11 @@ def bark(phenny, input):
         "code" : "You can download my code at https://github.com/Steve-V/tgg-BotSteve ",
         "history" : "Channel history can be found at: http://irclog.perlgeek.de/#thegeekgroup/today",
         "log" : "Channel history can be found at: http://irclog.perlgeek.de/#thegeekgroup/today",
-        "tggbug" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
-        "bug" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
-        "websiteproblem" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
-        "errorreport" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
-        "error" : "Problems with the bot?  Tell BatSteve.  To report website bugs, email:  helpdesk at thegeekgroup dot org",
+        "tggbug" : "Problems with the bot?  Tell BatSteve.",
+        "bug" : "Problems with the bot?  Tell BatSteve.",
+        "websiteproblem" : "Problems with the bot?  Tell BatSteve.",
+        "errorreport" : "Problems with the bot?  Tell BatSteve.",
+        "error" : "Problems with the bot?  Tell BatSteve.",
         "retort" : "Your mother's a whore."
     }
     
