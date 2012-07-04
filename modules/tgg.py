@@ -349,5 +349,15 @@ def give_cake(phenny, input):
 give_cake.commands = ['cake']
 give_cake.priority = 'medium'
 
+def lmgTest(phenny,input):
+    '''Let Me Google That For You'''
+    import web
+    query = input.group(2)
+    encoded = web.urllib.quote(input.group(2).encode('utf-8'))
+    output = 'http://lmgtfy.com/?q=' + encoded
+    phenny.reply(output)
+lmgTest.commands = ['lmg','lmgtfy']
+lmgTest.priority = 'medium'
+
 if __name__ == '__main__': 
    print __doc__.strip()
