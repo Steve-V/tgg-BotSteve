@@ -24,7 +24,7 @@ fortune.example = ".quote"
 fortune.priority = 'low'
 
 def minecraft(phenny, input):
-    
+    if input.sender.startswith('#'): return phenny.reply("This command only available in private message.")
     # Set up
     s = socket.socket()
     t = socket.socket()
